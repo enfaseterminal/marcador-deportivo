@@ -363,6 +363,24 @@
             font-weight: bold;
         }
 
+        /* Notificación de set ganado */
+        .set-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--warning-color);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            display: none;
+            z-index: 1001;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
         @media (max-width: 768px) {
             .scoreboard {
                 flex-direction: column;
@@ -481,6 +499,11 @@
         </div>
     </div>
 
+    <!-- Notificación de set ganado -->
+    <div class="set-notification" id="set-notification">
+        <i class="fas fa-trophy"></i> <span id="set-notification-text"></span>
+    </div>
+
     <!-- Indicador de guardado -->
     <div class="save-indicator" id="save-indicator">
         <i class="fas fa-check-circle"></i> Datos guardados
@@ -538,6 +561,8 @@
         const celebrationMessage = document.getElementById('celebration-message');
         const closeCelebrationBtn = document.getElementById('close-celebration');
 
+        const setNotification = document.getElementById('set-notification');
+        const setNotificationText = document.getElementById('set-notification-text');
         const saveIndicator = document.getElementById('save-indicator');
 
         // Inicialización
@@ -597,42 +622,69 @@
             const t1Score = currentMatch.team1.score;
             const t2Score = currentMatch.team2.score;
             
-            // Un set se gana con al menos 25 puntos y con 2 puntos de diferencia
-            if ((t1Score >= 25 || t2Score >= 25) && Math.abs(t1Score - t2Score) >= 2) {
+            // Puntos necesarios para ganar el set
+            // Los primeros 4 sets son a 25 puntos, el 5to set es a 15 puntos
+            const pointsToWin = currentMatch.currentSet === 5 ? 15 : 25;
+            
+            // Un set se gana con la cantidad de puntos requerida y con 2 puntos de diferencia
+            if ((t1Score >= pointsToWin || t2Score >= pointsToWin) && Math.abs(t1Score - t2Score) >= 2) {
+                let winnerTeam, loserTeam, winnerKey, loserKey;
+                
                 if (t1Score > t2Score) {
-                    currentMatch.team1.sets++;
-                    // Verificar si es el equipo local (puedes personalizar esto)
-                    if (currentMatch.team1.name === "Mi Equipo" || currentMatch.team1.name.includes("Local")) {
-                        showCelebration(currentMatch.team1.name, "set");
-                    }
+                    winnerTeam = currentMatch.team1.name;
+                    loserTeam = currentMatch.team2.name;
+                    winnerKey = 'team1';
+                    loserKey = 'team2';
                 } else {
-                    currentMatch.team2.sets++;
-                    if (currentMatch.team2.name === "Mi Equipo" || currentMatch.team2.name.includes("Local")) {
-                        showCelebration(currentMatch.team2.name, "set");
-                    }
+                    winnerTeam = currentMatch.team2.name;
+                    loserTeam = currentMatch.team1.name;
+                    winnerKey = 'team2';
+                    loserKey = 'team1';
                 }
                 
-                // Comprobar si se ha ganado el partido
-                checkMatchWon();
+                // Incrementar el contador de sets del equipo ganador
+                currentMatch[winnerKey].sets++;
                 
-                // Auto-guardar cuando se gana un set
-                setTimeout(() => {
-                    saveCurrentMatch();
-                    showSaveIndicator("Set guardado automáticamente");
-                }, 1000);
+                // Mostrar notificación de set ganado
+                showSetNotification(`${winnerTeam} gana el set ${currentMatch.currentSet} (${t1Score}-${t2Score})`);
+                
+                // Verificar si el partido ha terminado
+                const setsToWin = Math.ceil(currentMatch.maxSets / 2);
+                
+                if (currentMatch[winnerKey].sets >= setsToWin) {
+                    // El partido ha terminado
+                    currentMatch.isMatchFinished = true;
+                    showCelebration(winnerTeam, "partido");
+                    
+                    // Auto-guardar el partido completo
+                    setTimeout(() => {
+                        saveCurrentMatch();
+                    }, 1500);
+                } else {
+                    // Preparar para el siguiente set
+                    setTimeout(() => {
+                        // Reiniciar el puntaje para el siguiente set
+                        currentMatch.team1.score = 0;
+                        currentMatch.team2.score = 0;
+                        
+                        // Incrementar el número de set actual
+                        currentMatch.currentSet++;
+                        
+                        renderCurrentMatch();
+                        saveToCookies();
+                        showSaveIndicator("Nuevo set iniciado automáticamente");
+                    }, 2000);
+                }
             }
         }
 
-        function checkMatchWon() {
-            const setsToWin = Math.ceil(currentMatch.maxSets / 2);
+        function showSetNotification(message) {
+            setNotificationText.textContent = message;
+            setNotification.style.display = 'block';
             
-            if (currentMatch.team1.sets >= setsToWin) {
-                currentMatch.isMatchFinished = true;
-                showCelebration(currentMatch.team1.name, "partido");
-            } else if (currentMatch.team2.sets >= setsToWin) {
-                currentMatch.isMatchFinished = true;
-                showCelebration(currentMatch.team2.name, "partido");
-            }
+            setTimeout(() => {
+                setNotification.style.display = 'none';
+            }, 3000);
         }
 
         function startNewSet() {
@@ -642,35 +694,28 @@
                 return;
             }
             
-            // Determinar qué equipo ganó el set actual si hay puntos
-            if (currentMatch.team1.score > 0 || currentMatch.team2.score > 0) {
-                if (currentMatch.team1.score > currentMatch.team2.score) {
-                    currentMatch.team1.sets++;
-                } else if (currentMatch.team2.score > currentMatch.team1.score) {
-                    currentMatch.team2.sets++;
-                }
-            }
-            
-            // Verificar si algún equipo ha ganado el partido
-            const setsToWin = Math.ceil(currentMatch.maxSets / 2);
-            if (currentMatch.team1.sets >= setsToWin || currentMatch.team2.sets >= setsToWin) {
-                currentMatch.isMatchFinished = true;
-                const winner = currentMatch.team1.sets > currentMatch.team2.sets ? currentMatch.team1.name : currentMatch.team2.name;
-                showCelebration(winner, "partido");
-                saveCurrentMatch();
-            } else {
-                // Preparar para el siguiente set
-                currentMatch.currentSet++;
+            // Preguntar si se desea forzar un nuevo set
+            if (confirm("¿Estás seguro de que quieres comenzar un nuevo set? El set actual se perderá y no se contabilizará.")) {
+                // Reiniciar los puntos
                 currentMatch.team1.score = 0;
                 currentMatch.team2.score = 0;
+                
+                // Incrementar el número de set actual
+                currentMatch.currentSet++;
+                
+                // Si el set actual supera el máximo de sets, volver al set 1 (no debería pasar, pero por si acaso)
+                if (currentMatch.currentSet > currentMatch.maxSets) {
+                    currentMatch.currentSet = 1;
+                }
+                
                 renderCurrentMatch();
                 saveToCookies();
-                showSaveIndicator("Nuevo set iniciado");
+                showSaveIndicator("Nuevo set iniciado manualmente");
             }
         }
 
         function resetCurrentMatch() {
-            if (confirm("¿Estás seguro de que quieres reiniciar el partido actual?")) {
+            if (confirm("¿Estás seguro de que quieres reiniciar el partido actual? Se perderán todos los puntos y sets.")) {
                 currentMatch.team1.score = 0;
                 currentMatch.team2.score = 0;
                 currentMatch.team1.sets = 0;
