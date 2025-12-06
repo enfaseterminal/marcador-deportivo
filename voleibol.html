@@ -474,17 +474,14 @@
         </div>
 
         <div class="export-controls">
-            <button class="btn btn-info" id="export-json">
-                <i class="fas fa-file-code"></i> Exportar a JSON
-            </button>
             <button class="btn btn-info" id="export-csv">
                 <i class="fas fa-file-csv"></i> Exportar a CSV
             </button>
             <button class="btn btn-success" id="share-whatsapp">
-                <i class="fab fa-whatsapp"></i> Compartir por WhatsApp
+                <i class="fab fa-whatsapp"></i> Compartir
             </button>
             <button class="btn btn-primary" id="share-results">
-                <i class="fas fa-share-alt"></i> Compartir Resultados
+                <i class="fas fa-share-alt"></i> Compartir Texto
             </button>
         </div>
 
@@ -554,12 +551,12 @@
             currentSet: 1,
             maxSets: 5,
             startTime: new Date(),
-            // Para almacenar los puntos de cada set
             setHistory: []
         };
 
         let matchHistory = [];
         let editingTeam = null;
+        let setWonInProgress = false; // Para evitar múltiples alertas
 
         // Elementos DOM
         const team1NameEl = document.getElementById('team1-name');
@@ -578,7 +575,6 @@
         const resetMatchBtn = document.getElementById('reset-match');
         const saveMatchBtn = document.getElementById('save-match');
         const clearHistoryBtn = document.getElementById('clear-history');
-        const exportJsonBtn = document.getElementById('export-json');
         const exportCsvBtn = document.getElementById('export-csv');
         const shareWhatsappBtn = document.getElementById('share-whatsapp');
         const shareResultsBtn = document.getElementById('share-results');
@@ -635,6 +631,12 @@
                     winner: currentMatch.team1.name
                 });
                 
+                // Mostrar alerta de set ganado
+                setTimeout(() => {
+                    alert(`${currentMatch.team1.name} gana el set ${currentMatch.currentSet} por ${score1}-${score2}`);
+                }, 100);
+                
+                // Verificar si se ganó el partido
                 checkMatchWin();
                 return true;
             }
@@ -651,6 +653,12 @@
                     winner: currentMatch.team2.name
                 });
                 
+                // Mostrar alerta de set ganado
+                setTimeout(() => {
+                    alert(`${currentMatch.team2.name} gana el set ${currentMatch.currentSet} por ${score2}-${score1}`);
+                }, 100);
+                
+                // Verificar si se ganó el partido
                 checkMatchWin();
                 return true;
             }
@@ -665,19 +673,16 @@
             if (currentMatch.team1.sets >= setsToWin || currentMatch.team2.sets >= setsToWin) {
                 // Determinar ganador
                 let winner;
-                let winnerTeam;
                 
                 if (currentMatch.team1.sets > currentMatch.team2.sets) {
                     winner = currentMatch.team1.name;
-                    winnerTeam = 'team1';
                 } else {
                     winner = currentMatch.team2.name;
-                    winnerTeam = 'team2';
                 }
                 
-                // Mostrar mensaje de victoria
+                // Mostrar mensaje de victoria después de un pequeño delay
                 setTimeout(() => {
-                    alert(`¡${winner} ha ganado el partido! \n\nResultado final: ${currentMatch.team1.sets} - ${currentMatch.team2.sets}`);
+                    alert(`¡${winner} ha ganado el partido! \n\nResultado final: ${currentMatch.team1.sets} - ${currentMatch.team2.sets}\n\nSe guardará automáticamente en el historial.`);
                     
                     // Guardar el partido automáticamente
                     saveCurrentMatch();
@@ -691,7 +696,7 @@
                 // Pasar al siguiente set
                 setTimeout(() => {
                     startNewSet();
-                }, 1000);
+                }, 800);
                 return false;
             }
         }
@@ -718,13 +723,21 @@
             team2NameEl.addEventListener('click', () => openTeamNameModal('team2'));
             
             // Event listeners para los controles del partido
-            newSetBtn.addEventListener('click', startNewSet);
+            newSetBtn.addEventListener('click', () => {
+                if (currentMatch.team1.score > 0 || currentMatch.team2.score > 0) {
+                    if (confirm("Hay puntos en juego. ¿Forzar fin del set actual y comenzar nuevo set?")) {
+                        startNewSet();
+                    }
+                } else {
+                    startNewSet();
+                }
+            });
+            
             resetMatchBtn.addEventListener('click', resetCurrentMatch);
             saveMatchBtn.addEventListener('click', saveCurrentMatch);
             clearHistoryBtn.addEventListener('click', clearMatchHistory);
             
             // Event listeners para exportación y compartir
-            exportJsonBtn.addEventListener('click', exportToJson);
             exportCsvBtn.addEventListener('click', exportToCsv);
             shareWhatsappBtn.addEventListener('click', shareToWhatsapp);
             shareResultsBtn.addEventListener('click', openShareModal);
@@ -741,6 +754,9 @@
 
         // Funciones principales
         function updateScore(team, change) {
+            // Si ya se está procesando un set ganado, no hacer nada
+            if (setWonInProgress) return;
+            
             // Aplicar el cambio
             currentMatch[team].score += change;
             
@@ -756,42 +772,32 @@
             if (!setWon) {
                 renderCurrentMatch();
                 saveToCookies();
+            } else {
+                // Marcar que se está procesando un set ganado
+                setWonInProgress = true;
+                
+                // Actualizar la pantalla
+                renderCurrentMatch();
+                saveToCookies();
+                
+                // Restablecer después de un breve tiempo
+                setTimeout(() => {
+                    setWonInProgress = false;
+                }, 1000);
             }
         }
 
         function startNewSet() {
-            // Solo permitir nuevo set si el actual no está en juego o si se forcea
-            if (currentMatch.team1.score > 0 || currentMatch.team2.score > 0) {
-                if (!confirm("Hay puntos en juego. ¿Forzar fin del set actual y comenzar nuevo set?")) {
-                    return;
-                }
-                
-                // Determinar ganador del set actual por puntaje
-                if (currentMatch.team1.score > currentMatch.team2.score) {
-                    currentMatch.team1.sets++;
-                } else if (currentMatch.team2.score > currentMatch.team1.score) {
-                    currentMatch.team2.sets++;
-                } else {
-                    // Empate, no se asigna set
-                    alert("El set está empatado. No se puede asignar a ningún equipo.");
-                    return;
-                }
-                
-                // Verificar si con este set se ganó el partido
-                if (!checkMatchWin()) {
-                    // Si no se ganó el partido, continuar al siguiente set
-                    currentMatch.currentSet++;
-                    currentMatch.team1.score = 0;
-                    currentMatch.team2.score = 0;
-                    renderCurrentMatch();
-                    saveToCookies();
-                }
-            } else {
-                // Si no hay puntos, simplemente incrementar el set
-                currentMatch.currentSet++;
-                renderCurrentMatch();
-                saveToCookies();
-            }
+            // Incrementar el set actual
+            currentMatch.currentSet++;
+            
+            // Reiniciar los marcadores de puntos
+            currentMatch.team1.score = 0;
+            currentMatch.team2.score = 0;
+            
+            // Renderizar
+            renderCurrentMatch();
+            saveToCookies();
         }
 
         function resetCurrentMatch() {
@@ -828,9 +834,9 @@
             
             matchHistory.unshift(matchData);
             
-            // Mantener solo los últimos 20 partidos
-            if (matchHistory.length > 20) {
-                matchHistory = matchHistory.slice(0, 20);
+            // Mantener solo los últimos 10 partidos para no sobrecargar las cookies
+            if (matchHistory.length > 10) {
+                matchHistory = matchHistory.slice(0, 10);
             }
             
             renderMatchHistory();
@@ -935,28 +941,6 @@
         }
 
         // Funciones de exportación
-        function exportToJson() {
-            const data = {
-                currentMatch: currentMatch,
-                matchHistory: matchHistory,
-                exportDate: new Date().toISOString()
-            };
-            
-            const jsonData = JSON.stringify(data, null, 2);
-            const blob = new Blob([jsonData], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `marcador_voleibol_${new Date().toISOString().slice(0, 10)}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            alert("Datos exportados a JSON correctamente.");
-        }
-
         function exportToCsv() {
             if (matchHistory.length === 0) {
                 alert("No hay datos para exportar. Guarda algunos partidos primero.");
@@ -964,7 +948,7 @@
             }
             
             // Encabezados CSV
-            let csv = "Fecha,Hora,Equipo 1,Puntos Equipo 1,Sets Equipo 1,Equipo 2,Puntos Equipo 2,Sets Equipo 2,Ganador,Duración (min),Detalle Sets\n";
+            let csv = "Fecha,Hora,Equipo 1,Sets Equipo 1,Equipo 2,Sets Equipo 2,Ganador,Duración (min)\n";
             
             // Datos de cada partido
             matchHistory.forEach(match => {
@@ -974,13 +958,7 @@
                 const ganador = match.team1.sets > match.team2.sets ? match.team1.name : match.team2.name;
                 const duracion = match.duration || 0;
                 
-                // Detalle de sets
-                let detalleSets = "";
-                if (match.setHistory && match.setHistory.length > 0) {
-                    detalleSets = match.setHistory.map(s => `Set ${s.set}: ${s.team1}-${s.team2}`).join("; ");
-                }
-                
-                csv += `"${fecha}","${hora}","${match.team1.name}",${match.team1.score},${match.team1.sets},"${match.team2.name}",${match.team2.score},${match.team2.sets},"${ganador}",${duracion},"${detalleSets}"\n`;
+                csv += `"${fecha}","${hora}","${match.team1.name}",${match.team1.sets},"${match.team2.name}",${match.team2.sets},"${ganador}",${duracion}\n`;
             });
             
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -1013,14 +991,6 @@
             text += `${currentMatch.team2.name}: ${currentMatch.team2.sets}\n\n`;
             text += `Set actual: ${currentMatch.currentSet} de 5\n`;
             text += `Puntos para ganar: ${getTargetScore()} (con diferencia de 2)\n\n`;
-            
-            if (currentMatch.setHistory.length > 0) {
-                text += `=== HISTORIAL DE SETS ===\n`;
-                currentMatch.setHistory.forEach(set => {
-                    text += `Set ${set.set}: ${set.team1}-${set.team2} (Ganador: ${set.winner})\n`;
-                });
-                text += `\n`;
-            }
             
             if (matchHistory.length > 0) {
                 text += `=== ÚLTIMOS PARTIDOS ===\n`;
@@ -1083,44 +1053,78 @@
             window.open(whatsappUrl, '_blank');
         }
 
-        // Funciones de almacenamiento con cookies
+        // ========== FUNCIONES CORREGIDAS PARA COOKIES ==========
+        
+        // Función para guardar en cookies (versión corregida y simplificada)
         function saveToCookies() {
-            const data = {
-                currentMatch: currentMatch,
-                matchHistory: matchHistory
-            };
-            
-            const jsonData = JSON.stringify(data);
-            const expirationDays = 30;
-            const date = new Date();
-            date.setTime(date.getTime() + (expirationDays * 24 * 60 * 60 * 1000));
-            const expires = "expires=" + date.toUTCString();
-            
-            document.cookie = `volleyballScoreboard=${encodeURIComponent(jsonData)}; ${expires}; path=/`;
+            try {
+                const data = {
+                    currentMatch: currentMatch,
+                    matchHistory: matchHistory
+                };
+                
+                const jsonData = JSON.stringify(data);
+                const expirationDays = 7; // Los datos se guardan por 7 días
+                const date = new Date();
+                date.setTime(date.getTime() + (expirationDays * 24 * 60 * 60 * 1000));
+                const expires = "expires=" + date.toUTCString();
+                
+                document.cookie = `volleyballScoreboard=${encodeURIComponent(jsonData)}; ${expires}; path=/; SameSite=Lax`;
+                console.log("Datos guardados en cookies correctamente");
+            } catch (error) {
+                console.error("Error al guardar en cookies:", error);
+            }
         }
 
+        // Función para cargar desde cookies (versión corregida y simplificada)
         function loadFromCookies() {
-            const cookies = document.cookie.split(';');
-            let volleyballScoreboardCookie = null;
-            
-            for (const cookie of cookies) {
-                const [name, value] = cookie.trim().split('=');
-                if (name === 'volleyballScoreboard') {
-                    volleyballScoreboardCookie = value;
-                    break;
+            try {
+                const cookieName = "volleyballScoreboard=";
+                const cookies = document.cookie.split(';');
+                
+                for (let i = 0; i < cookies.length; i++) {
+                    let cookie = cookies[i].trim();
+                    if (cookie.indexOf(cookieName) === 0) {
+                        const cookieValue = decodeURIComponent(cookie.substring(cookieName.length, cookie.length));
+                        const data = JSON.parse(cookieValue);
+                        
+                        // Restaurar el partido actual
+                        if (data.currentMatch) {
+                            currentMatch = data.currentMatch;
+                            // Asegurarse de que startTime sea una fecha válida
+                            if (currentMatch.startTime) {
+                                currentMatch.startTime = new Date(currentMatch.startTime);
+                            } else {
+                                currentMatch.startTime = new Date();
+                            }
+                        }
+                        
+                        // Restaurar el historial
+                        if (data.matchHistory) {
+                            matchHistory = data.matchHistory;
+                        }
+                        
+                        console.log("Datos cargados desde cookies correctamente");
+                        return;
+                    }
                 }
-            }
-            
-            if (volleyballScoreboardCookie) {
-                try {
-                    const data = JSON.parse(decodeURIComponent(volleyballScoreboardCookie));
-                    currentMatch = data.currentMatch || currentMatch;
-                    matchHistory = data.matchHistory || matchHistory;
-                } catch (e) {
-                    console.error('Error al cargar datos de cookies:', e);
-                }
+                console.log("No se encontraron cookies, usando valores por defecto");
+            } catch (error) {
+                console.error("Error al cargar desde cookies:", error);
+                // En caso de error, usar valores por defecto
+                currentMatch = {
+                    team1: { name: "Equipo Local", score: 0, sets: 0 },
+                    team2: { name: "Equipo Visitante", score: 0, sets: 0 },
+                    currentSet: 1,
+                    maxSets: 5,
+                    startTime: new Date(),
+                    setHistory: []
+                };
+                matchHistory = [];
             }
         }
+
+        // ======================================================
     </script>
 </body>
 </html>
