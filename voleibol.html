@@ -3,14 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marcador de Voleibol - Aplicación para Anotar Puntos de Partidos</title>
-    <meta name="description" content="Aplicación web gratuita para llevar el marcador de partidos de voleibol. Anota puntos, lleva el control de sets, guarda historial y más. Optimizada para móviles.">
-    <meta name="keywords" content="voleibol, marcador, deporte, partido, puntos, sets, anotador, aplicación web, gratis">
-    <meta name="author" content="Marcador Deportivo">
-    <meta property="og:title" content="Marcador de Voleibol - Aplicación para Anotar Puntos">
-    <meta property="og:description" content="Aplicación web gratuita para llevar el marcador de partidos de voleibol">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://enfaseterminal.github.io/marcador-deportivo/voleibol.html">
+    <title>Marcador de Voleibol</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -36,86 +29,57 @@
             color: var(--light-color);
             min-height: 100vh;
             padding: 20px;
-            overflow-x: hidden;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 800px;
             margin: 0 auto;
             padding: 20px;
         }
 
+        /* Cabecera reorganizada */
         header {
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 30px;
             padding: 20px;
-            background-color: rgba(44, 62, 80, 0.8);
+            background-color: rgba(44, 62, 80, 0.9);
             border-radius: 15px;
             box-shadow: var(--shadow);
-            position: relative;
+            flex-wrap: wrap;
         }
 
-        .datetime {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background-color: rgba(52, 152, 219, 0.8);
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            box-shadow: var(--shadow);
-        }
-
-        .datetime div {
-            margin: 2px 0;
+        .header-left {
+            flex: 1;
+            min-width: 200px;
         }
 
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 2.2rem;
+            margin-bottom: 5px;
             color: white;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .match-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .match-location, .match-date {
-            flex: 1;
-            min-width: 200px;
-            background-color: rgba(44, 62, 80, 0.8);
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: var(--shadow);
-        }
-
-        .match-location h3, .match-date h3 {
-            margin-bottom: 10px;
-            color: var(--primary-color);
-            font-size: 1.2rem;
-        }
-
-        .match-location input, .match-date input {
-            width: 100%;
-            padding: 10px;
-            border-radius: 5px;
-            border: none;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
             font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .clock-container {
+            background-color: rgba(52, 152, 219, 0.8);
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            min-width: 150px;
+        }
+
+        #clock {
+            font-size: 1.4rem;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .scoreboard {
@@ -127,7 +91,7 @@
 
         .team {
             flex: 1;
-            background-color: rgba(44, 62, 80, 0.8);
+            background-color: rgba(44, 62, 80, 0.9);
             border-radius: 15px;
             padding: 20px;
             text-align: center;
@@ -172,7 +136,7 @@
             padding: 10px 15px;
             border: none;
             border-radius: 8px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
             cursor: pointer;
             transition: var(--transition);
@@ -181,12 +145,6 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
         }
 
         .btn-primary {
@@ -209,7 +167,12 @@
             color: white;
         }
 
-        .btn:hover:not(:disabled) {
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .btn:hover {
             transform: scale(1.05);
             opacity: 0.9;
         }
@@ -219,25 +182,21 @@
             justify-content: center;
             gap: 10px;
             margin-top: 20px;
-            flex-wrap: wrap;
         }
 
         .set {
-            width: 40px;
-            height: 40px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             background-color: rgba(255, 255, 255, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 1.2rem;
-            transition: var(--transition);
         }
 
         .set.won {
             background-color: var(--success-color);
-            transform: scale(1.1);
         }
 
         .match-controls {
@@ -249,11 +208,11 @@
         }
 
         .history {
-            background-color: rgba(44, 62, 80, 0.8);
+            background-color: rgba(44, 62, 80, 0.9);
             border-radius: 15px;
             padding: 20px;
             box-shadow: var(--shadow);
-            margin-top: 30px;
+            margin-bottom: 20px;
         }
 
         .history h2 {
@@ -265,6 +224,7 @@
         .history-list {
             max-height: 300px;
             overflow-y: auto;
+            margin-bottom: 20px;
         }
 
         .history-item {
@@ -275,30 +235,21 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: var(--transition);
-            cursor: pointer;
-        }
-
-        .history-item:hover {
-            background-color: rgba(255, 255, 255, 0.15);
         }
 
         .history-teams {
             flex: 1;
-            font-weight: bold;
         }
 
         .history-score {
             font-weight: bold;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             margin: 0 15px;
-            color: var(--success-color);
         }
 
-        .history-details {
-            font-size: 0.8rem;
+        .history-date {
+            font-size: 0.9rem;
             opacity: 0.7;
-            text-align: right;
         }
 
         .modal {
@@ -312,6 +263,7 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
 
         .modal-content {
@@ -321,7 +273,7 @@
             width: 90%;
             max-width: 500px;
             box-shadow: var(--shadow);
-            max-height: 80vh;
+            max-height: 90vh;
             overflow-y: auto;
         }
 
@@ -348,11 +300,11 @@
             background-color: rgba(255, 255, 255, 0.1);
             color: white;
             font-size: 1rem;
-            resize: vertical;
         }
 
         .form-group textarea {
-            min-height: 80px;
+            min-height: 120px;
+            resize: vertical;
         }
 
         .modal-buttons {
@@ -368,107 +320,49 @@
             opacity: 0.7;
         }
 
-        /* Efectos de celebración */
-        .confetti {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            background-color: #f00;
-            top: 0;
-            opacity: 0;
-            z-index: 9999;
-        }
-
-        .celebration {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 9998;
-            display: none;
+        .export-controls {
+            display: flex;
             justify-content: center;
-            align-items: center;
-            background-color: rgba(0, 0, 0, 0.7);
-        }
-
-        .celebration-content {
-            text-align: center;
-            background-color: var(--dark-color);
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: var(--shadow);
-            animation: pulse 1s infinite;
-        }
-
-        .celebration-content h2 {
-            font-size: 3rem;
-            color: var(--success-color);
+            flex-wrap: wrap;
+            gap: 15px;
             margin-bottom: 20px;
         }
 
-        .celebration-content p {
-            font-size: 1.5rem;
-            margin-bottom: 30px;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        @keyframes confetti-fall {
-            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
-        }
-
-        /* Indicador de guardado */
-        .save-indicator {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: var(--success-color);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            display: none;
-            z-index: 1001;
-            font-weight: bold;
-        }
-
-        /* Notificación de set ganado */
-        .set-notification {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: var(--warning-color);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            display: none;
-            z-index: 1001;
-            font-weight: bold;
-            font-size: 1.2rem;
+        .share-preview {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
             text-align: center;
         }
 
-        /* Detalles del partido guardado */
-        .match-details-modal .match-info-display {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 15px;
+        .share-preview h3 {
             margin-bottom: 15px;
         }
 
-        .match-details-modal .match-info-display p {
-            margin: 5px 0;
+        #share-text {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: left;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
         }
 
         @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .header-left {
+                width: 100%;
+            }
+            
             .scoreboard {
                 flex-direction: column;
             }
@@ -478,27 +372,30 @@
             }
             
             h1 {
-                font-size: 2rem;
+                font-size: 1.8rem;
+            }
+            
+            .btn {
+                padding: 8px 12px;
+                font-size: 1rem;
             }
             
             .match-controls {
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .match-controls, .export-controls {
                 flex-direction: column;
-                align-items: center;
             }
             
             .btn {
                 width: 100%;
-                max-width: 300px;
-            }
-            
-            .datetime {
-                position: static;
-                margin-top: 15px;
-                text-align: center;
-            }
-            
-            .match-info {
-                flex-direction: column;
             }
         }
     </style>
@@ -506,25 +403,15 @@
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-volleyball-ball"></i> Marcador de Voleibol</h1>
-            <p class="subtitle">Aplicación web gratuita para llevar el marcador de tus partidos de voleibol. Anota puntos, lleva el control de sets y guarda el historial de partidos.</p>
-            
-            <div class="datetime">
-                <div id="current-date"></div>
-                <div id="current-time"></div>
+            <div class="header-left">
+                <h1><i class="fas fa-volleyball-ball"></i> Marcador de Voleibol</h1>
+                <p class="subtitle">Lleva el control de tus partidos de voleibol</p>
+            </div>
+            <div class="clock-container">
+                <div id="clock">00:00:00</div>
+                <div id="date">--/--/----</div>
             </div>
         </header>
-
-        <div class="match-info">
-            <div class="match-location">
-                <h3><i class="fas fa-map-marker-alt"></i> Ubicación del Partido</h3>
-                <input type="text" id="match-location-input" placeholder="Ej: Polideportivo Municipal, Cancha 3">
-            </div>
-            <div class="match-date">
-                <h3><i class="fas fa-calendar-alt"></i> Fecha del Partido</h3>
-                <input type="date" id="match-date-input">
-            </div>
-        </div>
 
         <div class="scoreboard">
             <div class="team" id="team1">
@@ -570,26 +457,31 @@
             <button class="btn btn-primary" id="save-match">
                 <i class="fas fa-save"></i> Guardar Partido
             </button>
-            <button class="btn btn-secondary" id="swap-teams">
-                <i class="fas fa-exchange-alt"></i> Intercambiar Equipos
+        </div>
+
+        <div class="export-controls">
+            <button class="btn btn-info" id="export-json">
+                <i class="fas fa-file-code"></i> Exportar a JSON
             </button>
-            <button class="btn btn-primary" id="add-notes">
-                <i class="fas fa-sticky-note"></i> Añadir Notas
+            <button class="btn btn-info" id="export-csv">
+                <i class="fas fa-file-csv"></i> Exportar a CSV
+            </button>
+            <button class="btn btn-success" id="share-whatsapp">
+                <i class="fab fa-whatsapp"></i> Compartir por WhatsApp
+            </button>
+            <button class="btn btn-primary" id="share-results">
+                <i class="fas fa-share-alt"></i> Compartir Resultados
             </button>
         </div>
 
         <div class="history">
             <h2><i class="fas fa-history"></i> Historial de Partidos</h2>
-            <p style="text-align: center; margin-bottom: 15px; opacity: 0.8;">Haz clic en un partido para ver más detalles</p>
             <div class="history-list" id="history-list">
                 <!-- Los partidos guardados se mostrarán aquí -->
             </div>
             <div class="match-controls">
                 <button class="btn btn-secondary" id="clear-history">
                     <i class="fas fa-trash"></i> Borrar Historial
-                </button>
-                <button class="btn btn-primary" id="export-history">
-                    <i class="fas fa-download"></i> Exportar Historial
                 </button>
             </div>
         </div>
@@ -610,51 +502,26 @@
         </div>
     </div>
 
-    <!-- Modal para añadir notas -->
-    <div class="modal" id="notes-modal">
+    <!-- Modal para compartir resultados -->
+    <div class="modal" id="share-modal">
         <div class="modal-content">
-            <h2>Añadir Notas del Partido</h2>
-            <div class="form-group">
-                <label for="match-notes">Notas (opcional):</label>
-                <textarea id="match-notes" placeholder="Añade notas sobre el partido, jugadores destacados, incidencias, etc."></textarea>
-            </div>
-            <div class="modal-buttons">
-                <button class="btn btn-secondary" id="cancel-notes">Cancelar</button>
-                <button class="btn btn-primary" id="save-notes">Guardar Notas</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para detalles del partido -->
-    <div class="modal match-details-modal" id="match-details-modal">
-        <div class="modal-content">
-            <h2>Detalles del Partido</h2>
-            <div id="match-details-content">
-                <!-- Los detalles del partido se cargarán aquí -->
-            </div>
-            <div class="modal-buttons">
-                <button class="btn btn-primary" id="close-details">Cerrar</button>
+            <h2>Compartir Resultados</h2>
+            <div class="share-preview">
+                <h3>Vista previa del resultado:</h3>
+                <div id="share-text">
+                    <!-- Texto generado dinámicamente -->
+                </div>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" id="copy-text">
+                        <i class="fas fa-copy"></i> Copiar Texto
+                    </button>
+                    <button class="btn btn-success" id="share-native">
+                        <i class="fas fa-share"></i> Compartir
+                    </button>
+                    <button class="btn btn-secondary" id="close-share">Cerrar</button>
+                </div>
             </div>
         </div>
-    </div>
-
-    <!-- Celebración -->
-    <div class="celebration" id="celebration">
-        <div class="celebration-content">
-            <h2 id="celebration-title">¡Felicidades!</h2>
-            <p id="celebration-message">Tu equipo ha ganado el partido</p>
-            <button class="btn btn-success" id="close-celebration">Continuar</button>
-        </div>
-    </div>
-
-    <!-- Notificación de set ganado -->
-    <div class="set-notification" id="set-notification">
-        <i class="fas fa-trophy"></i> <span id="set-notification-text"></span>
-    </div>
-
-    <!-- Indicador de guardado -->
-    <div class="save-indicator" id="save-indicator">
-        <i class="fas fa-check-circle"></i> <span id="save-indicator-text">Datos guardados</span>
     </div>
 
     <script>
@@ -672,15 +539,11 @@
             },
             currentSet: 1,
             maxSets: 5,
-            isMatchFinished: false,
-            location: "",
-            date: "",
-            notes: ""
+            startTime: new Date()
         };
 
         let matchHistory = [];
         let editingTeam = null;
-        let buttonsDisabled = false;
 
         // Elementos DOM
         const team1NameEl = document.getElementById('team1-name');
@@ -699,51 +562,44 @@
         const resetMatchBtn = document.getElementById('reset-match');
         const saveMatchBtn = document.getElementById('save-match');
         const clearHistoryBtn = document.getElementById('clear-history');
-        const swapTeamsBtn = document.getElementById('swap-teams');
-        const addNotesBtn = document.getElementById('add-notes');
-        const exportHistoryBtn = document.getElementById('export-history');
+        const exportJsonBtn = document.getElementById('export-json');
+        const exportCsvBtn = document.getElementById('export-csv');
+        const shareWhatsappBtn = document.getElementById('share-whatsapp');
+        const shareResultsBtn = document.getElementById('share-results');
 
         const historyListEl = document.getElementById('history-list');
-        const matchLocationInput = document.getElementById('match-location-input');
-        const matchDateInput = document.getElementById('match-date-input');
-        const currentDateEl = document.getElementById('current-date');
-        const currentTimeEl = document.getElementById('current-time');
+        const clockEl = document.getElementById('clock');
+        const dateEl = document.getElementById('date');
 
         const teamNameModal = document.getElementById('team-name-modal');
         const teamNameInput = document.getElementById('team-name-input');
         const cancelEditBtn = document.getElementById('cancel-edit');
         const saveNameBtn = document.getElementById('save-name');
 
-        const notesModal = document.getElementById('notes-modal');
-        const matchNotesInput = document.getElementById('match-notes');
-        const cancelNotesBtn = document.getElementById('cancel-notes');
-        const saveNotesBtn = document.getElementById('save-notes');
+        const shareModal = document.getElementById('share-modal');
+        const shareTextEl = document.getElementById('share-text');
+        const copyTextBtn = document.getElementById('copy-text');
+        const shareNativeBtn = document.getElementById('share-native');
+        const closeShareBtn = document.getElementById('close-share');
 
-        const matchDetailsModal = document.getElementById('match-details-modal');
-        const matchDetailsContent = document.getElementById('match-details-content');
-        const closeDetailsBtn = document.getElementById('close-details');
-
-        const celebrationEl = document.getElementById('celebration');
-        const celebrationTitle = document.getElementById('celebration-title');
-        const celebrationMessage = document.getElementById('celebration-message');
-        const closeCelebrationBtn = document.getElementById('close-celebration');
-
-        const setNotification = document.getElementById('set-notification');
-        const setNotificationText = document.getElementById('set-notification-text');
-        const saveIndicator = document.getElementById('save-indicator');
-        const saveIndicatorText = document.getElementById('save-indicator-text');
+        // Función para actualizar el reloj
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            const dateString = now.toLocaleDateString();
+            
+            clockEl.textContent = timeString;
+            dateEl.textContent = dateString;
+        }
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
+            // Iniciar reloj
+            updateClock();
+            setInterval(updateClock, 1000);
+            
+            // Cargar datos guardados
             loadFromCookies();
-            initializeDateTime();
-            setInterval(updateDateTime, 1000);
-            
-            // Establecer fecha actual por defecto
-            const today = new Date().toISOString().split('T')[0];
-            matchDateInput.value = today;
-            currentMatch.date = today;
-            
             renderCurrentMatch();
             renderMatchHistory();
             
@@ -762,36 +618,25 @@
             resetMatchBtn.addEventListener('click', resetCurrentMatch);
             saveMatchBtn.addEventListener('click', saveCurrentMatch);
             clearHistoryBtn.addEventListener('click', clearMatchHistory);
-            swapTeamsBtn.addEventListener('click', swapTeams);
-            addNotesBtn.addEventListener('click', openNotesModal);
-            exportHistoryBtn.addEventListener('click', exportHistory);
             
-            // Event listeners para los campos de información del partido
-            matchLocationInput.addEventListener('change', updateMatchLocation);
-            matchDateInput.addEventListener('change', updateMatchDate);
+            // Event listeners para exportación y compartir
+            exportJsonBtn.addEventListener('click', exportToJson);
+            exportCsvBtn.addEventListener('click', exportToCsv);
+            shareWhatsappBtn.addEventListener('click', shareToWhatsapp);
+            shareResultsBtn.addEventListener('click', openShareModal);
             
-            // Event listeners para el modal de nombres
+            // Event listeners para el modal de edición de nombres
             cancelEditBtn.addEventListener('click', closeTeamNameModal);
             saveNameBtn.addEventListener('click', saveTeamName);
             
-            // Event listeners para el modal de notas
-            cancelNotesBtn.addEventListener('click', closeNotesModal);
-            saveNotesBtn.addEventListener('click', saveNotes);
-            
-            // Event listener para el modal de detalles
-            closeDetailsBtn.addEventListener('click', closeMatchDetailsModal);
-            
-            // Event listener para la celebración
-            closeCelebrationBtn.addEventListener('click', closeCelebration);
-            
-            // Mostrar mensaje de carga inicial
-            showSaveIndicator("Datos cargados correctamente");
+            // Event listeners para el modal de compartir
+            copyTextBtn.addEventListener('click', copyShareText);
+            shareNativeBtn.addEventListener('click', shareViaNative);
+            closeShareBtn.addEventListener('click', closeShareModal);
         });
 
         // Funciones principales
         function updateScore(team, change) {
-            if (currentMatch.isMatchFinished || buttonsDisabled) return;
-            
             currentMatch[team].score += change;
             
             // Asegurarse de que el marcador no sea negativo
@@ -799,181 +644,81 @@
                 currentMatch[team].score = 0;
             }
             
-            // Comprobar si se ha ganado el set
-            checkSetWon();
-            
             renderCurrentMatch();
             saveToCookies();
-            showSaveIndicator("Punto actualizado");
-        }
-
-        function disableScoreButtons() {
-            buttonsDisabled = true;
-            const scoreButtons = [team1AddBtn, team1RemoveBtn, team2AddBtn, team2RemoveBtn, newSetBtn];
-            scoreButtons.forEach(btn => {
-                btn.disabled = true;
-            });
-        }
-
-        function enableScoreButtons() {
-            buttonsDisabled = false;
-            const scoreButtons = [team1AddBtn, team1RemoveBtn, team2AddBtn, team2RemoveBtn, newSetBtn];
-            scoreButtons.forEach(btn => {
-                if (!currentMatch.isMatchFinished) {
-                    btn.disabled = false;
-                }
-            });
-        }
-
-        function checkSetWon() {
-            const t1Score = currentMatch.team1.score;
-            const t2Score = currentMatch.team2.score;
-            
-            // Puntos necesarios para ganar el set
-            // Los primeros 4 sets son a 25 puntos, el 5to set es a 15 puntos
-            const pointsToWin = currentMatch.currentSet === 5 ? 15 : 25;
-            
-            // Un set se gana con la cantidad de puntos requerida y con 2 puntos de diferencia
-            if ((t1Score >= pointsToWin || t2Score >= pointsToWin) && Math.abs(t1Score - t2Score) >= 2) {
-                let winnerTeam, loserTeam, winnerKey, loserKey;
-                
-                if (t1Score > t2Score) {
-                    winnerTeam = currentMatch.team1.name;
-                    loserTeam = currentMatch.team2.name;
-                    winnerKey = 'team1';
-                    loserKey = 'team2';
-                } else {
-                    winnerTeam = currentMatch.team2.name;
-                    loserTeam = currentMatch.team1.name;
-                    winnerKey = 'team2';
-                    loserKey = 'team1';
-                }
-                
-                // Deshabilitar botones inmediatamente para evitar clics adicionales
-                disableScoreButtons();
-                
-                // Incrementar el contador de sets del equipo ganador
-                currentMatch[winnerKey].sets++;
-                
-                // Mostrar notificación de set ganado
-                showSetNotification(`${winnerTeam} gana el set ${currentMatch.currentSet} (${t1Score}-${t2Score})`);
-                
-                // Verificar si el partido ha terminado
-                const setsToWin = Math.ceil(currentMatch.maxSets / 2);
-                
-                if (currentMatch[winnerKey].sets >= setsToWin) {
-                    // El partido ha terminado
-                    currentMatch.isMatchFinished = true;
-                    
-                    // Esperar un momento antes de mostrar la celebración
-                    setTimeout(() => {
-                        showCelebration(winnerTeam, "partido");
-                        
-                        // Auto-guardar el partido completo
-                        setTimeout(() => {
-                            saveCurrentMatch();
-                        }, 1000);
-                    }, 1500);
-                } else {
-                    // Preparar para el siguiente set
-                    setTimeout(() => {
-                        // Reiniciar el puntaje para el siguiente set
-                        currentMatch.team1.score = 0;
-                        currentMatch.team2.score = 0;
-                        
-                        // Incrementar el número de set actual
-                        currentMatch.currentSet++;
-                        
-                        // Volver a habilitar los botones
-                        enableScoreButtons();
-                        
-                        renderCurrentMatch();
-                        saveToCookies();
-                        showSaveIndicator("Nuevo set iniciado automáticamente");
-                    }, 2000);
-                }
-            }
-        }
-
-        function showSetNotification(message) {
-            setNotificationText.textContent = message;
-            setNotification.style.display = 'block';
-            
-            setTimeout(() => {
-                setNotification.style.display = 'none';
-            }, 3000);
         }
 
         function startNewSet() {
-            // Si el partido ya terminó, no podemos empezar un nuevo set
-            if (currentMatch.isMatchFinished || buttonsDisabled) {
-                alert("El partido ya ha terminado o está procesando un set. Reinicia el partido para comenzar uno nuevo.");
+            // Determinar qué equipo ganó el set actual
+            if (currentMatch.team1.score > currentMatch.team2.score) {
+                currentMatch.team1.sets++;
+            } else if (currentMatch.team2.score > currentMatch.team1.score) {
+                currentMatch.team2.sets++;
+            } else {
+                // En caso de empate, no se asigna set a nadie
+                alert("El set está empatado. No se puede asignar a ningún equipo.");
                 return;
             }
             
-            // Preguntar si se desea forzar un nuevo set
-            if (confirm("¿Estás seguro de que quieres comenzar un nuevo set? El set actual se perderá y no se contabilizará.")) {
-                // Reiniciar los puntos
+            // Verificar si algún equipo ha ganado el partido
+            const setsToWin = Math.ceil(currentMatch.maxSets / 2);
+            if (currentMatch.team1.sets >= setsToWin || currentMatch.team2.sets >= setsToWin) {
+                // Determinar ganador
+                let winner = currentMatch.team1.sets > currentMatch.team2.sets ? currentMatch.team1.name : currentMatch.team2.name;
+                alert(`¡${winner} ha ganado el partido!`);
+                saveCurrentMatch();
+                resetCurrentMatch();
+            } else {
+                // Preparar para el siguiente set
+                currentMatch.currentSet++;
                 currentMatch.team1.score = 0;
                 currentMatch.team2.score = 0;
-                
-                // Incrementar el número de set actual
-                currentMatch.currentSet++;
-                
-                // Si el set actual supera el máximo de sets, volver al set 1 (no debería pasar, pero por si acaso)
-                if (currentMatch.currentSet > currentMatch.maxSets) {
-                    currentMatch.currentSet = 1;
-                }
-                
                 renderCurrentMatch();
                 saveToCookies();
-                showSaveIndicator("Nuevo set iniciado manualmente");
             }
         }
 
         function resetCurrentMatch() {
-            if (confirm("¿Estás seguro de que quieres reiniciar el partido actual? Se perderán todos los puntos y sets.")) {
+            if (confirm("¿Estás seguro de que quieres reiniciar el partido? Se perderá el progreso actual.")) {
                 currentMatch.team1.score = 0;
                 currentMatch.team2.score = 0;
                 currentMatch.team1.sets = 0;
                 currentMatch.team2.sets = 0;
                 currentMatch.currentSet = 1;
-                currentMatch.isMatchFinished = false;
-                enableScoreButtons(); // Asegurarse de que los botones estén habilitados
+                currentMatch.startTime = new Date();
                 renderCurrentMatch();
                 saveToCookies();
-                showSaveIndicator("Partido reiniciado");
             }
         }
 
         function saveCurrentMatch() {
+            // Solo guardar si hay al menos un set ganado
+            if (currentMatch.team1.sets === 0 && currentMatch.team2.sets === 0) {
+                alert("No se puede guardar un partido sin sets ganados.");
+                return;
+            }
+            
             const now = new Date();
             const matchData = {
                 team1: {...currentMatch.team1},
                 team2: {...currentMatch.team2},
-                location: currentMatch.location,
-                date: currentMatch.date || now.toISOString().split('T')[0],
-                notes: currentMatch.notes,
-                savedDate: now.toLocaleDateString('es-ES', { 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                }),
-                timestamp: now.getTime()
+                currentSet: currentMatch.currentSet,
+                date: now.toLocaleString(),
+                timestamp: now.getTime(),
+                duration: Math.round((now - currentMatch.startTime) / 1000 / 60) // Duración en minutos
             };
             
             matchHistory.unshift(matchData);
             
-            // Mantener solo los últimos 30 partidos
-            if (matchHistory.length > 30) {
-                matchHistory = matchHistory.slice(0, 30);
+            // Mantener solo los últimos 20 partidos
+            if (matchHistory.length > 20) {
+                matchHistory = matchHistory.slice(0, 20);
             }
             
             renderMatchHistory();
             saveToCookies();
-            showSaveIndicator("Partido guardado en el historial");
+            
+            alert("Partido guardado correctamente en el historial.");
         }
 
         function clearMatchHistory() {
@@ -981,41 +726,7 @@
                 matchHistory = [];
                 renderMatchHistory();
                 saveToCookies();
-                showSaveIndicator("Historial borrado");
             }
-        }
-
-        function swapTeams() {
-            // Intercambiar nombres
-            const tempName = currentMatch.team1.name;
-            currentMatch.team1.name = currentMatch.team2.name;
-            currentMatch.team2.name = tempName;
-            
-            // Intercambiar puntuaciones
-            const tempScore = currentMatch.team1.score;
-            currentMatch.team1.score = currentMatch.team2.score;
-            currentMatch.team2.score = tempScore;
-            
-            // Intercambiar sets
-            const tempSets = currentMatch.team1.sets;
-            currentMatch.team1.sets = currentMatch.team2.sets;
-            currentMatch.team2.sets = tempSets;
-            
-            renderCurrentMatch();
-            saveToCookies();
-            showSaveIndicator("Equipos intercambiados");
-        }
-
-        function updateMatchLocation() {
-            currentMatch.location = matchLocationInput.value;
-            saveToCookies();
-            showSaveIndicator("Ubicación actualizada");
-        }
-
-        function updateMatchDate() {
-            currentMatch.date = matchDateInput.value;
-            saveToCookies();
-            showSaveIndicator("Fecha actualizada");
         }
 
         function openTeamNameModal(team) {
@@ -1034,97 +745,8 @@
                 currentMatch[editingTeam].name = teamNameInput.value.trim();
                 renderCurrentMatch();
                 saveToCookies();
-                showSaveIndicator("Nombre actualizado");
             }
             closeTeamNameModal();
-        }
-
-        function openNotesModal() {
-            matchNotesInput.value = currentMatch.notes;
-            notesModal.style.display = 'flex';
-        }
-
-        function closeNotesModal() {
-            notesModal.style.display = 'none';
-        }
-
-        function saveNotes() {
-            currentMatch.notes = matchNotesInput.value;
-            saveToCookies();
-            showSaveIndicator("Notas guardadas");
-            closeNotesModal();
-        }
-
-        function openMatchDetailsModal(matchIndex) {
-            const match = matchHistory[matchIndex];
-            
-            let detailsHTML = `
-                <div class="match-info-display">
-                    <p><strong>${match.team1.name}</strong> vs <strong>${match.team2.name}</strong></p>
-                    <p style="font-size: 2rem; text-align: center; margin: 10px 0;">${match.team1.sets} - ${match.team2.sets}</p>
-                    <p><strong>Ubicación:</strong> ${match.location || "No especificada"}</p>
-                    <p><strong>Fecha del partido:</strong> ${match.date}</p>
-                    <p><strong>Guardado el:</strong> ${match.savedDate}</p>
-                </div>
-            `;
-            
-            if (match.notes) {
-                detailsHTML += `
-                    <div class="match-info-display">
-                        <p><strong>Notas:</strong></p>
-                        <p>${match.notes}</p>
-                    </div>
-                `;
-            }
-            
-            matchDetailsContent.innerHTML = detailsHTML;
-            matchDetailsModal.style.display = 'flex';
-        }
-
-        function closeMatchDetailsModal() {
-            matchDetailsModal.style.display = 'none';
-        }
-
-        function exportHistory() {
-            if (matchHistory.length === 0) {
-                alert("No hay partidos para exportar.");
-                return;
-            }
-            
-            const exportData = {
-                exportedDate: new Date().toLocaleString(),
-                totalMatches: matchHistory.length,
-                matches: matchHistory
-            };
-            
-            const dataStr = JSON.stringify(exportData, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            
-            const exportFileDefaultName = `historial_voleibol_${new Date().toISOString().split('T')[0]}.json`;
-            
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-            
-            showSaveIndicator("Historial exportado como JSON");
-        }
-
-        // Funciones de fecha y hora
-        function initializeDateTime() {
-            updateDateTime();
-        }
-
-        function updateDateTime() {
-            const now = new Date();
-            
-            // Formatear fecha
-            const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            currentDateEl.textContent = now.toLocaleDateString('es-ES', optionsDate);
-            
-            // Formatear hora
-            const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
-            currentTimeEl.textContent = now.toLocaleTimeString('es-ES', optionsTime);
         }
 
         // Funciones de renderizado
@@ -1140,11 +762,6 @@
             // Actualizar sets
             renderSets(team1SetsEl, currentMatch.team1.sets);
             renderSets(team2SetsEl, currentMatch.team2.sets);
-            
-            // Actualizar estado de los botones si el partido terminó
-            if (currentMatch.isMatchFinished) {
-                disableScoreButtons();
-            }
         }
 
         function renderSets(container, setsWon) {
@@ -1152,18 +769,10 @@
             for (let i = 0; i < currentMatch.maxSets; i++) {
                 const setEl = document.createElement('div');
                 setEl.className = 'set';
-                setEl.textContent = i + 1;
-                
                 if (i < setsWon) {
                     setEl.classList.add('won');
                 }
-                
-                // Resaltar el set actual
-                if (i === currentMatch.currentSet - 1 && !currentMatch.isMatchFinished) {
-                    setEl.style.boxShadow = '0 0 10px rgba(255, 255, 255, 0.5)';
-                    setEl.style.border = '2px solid white';
-                }
-                
+                setEl.textContent = i + 1;
                 container.appendChild(setEl);
             }
         }
@@ -1174,7 +783,7 @@
             if (matchHistory.length === 0) {
                 const emptyMessage = document.createElement('div');
                 emptyMessage.className = 'empty-history';
-                emptyMessage.innerHTML = '<i class="fas fa-info-circle"></i> No hay partidos guardados. ¡Juega y guarda algunos partidos!';
+                emptyMessage.innerHTML = '<i class="fas fa-clipboard-list fa-2x"></i><p>No hay partidos guardados. ¡Juega y guarda algunos partidos!</p>';
                 historyListEl.appendChild(emptyMessage);
                 return;
             }
@@ -1182,7 +791,6 @@
             matchHistory.forEach((match, index) => {
                 const historyItem = document.createElement('div');
                 historyItem.className = 'history-item';
-                historyItem.addEventListener('click', () => openMatchDetailsModal(index));
                 
                 const teamsDiv = document.createElement('div');
                 teamsDiv.className = 'history-teams';
@@ -1192,111 +800,150 @@
                 scoreDiv.className = 'history-score';
                 scoreDiv.textContent = `${match.team1.sets}-${match.team2.sets}`;
                 
-                const detailsDiv = document.createElement('div');
-                detailsDiv.className = 'history-details';
-                
-                let detailsText = match.savedDate;
-                if (match.location) {
-                    detailsText += ` | ${match.location}`;
-                }
-                
-                detailsDiv.textContent = detailsText;
+                const dateDiv = document.createElement('div');
+                dateDiv.className = 'history-date';
+                dateDiv.textContent = match.date;
                 
                 historyItem.appendChild(teamsDiv);
                 historyItem.appendChild(scoreDiv);
-                historyItem.appendChild(detailsDiv);
+                historyItem.appendChild(dateDiv);
                 
                 historyListEl.appendChild(historyItem);
             });
         }
 
-        // Función de celebración con confeti
-        function showCelebration(teamName, type) {
-            celebrationTitle.textContent = type === "partido" ? "¡¡CAMPEONES!!" : "¡Set Ganado!";
-            celebrationMessage.textContent = type === "partido" 
-                ? `${teamName} ha ganado el partido` 
-                : `${teamName} ha ganado el set ${currentMatch.currentSet}`;
+        // Funciones de exportación
+        function exportToJson() {
+            const data = {
+                currentMatch: currentMatch,
+                matchHistory: matchHistory,
+                exportDate: new Date().toISOString()
+            };
             
-            celebrationEl.style.display = 'flex';
+            const jsonData = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
             
-            // Crear confeti
-            createConfetti();
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `marcador_voleibol_${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
             
-            // Reproducir sonido de celebración (si el navegador lo permite)
-            playCelebrationSound();
+            alert("Datos exportados a JSON correctamente.");
         }
 
-        function closeCelebration() {
-            celebrationEl.style.display = 'none';
+        function exportToCsv() {
+            if (matchHistory.length === 0) {
+                alert("No hay datos para exportar. Guarda algunos partidos primero.");
+                return;
+            }
+            
+            // Encabezados CSV
+            let csv = "Fecha,Hora,Equipo 1,Puntos Equipo 1,Sets Equipo 1,Equipo 2,Puntos Equipo 2,Sets Equipo 2,Ganador,Duración (min)\n";
+            
+            // Datos de cada partido
+            matchHistory.forEach(match => {
+                const date = new Date(match.timestamp);
+                const fecha = date.toLocaleDateString();
+                const hora = date.toLocaleTimeString();
+                const ganador = match.team1.sets > match.team2.sets ? match.team1.name : match.team2.name;
+                const duracion = match.duration || 0;
+                
+                csv += `"${fecha}","${hora}","${match.team1.name}",${match.team1.score},${match.team1.sets},"${match.team2.name}",${match.team2.score},${match.team2.sets},"${ganador}",${duracion}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `marcador_voleibol_${new Date().toISOString().slice(0, 10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert("Datos exportados a CSV correctamente. Puedes abrir el archivo en Excel.");
         }
 
-        function createConfetti() {
-            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ff8800', '#ff0088'];
+        // Funciones para compartir
+        function generateShareText() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString();
+            const timeStr = now.toLocaleTimeString();
             
-            for (let i = 0; i < 150; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                
-                // Posición aleatoria
-                confetti.style.left = Math.random() * 100 + 'vw';
-                
-                // Color aleatorio
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                
-                // Tamaño aleatorio
-                const size = Math.random() * 10 + 5;
-                confetti.style.width = size + 'px';
-                confetti.style.height = size + 'px';
-                
-                // Animación
-                const duration = Math.random() * 3 + 2;
-                confetti.style.animation = `confetti-fall ${duration}s linear forwards`;
-                
-                document.body.appendChild(confetti);
-                
-                // Eliminar después de la animación
-                setTimeout(() => {
-                    confetti.remove();
-                }, duration * 1000);
+            let text = `🏐 MARCADOR DE VOLEIBOL 🏐\n`;
+            text += `📅 ${dateStr} 🕒 ${timeStr}\n\n`;
+            text += `=== PARTIDO ACTUAL ===\n`;
+            text += `${currentMatch.team1.name}: ${currentMatch.team1.score} puntos\n`;
+            text += `${currentMatch.team2.name}: ${currentMatch.team2.score} puntos\n\n`;
+            text += `Sets ganados:\n`;
+            text += `${currentMatch.team1.name}: ${currentMatch.team1.sets}\n`;
+            text += `${currentMatch.team2.name}: ${currentMatch.team2.sets}\n\n`;
+            text += `Set actual: ${currentMatch.currentSet}\n\n`;
+            
+            if (matchHistory.length > 0) {
+                text += `=== ÚLTIMOS PARTIDOS ===\n`;
+                const recentMatches = matchHistory.slice(0, 3);
+                recentMatches.forEach((match, index) => {
+                    const matchDate = new Date(match.timestamp).toLocaleDateString();
+                    text += `${index + 1}. ${match.team1.name} ${match.team1.sets}-${match.team2.sets} ${match.team2.name} (${matchDate})\n`;
+                });
+            }
+            
+            text += `\n📱 Generado con Marcador de Voleibol`;
+            
+            return text;
+        }
+
+        function openShareModal() {
+            shareTextEl.textContent = generateShareText();
+            shareModal.style.display = 'flex';
+        }
+
+        function closeShareModal() {
+            shareModal.style.display = 'none';
+        }
+
+        function copyShareText() {
+            const text = generateShareText();
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Texto copiado al portapapeles. Puedes pegarlo en cualquier aplicación.");
+            }).catch(err => {
+                console.error('Error al copiar texto: ', err);
+                alert("No se pudo copiar el texto. Intenta manualmente.");
+            });
+        }
+
+        function shareViaNative() {
+            const text = generateShareText();
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Resultado de Voleibol',
+                    text: text,
+                    url: window.location.href
+                }).then(() => {
+                    console.log('Contenido compartido exitosamente');
+                }).catch((error) => {
+                    console.log('Error al compartir:', error);
+                });
+            } else {
+                // Fallback para navegadores que no soportan la Web Share API
+                copyShareText();
             }
         }
 
-        function playCelebrationSound() {
-            try {
-                // Crear un contexto de audio
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                
-                // Crear un oscilador
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                // Configurar el sonido
-                oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // La4
-                oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime + 0.1); // Do5
-                oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.2); // Mi5
-                oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.3); // Sol5
-                
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
-                
-                // Reproducir el sonido
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 1);
-            } catch (e) {
-                console.log("No se pudo reproducir el sonido de celebración");
-            }
-        }
-
-        function showSaveIndicator(message) {
-            saveIndicatorText.textContent = message;
-            saveIndicator.style.display = 'block';
+        function shareToWhatsapp() {
+            const text = generateShareText();
+            const encodedText = encodeURIComponent(text);
+            const whatsappUrl = `https://wa.me/?text=${encodedText}`;
             
-            setTimeout(() => {
-                saveIndicator.style.display = 'none';
-            }, 2000);
+            // Intentar abrir WhatsApp Web o la app
+            window.open(whatsappUrl, '_blank');
         }
 
         // Funciones de almacenamiento con cookies
@@ -1307,10 +954,12 @@
             };
             
             const jsonData = JSON.stringify(data);
-            const expirationDate = new Date();
-            expirationDate.setDate(expirationDate.getDate() + 30); // Caduca en 30 días
+            const expirationDays = 30;
+            const date = new Date();
+            date.setTime(date.getTime() + (expirationDays * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + date.toUTCString();
             
-            document.cookie = `volleyballScoreboard=${encodeURIComponent(jsonData)}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Lax`;
+            document.cookie = `volleyballScoreboard=${encodeURIComponent(jsonData)}; ${expires}; path=/`;
         }
 
         function loadFromCookies() {
@@ -1330,15 +979,6 @@
                     const data = JSON.parse(decodeURIComponent(volleyballScoreboardCookie));
                     currentMatch = data.currentMatch || currentMatch;
                     matchHistory = data.matchHistory || matchHistory;
-                    
-                    // Actualizar los campos de ubicación y fecha si existen
-                    if (currentMatch.location) {
-                        matchLocationInput.value = currentMatch.location;
-                    }
-                    
-                    if (currentMatch.date) {
-                        matchDateInput.value = currentMatch.date;
-                    }
                 } catch (e) {
                     console.error('Error al cargar datos de cookies:', e);
                 }
