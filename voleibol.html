@@ -207,6 +207,15 @@
             margin: 30px 0;
         }
 
+        .current-set {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
         .history {
             background-color: rgba(44, 62, 80, 0.9);
             border-radius: 15px;
@@ -413,6 +422,11 @@
             </div>
         </header>
 
+        <div class="current-set">
+            <strong>Set Actual:</strong> <span id="current-set">1</span> de 5 | 
+            <strong>Puntos para ganar:</strong> <span id="target-score">25</span> (con diferencia de 2)
+        </div>
+
         <div class="scoreboard">
             <div class="team" id="team1">
                 <div class="team-name" id="team1-name">Equipo Local</div>
@@ -539,7 +553,9 @@
             },
             currentSet: 1,
             maxSets: 5,
-            startTime: new Date()
+            startTime: new Date(),
+            // Para almacenar los puntos de cada set
+            setHistory: []
         };
 
         let matchHistory = [];
@@ -570,6 +586,8 @@
         const historyListEl = document.getElementById('history-list');
         const clockEl = document.getElementById('clock');
         const dateEl = document.getElementById('date');
+        const currentSetEl = document.getElementById('current-set');
+        const targetScoreEl = document.getElementById('target-score');
 
         const teamNameModal = document.getElementById('team-name-modal');
         const teamNameInput = document.getElementById('team-name-input');
@@ -582,6 +600,12 @@
         const shareNativeBtn = document.getElementById('share-native');
         const closeShareBtn = document.getElementById('close-share');
 
+        // Función para obtener el puntaje objetivo según el set actual
+        function getTargetScore() {
+            // Los primeros 4 sets son a 25, el quinto set es a 15
+            return currentMatch.currentSet <= 4 ? 25 : 15;
+        }
+
         // Función para actualizar el reloj
         function updateClock() {
             const now = new Date();
@@ -590,6 +614,86 @@
             
             clockEl.textContent = timeString;
             dateEl.textContent = dateString;
+        }
+
+        // Función para verificar si se ha ganado el set
+        function checkSetWin() {
+            const targetScore = getTargetScore();
+            const score1 = currentMatch.team1.score;
+            const score2 = currentMatch.team2.score;
+            
+            // Verificar si algún equipo alcanzó el puntaje objetivo con diferencia de 2
+            if (score1 >= targetScore && score1 - score2 >= 2) {
+                // Equipo 1 gana el set
+                currentMatch.team1.sets++;
+                
+                // Guardar resultado del set
+                currentMatch.setHistory.push({
+                    set: currentMatch.currentSet,
+                    team1: score1,
+                    team2: score2,
+                    winner: currentMatch.team1.name
+                });
+                
+                checkMatchWin();
+                return true;
+            }
+            
+            if (score2 >= targetScore && score2 - score1 >= 2) {
+                // Equipo 2 gana el set
+                currentMatch.team2.sets++;
+                
+                // Guardar resultado del set
+                currentMatch.setHistory.push({
+                    set: currentMatch.currentSet,
+                    team1: score1,
+                    team2: score2,
+                    winner: currentMatch.team2.name
+                });
+                
+                checkMatchWin();
+                return true;
+            }
+            
+            return false;
+        }
+
+        // Función para verificar si se ha ganado el partido
+        function checkMatchWin() {
+            const setsToWin = Math.ceil(currentMatch.maxSets / 2); // 3 de 5 sets
+            
+            if (currentMatch.team1.sets >= setsToWin || currentMatch.team2.sets >= setsToWin) {
+                // Determinar ganador
+                let winner;
+                let winnerTeam;
+                
+                if (currentMatch.team1.sets > currentMatch.team2.sets) {
+                    winner = currentMatch.team1.name;
+                    winnerTeam = 'team1';
+                } else {
+                    winner = currentMatch.team2.name;
+                    winnerTeam = 'team2';
+                }
+                
+                // Mostrar mensaje de victoria
+                setTimeout(() => {
+                    alert(`¡${winner} ha ganado el partido! \n\nResultado final: ${currentMatch.team1.sets} - ${currentMatch.team2.sets}`);
+                    
+                    // Guardar el partido automáticamente
+                    saveCurrentMatch();
+                    
+                    // Reiniciar para nuevo partido
+                    resetCurrentMatch();
+                }, 500);
+                
+                return true;
+            } else {
+                // Pasar al siguiente set
+                setTimeout(() => {
+                    startNewSet();
+                }, 1000);
+                return false;
+            }
         }
 
         // Inicialización
@@ -637,6 +741,7 @@
 
         // Funciones principales
         function updateScore(team, change) {
+            // Aplicar el cambio
             currentMatch[team].score += change;
             
             // Asegurarse de que el marcador no sea negativo
@@ -644,35 +749,46 @@
                 currentMatch[team].score = 0;
             }
             
-            renderCurrentMatch();
-            saveToCookies();
+            // Verificar si se ganó el set después de actualizar el puntaje
+            const setWon = checkSetWin();
+            
+            // Si no se ganó el set, renderizar normalmente
+            if (!setWon) {
+                renderCurrentMatch();
+                saveToCookies();
+            }
         }
 
         function startNewSet() {
-            // Determinar qué equipo ganó el set actual
-            if (currentMatch.team1.score > currentMatch.team2.score) {
-                currentMatch.team1.sets++;
-            } else if (currentMatch.team2.score > currentMatch.team1.score) {
-                currentMatch.team2.sets++;
+            // Solo permitir nuevo set si el actual no está en juego o si se forcea
+            if (currentMatch.team1.score > 0 || currentMatch.team2.score > 0) {
+                if (!confirm("Hay puntos en juego. ¿Forzar fin del set actual y comenzar nuevo set?")) {
+                    return;
+                }
+                
+                // Determinar ganador del set actual por puntaje
+                if (currentMatch.team1.score > currentMatch.team2.score) {
+                    currentMatch.team1.sets++;
+                } else if (currentMatch.team2.score > currentMatch.team1.score) {
+                    currentMatch.team2.sets++;
+                } else {
+                    // Empate, no se asigna set
+                    alert("El set está empatado. No se puede asignar a ningún equipo.");
+                    return;
+                }
+                
+                // Verificar si con este set se ganó el partido
+                if (!checkMatchWin()) {
+                    // Si no se ganó el partido, continuar al siguiente set
+                    currentMatch.currentSet++;
+                    currentMatch.team1.score = 0;
+                    currentMatch.team2.score = 0;
+                    renderCurrentMatch();
+                    saveToCookies();
+                }
             } else {
-                // En caso de empate, no se asigna set a nadie
-                alert("El set está empatado. No se puede asignar a ningún equipo.");
-                return;
-            }
-            
-            // Verificar si algún equipo ha ganado el partido
-            const setsToWin = Math.ceil(currentMatch.maxSets / 2);
-            if (currentMatch.team1.sets >= setsToWin || currentMatch.team2.sets >= setsToWin) {
-                // Determinar ganador
-                let winner = currentMatch.team1.sets > currentMatch.team2.sets ? currentMatch.team1.name : currentMatch.team2.name;
-                alert(`¡${winner} ha ganado el partido!`);
-                saveCurrentMatch();
-                resetCurrentMatch();
-            } else {
-                // Preparar para el siguiente set
+                // Si no hay puntos, simplemente incrementar el set
                 currentMatch.currentSet++;
-                currentMatch.team1.score = 0;
-                currentMatch.team2.score = 0;
                 renderCurrentMatch();
                 saveToCookies();
             }
@@ -686,6 +802,7 @@
                 currentMatch.team2.sets = 0;
                 currentMatch.currentSet = 1;
                 currentMatch.startTime = new Date();
+                currentMatch.setHistory = [];
                 renderCurrentMatch();
                 saveToCookies();
             }
@@ -703,6 +820,7 @@
                 team1: {...currentMatch.team1},
                 team2: {...currentMatch.team2},
                 currentSet: currentMatch.currentSet,
+                setHistory: [...currentMatch.setHistory],
                 date: now.toLocaleString(),
                 timestamp: now.getTime(),
                 duration: Math.round((now - currentMatch.startTime) / 1000 / 60) // Duración en minutos
@@ -762,6 +880,10 @@
             // Actualizar sets
             renderSets(team1SetsEl, currentMatch.team1.sets);
             renderSets(team2SetsEl, currentMatch.team2.sets);
+            
+            // Actualizar información del set actual
+            currentSetEl.textContent = currentMatch.currentSet;
+            targetScoreEl.textContent = getTargetScore();
         }
 
         function renderSets(container, setsWon) {
@@ -842,7 +964,7 @@
             }
             
             // Encabezados CSV
-            let csv = "Fecha,Hora,Equipo 1,Puntos Equipo 1,Sets Equipo 1,Equipo 2,Puntos Equipo 2,Sets Equipo 2,Ganador,Duración (min)\n";
+            let csv = "Fecha,Hora,Equipo 1,Puntos Equipo 1,Sets Equipo 1,Equipo 2,Puntos Equipo 2,Sets Equipo 2,Ganador,Duración (min),Detalle Sets\n";
             
             // Datos de cada partido
             matchHistory.forEach(match => {
@@ -852,7 +974,13 @@
                 const ganador = match.team1.sets > match.team2.sets ? match.team1.name : match.team2.name;
                 const duracion = match.duration || 0;
                 
-                csv += `"${fecha}","${hora}","${match.team1.name}",${match.team1.score},${match.team1.sets},"${match.team2.name}",${match.team2.score},${match.team2.sets},"${ganador}",${duracion}\n`;
+                // Detalle de sets
+                let detalleSets = "";
+                if (match.setHistory && match.setHistory.length > 0) {
+                    detalleSets = match.setHistory.map(s => `Set ${s.set}: ${s.team1}-${s.team2}`).join("; ");
+                }
+                
+                csv += `"${fecha}","${hora}","${match.team1.name}",${match.team1.score},${match.team1.sets},"${match.team2.name}",${match.team2.score},${match.team2.sets},"${ganador}",${duracion},"${detalleSets}"\n`;
             });
             
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -883,7 +1011,16 @@
             text += `Sets ganados:\n`;
             text += `${currentMatch.team1.name}: ${currentMatch.team1.sets}\n`;
             text += `${currentMatch.team2.name}: ${currentMatch.team2.sets}\n\n`;
-            text += `Set actual: ${currentMatch.currentSet}\n\n`;
+            text += `Set actual: ${currentMatch.currentSet} de 5\n`;
+            text += `Puntos para ganar: ${getTargetScore()} (con diferencia de 2)\n\n`;
+            
+            if (currentMatch.setHistory.length > 0) {
+                text += `=== HISTORIAL DE SETS ===\n`;
+                currentMatch.setHistory.forEach(set => {
+                    text += `Set ${set.set}: ${set.team1}-${set.team2} (Ganador: ${set.winner})\n`;
+                });
+                text += `\n`;
+            }
             
             if (matchHistory.length > 0) {
                 text += `=== ÚLTIMOS PARTIDOS ===\n`;
