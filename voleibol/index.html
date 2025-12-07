@@ -82,46 +82,6 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
 
-        .config-panel {
-            background-color: rgba(44, 62, 80, 0.9);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            align-items: center;
-            box-shadow: var(--shadow);
-        }
-
-        .config-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .config-group label {
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        .config-group select {
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: none;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        .config-group select option {
-            background-color: var(--dark-color);
-            color: white;
-        }
-
         .scoreboard {
             display: flex;
             justify-content: space-between;
@@ -432,11 +392,6 @@
             .match-controls {
                 gap: 10px;
             }
-            
-            .config-panel {
-                flex-direction: column;
-                gap: 10px;
-            }
         }
 
         @media (max-width: 480px) {
@@ -467,22 +422,8 @@
             </div>
         </header>
 
-        <div class="config-panel">
-            <div class="config-group">
-                <label for="sets-select">Número de Sets:</label>
-                <select id="sets-select">
-                    <option value="3">3 Sets (Liga Infantil)</option>
-                    <option value="5">5 Sets (Competitivo)</option>
-                </select>
-            </div>
-            <div class="config-group">
-                <label for="liga-link">Enlace de Liga:</label>
-                <input type="text" id="liga-link" value="https://www.ligaescolar.es/voleibol/" readonly style="padding: 8px; border-radius: 8px; background-color: rgba(255,255,255,0.1); border: none; color: white; width: 250px;">
-            </div>
-        </div>
-
         <div class="current-set">
-            <strong>Set Actual:</strong> <span id="current-set">1</span> de <span id="total-sets">5</span> | 
+            <strong>Set Actual:</strong> <span id="current-set">1</span> de 5 | 
             <strong>Puntos para ganar:</strong> <span id="target-score">25</span> (con diferencia de 2)
         </div>
 
@@ -614,13 +555,7 @@
             maxSets: 5,
             startTime: new Date(),
             // Para almacenar los puntos de cada set
-            setHistory: [],
-            // Configuración
-            config: {
-                totalSets: 5,
-                setsToWin: 3,
-                alwaysPlayAllSets: false
-            }
+            setHistory: []
         };
 
         let matchHistory = [];
@@ -653,9 +588,6 @@
         const dateEl = document.getElementById('date');
         const currentSetEl = document.getElementById('current-set');
         const targetScoreEl = document.getElementById('target-score');
-        const totalSetsEl = document.getElementById('total-sets');
-        const setsSelectEl = document.getElementById('sets-select');
-        const ligaLinkEl = document.getElementById('liga-link');
 
         const teamNameModal = document.getElementById('team-name-modal');
         const teamNameInput = document.getElementById('team-name-input');
@@ -668,32 +600,10 @@
         const shareNativeBtn = document.getElementById('share-native');
         const closeShareBtn = document.getElementById('close-share');
 
-        // Configuración de sets
-        const SETS_CONFIG = {
-            3: {
-                setsToWin: 2,
-                alwaysPlayAllSets: true, // Para ligas infantiles, siempre juegan los 3 sets
-                description: "Liga Infantil (3 sets, siempre se juegan todos)"
-            },
-            5: {
-                setsToWin: 3,
-                alwaysPlayAllSets: false, // En competitivo, se para al ganar 3
-                description: "Competitivo (5 sets, gana al conseguir 3)"
-            }
-        };
-
-        // Función para obtener el puntaje objetivo según el set actual y configuración
+        // Función para obtener el puntaje objetivo según el set actual
         function getTargetScore() {
-            // Los sets normales (no el último) son a 25
-            // El último set (set de desempate) es a 15
-            
-            if (currentMatch.config.totalSets === 3) {
-                // Para 3 sets: sets 1 y 2 a 25, set 3 a 15
-                return currentMatch.currentSet <= 2 ? 25 : 15;
-            } else {
-                // Para 5 sets: sets 1-4 a 25, set 5 a 15
-                return currentMatch.currentSet <= 4 ? 25 : 15;
-            }
+            // Los primeros 4 sets son a 25, el quinto set es a 15
+            return currentMatch.currentSet <= 4 ? 25 : 15;
         }
 
         // Función para actualizar el reloj
@@ -704,29 +614,6 @@
             
             clockEl.textContent = timeString;
             dateEl.textContent = dateString;
-        }
-
-        // Función para cambiar la configuración de sets
-        function updateSetsConfig(totalSets) {
-            const config = SETS_CONFIG[totalSets];
-            
-            currentMatch.config.totalSets = parseInt(totalSets);
-            currentMatch.config.setsToWin = config.setsToWin;
-            currentMatch.config.alwaysPlayAllSets = config.alwaysPlayAllSets;
-            currentMatch.maxSets = parseInt(totalSets);
-            
-            // Ajustar el número de sets ganados si es necesario
-            if (currentMatch.team1.sets > currentMatch.maxSets) {
-                currentMatch.team1.sets = currentMatch.maxSets;
-            }
-            if (currentMatch.team2.sets > currentMatch.maxSets) {
-                currentMatch.team2.sets = currentMatch.maxSets;
-            }
-            
-            // Actualizar la visualización
-            totalSetsEl.textContent = currentMatch.maxSets;
-            renderCurrentMatch();
-            saveToCookies();
         }
 
         // Función para verificar si se ha ganado el set
@@ -745,8 +632,7 @@
                     set: currentMatch.currentSet,
                     team1: score1,
                     team2: score2,
-                    winner: currentMatch.team1.name,
-                    targetScore: targetScore
+                    winner: currentMatch.team1.name
                 });
                 
                 checkMatchWin();
@@ -762,8 +648,7 @@
                     set: currentMatch.currentSet,
                     team1: score1,
                     team2: score2,
-                    winner: currentMatch.team2.name,
-                    targetScore: targetScore
+                    winner: currentMatch.team2.name
                 });
                 
                 checkMatchWin();
@@ -775,86 +660,39 @@
 
         // Función para verificar si se ha ganado el partido
         function checkMatchWin() {
-            // Para ligas infantiles (3 sets, siempre se juegan todos)
-            if (currentMatch.config.alwaysPlayAllSets) {
-                // En ligas infantiles, se juegan todos los sets
-                // El partido termina después del último set
-                if (currentMatch.currentSet >= currentMatch.maxSets) {
-                    // Determinar ganador
-                    let winner;
-                    let winnerTeam;
-                    
-                    if (currentMatch.team1.sets > currentMatch.team2.sets) {
-                        winner = currentMatch.team1.name;
-                        winnerTeam = 'team1';
-                    } else if (currentMatch.team2.sets > currentMatch.team1.sets) {
-                        winner = currentMatch.team2.name;
-                        winnerTeam = 'team2';
-                    } else {
-                        // Empate (no debería pasar en voleibol, pero por si acaso)
-                        winner = "Empate";
-                        winnerTeam = null;
-                    }
-                    
-                    // Mostrar mensaje de victoria
-                    setTimeout(() => {
-                        if (winner !== "Empate") {
-                            alert(`¡${winner} ha ganado el partido! \n\nResultado final: ${currentMatch.team1.sets} - ${currentMatch.team2.sets}`);
-                        } else {
-                            alert(`¡Empate! \n\nResultado final: ${currentMatch.team1.sets} - ${currentMatch.team2.sets}`);
-                        }
-                        
-                        // Guardar el partido automáticamente
-                        saveCurrentMatch();
-                        
-                        // Reiniciar para nuevo partido
-                        resetCurrentMatch();
-                    }, 500);
-                    
-                    return true;
-                } else {
-                    // Aún no es el último set, continuar
-                    setTimeout(() => {
-                        startNewSet();
-                    }, 1000);
-                    return false;
-                }
-            } else {
-                // Para partidos competitivos (5 sets, gana al conseguir 3)
-                const setsToWin = currentMatch.config.setsToWin;
+            const setsToWin = Math.ceil(currentMatch.maxSets / 2); // 3 de 5 sets
+            
+            if (currentMatch.team1.sets >= setsToWin || currentMatch.team2.sets >= setsToWin) {
+                // Determinar ganador
+                let winner;
+                let winnerTeam;
                 
-                if (currentMatch.team1.sets >= setsToWin || currentMatch.team2.sets >= setsToWin) {
-                    // Determinar ganador
-                    let winner;
-                    let winnerTeam;
-                    
-                    if (currentMatch.team1.sets > currentMatch.team2.sets) {
-                        winner = currentMatch.team1.name;
-                        winnerTeam = 'team1';
-                    } else {
-                        winner = currentMatch.team2.name;
-                        winnerTeam = 'team2';
-                    }
-                    
-                    // Mostrar mensaje de victoria
-                    setTimeout(() => {
-                        alert(`¡${winner} ha ganado el partido! \n\nResultado final: ${currentMatch.team1.sets} - ${currentMatch.team2.sets}`);
-                        
-                        // Guardar el partido automáticamente
-                        saveCurrentMatch();
-                        
-                        // Reiniciar para nuevo partido
-                        resetCurrentMatch();
-                    }, 500);
-                    
-                    return true;
+                if (currentMatch.team1.sets > currentMatch.team2.sets) {
+                    winner = currentMatch.team1.name;
+                    winnerTeam = 'team1';
                 } else {
-                    // No se ha ganado el partido, continuar
-                    setTimeout(() => {
-                        startNewSet();
-                    }, 1000);
-                    return false;
+                    winner = currentMatch.team2.name;
+                    winnerTeam = 'team2';
                 }
+                
+                // Mostrar mensaje de victoria
+                setTimeout(() => {
+                    alert(`¡${winner} ha ganado el partido! \n\nResultado final: ${currentMatch.team1.sets} - ${currentMatch.team2.sets}`);
+                    
+                    // Guardar el partido automáticamente
+                    saveCurrentMatch();
+                    
+                    // Reiniciar para nuevo partido
+                    resetCurrentMatch();
+                }, 500);
+                
+                return true;
+            } else {
+                // Pasar al siguiente set
+                setTimeout(() => {
+                    startNewSet();
+                }, 1000);
+                return false;
             }
         }
 
@@ -866,23 +704,6 @@
             
             // Cargar datos guardados
             loadFromCookies();
-            
-            // Configurar el selector de sets
-            setsSelectEl.value = currentMatch.config.totalSets.toString();
-            setsSelectEl.addEventListener('change', function() {
-                if (confirm("¿Cambiar el número de sets? Se reiniciará el partido actual.")) {
-                    updateSetsConfig(this.value);
-                    resetCurrentMatch();
-                } else {
-                    // Revertir al valor anterior
-                    this.value = currentMatch.config.totalSets.toString();
-                }
-            });
-            
-            // Actualizar configuración inicial
-            updateSetsConfig(currentMatch.config.totalSets.toString());
-            
-            // Renderizar
             renderCurrentMatch();
             renderMatchHistory();
             
@@ -939,12 +760,6 @@
         }
 
         function startNewSet() {
-            // Verificar si ya estamos en el último set y si es liga infantil
-            if (currentMatch.currentSet >= currentMatch.maxSets && currentMatch.config.alwaysPlayAllSets) {
-                alert("Ya se están jugando todos los sets de la liga infantil.");
-                return;
-            }
-            
             // Solo permitir nuevo set si el actual no está en juego o si se forcea
             if (currentMatch.team1.score > 0 || currentMatch.team2.score > 0) {
                 if (!confirm("Hay puntos en juego. ¿Forzar fin del set actual y comenzar nuevo set?")) {
@@ -962,16 +777,6 @@
                     return;
                 }
                 
-                // Guardar resultado del set forzado
-                currentMatch.setHistory.push({
-                    set: currentMatch.currentSet,
-                    team1: currentMatch.team1.score,
-                    team2: currentMatch.team2.score,
-                    winner: currentMatch.team1.score > currentMatch.team2.score ? currentMatch.team1.name : currentMatch.team2.name,
-                    targetScore: getTargetScore(),
-                    forced: true
-                });
-                
                 // Verificar si con este set se ganó el partido
                 if (!checkMatchWin()) {
                     // Si no se ganó el partido, continuar al siguiente set
@@ -983,13 +788,9 @@
                 }
             } else {
                 // Si no hay puntos, simplemente incrementar el set
-                if (currentMatch.currentSet < currentMatch.maxSets) {
-                    currentMatch.currentSet++;
-                    renderCurrentMatch();
-                    saveToCookies();
-                } else {
-                    alert("Ya se está jugando el último set.");
-                }
+                currentMatch.currentSet++;
+                renderCurrentMatch();
+                saveToCookies();
             }
         }
 
@@ -1020,7 +821,6 @@
                 team2: {...currentMatch.team2},
                 currentSet: currentMatch.currentSet,
                 setHistory: [...currentMatch.setHistory],
-                config: {...currentMatch.config},
                 date: now.toLocaleString(),
                 timestamp: now.getTime(),
                 duration: Math.round((now - currentMatch.startTime) / 1000 / 60) // Duración en minutos
@@ -1083,7 +883,6 @@
             
             // Actualizar información del set actual
             currentSetEl.textContent = currentMatch.currentSet;
-            totalSetsEl.textContent = currentMatch.maxSets;
             targetScoreEl.textContent = getTargetScore();
         }
 
@@ -1127,17 +926,9 @@
                 dateDiv.className = 'history-date';
                 dateDiv.textContent = match.date;
                 
-                // Añadir indicador de tipo de partido
-                const typeDiv = document.createElement('div');
-                typeDiv.className = 'history-date';
-                typeDiv.textContent = match.config.totalSets === 3 ? " (3 sets)" : " (5 sets)";
-                typeDiv.style.marginLeft = '10px';
-                typeDiv.style.fontStyle = 'italic';
-                
                 historyItem.appendChild(teamsDiv);
                 historyItem.appendChild(scoreDiv);
                 historyItem.appendChild(dateDiv);
-                historyItem.appendChild(typeDiv);
                 
                 historyListEl.appendChild(historyItem);
             });
@@ -1173,14 +964,13 @@
             }
             
             // Encabezados CSV
-            let csv = "Fecha,Hora,Tipo Partido,Equipo 1,Puntos Equipo 1,Sets Equipo 1,Equipo 2,Puntos Equipo 2,Sets Equipo 2,Ganador,Duración (min),Detalle Sets\n";
+            let csv = "Fecha,Hora,Equipo 1,Puntos Equipo 1,Sets Equipo 1,Equipo 2,Puntos Equipo 2,Sets Equipo 2,Ganador,Duración (min),Detalle Sets\n";
             
             // Datos de cada partido
             matchHistory.forEach(match => {
                 const date = new Date(match.timestamp);
                 const fecha = date.toLocaleDateString();
                 const hora = date.toLocaleTimeString();
-                const tipoPartido = match.config.totalSets === 3 ? "3 sets" : "5 sets";
                 const ganador = match.team1.sets > match.team2.sets ? match.team1.name : match.team2.name;
                 const duracion = match.duration || 0;
                 
@@ -1190,7 +980,7 @@
                     detalleSets = match.setHistory.map(s => `Set ${s.set}: ${s.team1}-${s.team2}`).join("; ");
                 }
                 
-                csv += `"${fecha}","${hora}","${tipoPartido}","${match.team1.name}",${match.team1.score},${match.team1.sets},"${match.team2.name}",${match.team2.score},${match.team2.sets},"${ganador}",${duracion},"${detalleSets}"\n`;
+                csv += `"${fecha}","${hora}","${match.team1.name}",${match.team1.score},${match.team1.sets},"${match.team2.name}",${match.team2.score},${match.team2.sets},"${ganador}",${duracion},"${detalleSets}"\n`;
             });
             
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -1212,20 +1002,16 @@
             const now = new Date();
             const dateStr = now.toLocaleDateString();
             const timeStr = now.toLocaleTimeString();
-            const tipoPartido = currentMatch.config.totalSets === 3 ? "Liga Infantil (3 sets)" : "Competitivo (5 sets)";
-            const setsToWin = currentMatch.config.setsToWin;
-            const ligaLink = ligaLinkEl.value;
             
             let text = `🏐 MARCADOR DE VOLEIBOL 🏐\n`;
-            text += `📅 ${dateStr} 🕒 ${timeStr}\n`;
-            text += `📊 ${tipoPartido} - Gana al conseguir ${setsToWin} sets\n\n`;
+            text += `📅 ${dateStr} 🕒 ${timeStr}\n\n`;
             text += `=== PARTIDO ACTUAL ===\n`;
             text += `${currentMatch.team1.name}: ${currentMatch.team1.score} puntos\n`;
             text += `${currentMatch.team2.name}: ${currentMatch.team2.score} puntos\n\n`;
             text += `Sets ganados:\n`;
             text += `${currentMatch.team1.name}: ${currentMatch.team1.sets}\n`;
             text += `${currentMatch.team2.name}: ${currentMatch.team2.sets}\n\n`;
-            text += `Set actual: ${currentMatch.currentSet} de ${currentMatch.maxSets}\n`;
+            text += `Set actual: ${currentMatch.currentSet} de 5\n`;
             text += `Puntos para ganar: ${getTargetScore()} (con diferencia de 2)\n\n`;
             
             if (currentMatch.setHistory.length > 0) {
@@ -1241,14 +1027,11 @@
                 const recentMatches = matchHistory.slice(0, 3);
                 recentMatches.forEach((match, index) => {
                     const matchDate = new Date(match.timestamp).toLocaleDateString();
-                    const matchType = match.config.totalSets === 3 ? "3s" : "5s";
-                    text += `${index + 1}. ${match.team1.name} ${match.team1.sets}-${match.team2.sets} ${match.team2.name} (${matchDate}, ${matchType})\n`;
+                    text += `${index + 1}. ${match.team1.name} ${match.team1.sets}-${match.team2.sets} ${match.team2.name} (${matchDate})\n`;
                 });
             }
             
-            text += `\n🏆 Generado con Marcador de Voleibol\n`;
-            text += `🔗 Más información: ${ligaLink}\n`;
-            text += `🌐 Web oficial: https://www.ligaescolar.es`;
+            text += `\n📱 Generado con Marcador de Voleibol`;
             
             return text;
         }
@@ -1277,9 +1060,9 @@
             
             if (navigator.share) {
                 navigator.share({
-                    title: 'Resultado de Voleibol - Liga Escolar',
+                    title: 'Resultado de Voleibol',
                     text: text,
-                    url: ligaLinkEl.value
+                    url: window.location.href
                 }).then(() => {
                     console.log('Contenido compartido exitosamente');
                 }).catch((error) => {
@@ -1339,7 +1122,5 @@
             }
         }
     </script>
-</head>
-<body>
 </body>
 </html>
