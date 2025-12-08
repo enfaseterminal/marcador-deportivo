@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marcador de Voleibol - Liga Escolar</title>
+    <title>Marcador de Voleibol y Minivoley</title>
+    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/voleibol.css">
 </head>
 <body>
     <div class="container">
         <header>
             <div class="header-left">
                 <h1><i class="fas fa-volleyball-ball"></i> Marcador de Voleibol</h1>
-                <p class="subtitle">Lleva el control de tus partidos de voleibol</p>
+                <p class="subtitle">Selecciona el tipo de partido que vas a seguir</p>
             </div>
             <div class="clock-container">
                 <div id="clock">00:00:00</div>
@@ -21,88 +20,40 @@
             </div>
         </header>
 
-        <a href="../index.html" class="back-button">
-            <i class="fas fa-arrow-left"></i> Volver a la página principal
-        </a>
-
-        <div class="config-panel">
-            <div class="config-group">
-                <label for="sets-select">Número de Sets:</label>
-                <select id="sets-select">
-                    <option value="3">3 Sets (Liga Infantil)</option>
-                    <option value="5" selected>5 Sets (Competitivo)</option>
-                </select>
-            </div>
-            <div class="config-group">
-                <label for="liga-link">Enlace de Liga:</label>
-                <input type="text" id="liga-link" value="https://www.ligaescolar.es/voleibol/" readonly>
-            </div>
-        </div>
-
-        <div class="current-set">
-            <strong>Set Actual:</strong> <span id="current-set">1</span> de <span id="total-sets">5</span> | 
-            <strong>Puntos para ganar:</strong> <span id="target-score">25</span> (con diferencia de 2)
-        </div>
-
-        <div class="scoreboard">
-            <div class="team" id="team1">
-                <div class="team-name" id="team1-name">Equipo Local</div>
-                <div class="score" id="team1-score">0</div>
-                <div class="sets" id="team1-sets">
-                    <!-- Los sets se generarán dinámicamente -->
+        <div class="game-selection">
+            <div class="game-card" id="volleyball-card">
+                <div class="game-icon">
+                    <i class="fas fa-volleyball-ball fa-3x"></i>
                 </div>
-                <div class="score-controls">
-                    <button class="btn btn-primary" id="team1-add">
-                        <i class="fas fa-plus"></i> Punto
-                    </button>
-                    <button class="btn btn-secondary" id="team1-remove">
-                        <i class="fas fa-minus"></i> Punto
-                    </button>
-                </div>
+                <h2>Voleibol</h2>
+                <p class="game-description">
+                    <strong>5 sets</strong><br>
+                    Sets 1-4: a 25 puntos (diferencia de 2)<br>
+                    Set 5: a 15 puntos (diferencia de 2)<br>
+                    Gana el mejor de 5 sets
+                </p>
+                <button class="btn btn-primary" id="start-volleyball">
+                    <i class="fas fa-play"></i> Iniciar Marcador
+                </button>
             </div>
 
-            <div class="team" id="team2">
-                <div class="team-name" id="team2-name">Equipo Visitante</div>
-                <div class="score" id="team2-score">0</div>
-                <div class="sets" id="team2-sets">
-                    <!-- Los sets se generarán dinámicamente -->
+            <div class="game-card" id="minivolleyball-card">
+                <div class="game-icon">
+                    <i class="fas fa-volleyball-ball fa-3x"></i>
+                    <span class="mini-badge">Mini</span>
                 </div>
-                <div class="score-controls">
-                    <button class="btn btn-primary" id="team2-add">
-                        <i class="fas fa-plus"></i> Punto
-                    </button>
-                    <button class="btn btn-secondary" id="team2-remove">
-                        <i class="fas fa-minus"></i> Punto
-                    </button>
-                </div>
+                <h2>Minivoley</h2>
+                <p class="game-description">
+                    <strong>3 sets</strong><br>
+                    Sets 1-2: a 25 puntos (diferencia de 2)<br>
+                    Set 3: a 15 puntos (diferencia de 2)<br>
+                    Se juegan los 3 sets siempre<br>
+                    Gana quien gane 2 sets
+                </p>
+                <button class="btn btn-success" id="start-minivolleyball">
+                    <i class="fas fa-play"></i> Iniciar Marcador
+                </button>
             </div>
-        </div>
-
-        <div class="match-controls">
-            <button class="btn btn-success" id="new-set">
-                <i class="fas fa-flag"></i> Nuevo Set
-            </button>
-            <button class="btn btn-warning" id="reset-match">
-                <i class="fas fa-redo"></i> Reiniciar Partido
-            </button>
-            <button class="btn btn-primary" id="save-match">
-                <i class="fas fa-save"></i> Guardar Partido
-            </button>
-        </div>
-
-        <div class="export-controls">
-            <button class="btn btn-info" id="export-json">
-                <i class="fas fa-file-code"></i> Exportar a JSON
-            </button>
-            <button class="btn btn-info" id="export-csv">
-                <i class="fas fa-file-csv"></i> Exportar a CSV
-            </button>
-            <button class="btn btn-success" id="share-whatsapp">
-                <i class="fab fa-whatsapp"></i> Compartir por WhatsApp
-            </button>
-            <button class="btn btn-primary" id="share-results">
-                <i class="fas fa-share-alt"></i> Compartir Resultados
-            </button>
         </div>
 
         <div class="history">
@@ -116,54 +67,8 @@
                 </button>
             </div>
         </div>
-
-        <footer>
-            <p>© 2023 Liga Escolar - Marcador de Voleibol</p>
-            <p class="footer-links">
-                <a href="../index.html">Página principal</a> | 
-                <a href="https://www.ligaescolar.es" target="_blank">Sitio web oficial</a>
-            </p>
-        </footer>
     </div>
 
-    <!-- Modal para editar nombres de equipos -->
-    <div class="modal" id="team-name-modal">
-        <div class="modal-content">
-            <h2>Editar Nombre del Equipo</h2>
-            <div class="form-group">
-                <label for="team-name-input">Nombre del equipo:</label>
-                <input type="text" id="team-name-input" placeholder="Ingresa el nombre del equipo">
-            </div>
-            <div class="modal-buttons">
-                <button class="btn btn-secondary" id="cancel-edit">Cancelar</button>
-                <button class="btn btn-primary" id="save-name">Guardar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para compartir resultados -->
-    <div class="modal" id="share-modal">
-        <div class="modal-content">
-            <h2>Compartir Resultados</h2>
-            <div class="share-preview">
-                <h3>Vista previa del resultado:</h3>
-                <div id="share-text">
-                    <!-- Texto generado dinámicamente -->
-                </div>
-                <div class="modal-buttons">
-                    <button class="btn btn-secondary" id="copy-text">
-                        <i class="fas fa-copy"></i> Copiar Texto
-                    </button>
-                    <button class="btn btn-success" id="share-native">
-                        <i class="fas fa-share"></i> Compartir
-                    </button>
-                    <button class="btn btn-secondary" id="close-share">Cerrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="../js/clock.js"></script>
-    <script src="../js/voleibol.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
