@@ -23,6 +23,7 @@ let currentMatch = {
 
 let matchHistory = [];
 let editingTeam = null;
+let isProcessingSet = false; // Bandera para evitar procesamientos múltiples
 
 // Configuración de sets
 const SETS_CONFIG = {
@@ -57,8 +58,6 @@ function initVolleyballScoreboard() {
     const resetMatchBtn = document.getElementById('reset-match');
     const saveMatchBtn = document.getElementById('save-match');
     const clearHistoryBtn = document.getElementById('clear-history');
-    const exportJsonBtn = document.getElementById('export-json');
-    const exportCsvBtn = document.getElementById('export-csv');
     const shareWhatsappBtn = document.getElementById('share-whatsapp');
     const shareResultsBtn = document.getElementById('share-results');
 
@@ -105,53 +104,70 @@ function initVolleyballScoreboard() {
             currentMatch.team2.sets = currentMatch.maxSets;
         }
         
-        totalSetsEl.textContent = currentMatch.maxSets;
+        if (totalSetsEl) totalSetsEl.textContent = currentMatch.maxSets;
         renderCurrentMatch();
         saveToCookies();
     }
 
-    // Función para verificar si se ha ganado el set
+    // Función para verificar si se ha ganado el set (CORREGIDA)
     function checkSetWin() {
+        if (isProcessingSet) return false;
+        
         const targetScore = getTargetScore();
         const score1 = currentMatch.team1.score;
         const score2 = currentMatch.team2.score;
         
+        let setWon = false;
+        let winnerTeam = null;
+        
         if (score1 >= targetScore && score1 - score2 >= 2) {
-            currentMatch.team1.sets++;
-            
-            currentMatch.setHistory.push({
-                set: currentMatch.currentSet,
-                team1: score1,
-                team2: score2,
-                winner: currentMatch.team1.name,
-                targetScore: targetScore
-            });
-            
-            checkMatchWin();
-            return true;
+            setWon = true;
+            winnerTeam = 'team1';
+        } else if (score2 >= targetScore && score2 - score1 >= 2) {
+            setWon = true;
+            winnerTeam = 'team2';
         }
         
-        if (score2 >= targetScore && score2 - score1 >= 2) {
-            currentMatch.team2.sets++;
+        if (setWon) {
+            isProcessingSet = true;
             
+            // Incrementar set del equipo ganador
+            currentMatch[winnerTeam].sets++;
+            
+            // Guardar resultado del set
             currentMatch.setHistory.push({
                 set: currentMatch.currentSet,
                 team1: score1,
                 team2: score2,
-                winner: currentMatch.team2.name,
+                winner: currentMatch[winnerTeam].name,
                 targetScore: targetScore
             });
             
-            checkMatchWin();
+            // Verificar si se ganó el partido
+            const matchWon = checkMatchWin();
+            
+            if (!matchWon) {
+                // Si no se ganó el partido, pasar al siguiente set después de un breve retraso
+                setTimeout(() => {
+                    currentMatch.currentSet++;
+                    currentMatch.team1.score = 0;
+                    currentMatch.team2.score = 0;
+                    isProcessingSet = false;
+                    renderCurrentMatch();
+                    saveToCookies();
+                }, 1500);
+            }
+            
             return true;
         }
         
         return false;
     }
 
-    // Función para verificar si se ha ganado el partido
+    // Función para verificar si se ha ganado el partido (CORREGIDA)
     function checkMatchWin() {
         if (currentMatch.config.alwaysPlayAllSets) {
+            // Para 3 sets: se juegan todos los sets siempre
             if (currentMatch.currentSet >= currentMatch.maxSets) {
                 let winner;
                 
@@ -172,16 +188,13 @@ function initVolleyballScoreboard() {
                     
                     saveCurrentMatch();
                     resetCurrentMatch();
-                }, 500);
+                }, 1000);
                 
                 return true;
-            } else {
-                setTimeout(() => {
-                    startNewSet();
-                }, 1000);
-                return false;
             }
+            return false;
         } else {
+            // Para 5 sets: gana al conseguir 3 sets
             const setsToWin = currentMatch.config.setsToWin;
             
             if (currentMatch.team1.sets >= setsToWin || currentMatch.team2.sets >= setsToWin) {
@@ -198,20 +211,19 @@ function initVolleyballScoreboard() {
                     
                     saveCurrentMatch();
                     resetCurrentMatch();
-                }, 500);
+                }, 1000);
                 
                 return true;
-            } else {
-                setTimeout(() => {
-                    startNewSet();
-                }, 1000);
-                return false;
             }
+            return false;
         }
     }
 
-    // Función principal para actualizar puntuación
+    // Función principal para actualizar puntuación (CORREGIDA)
     function updateScore(team, change) {
+        // Si ya se está procesando un set, ignorar nuevos puntos
+        if (isProcessingSet) return;
+        
         currentMatch[team].score += change;
         
         if (currentMatch[team].score < 0) {
@@ -227,6 +239,9 @@ function initVolleyballScoreboard() {
     }
 
     function startNewSet() {
+        // Si ya se está procesando un set, no hacer nada
+        if (isProcessingSet) return;
+        
         if (currentMatch.currentSet >= currentMatch.maxSets && currentMatch.config.alwaysPlayAllSets) {
             alert("Ya se están jugando todos los sets de la liga infantil.");
             return;
@@ -237,6 +252,7 @@ function initVolleyballScoreboard() {
                 return;
             }
             
+            // Determinar ganador del set actual por puntaje
             if (currentMatch.team1.score > currentMatch.team2.score) {
                 currentMatch.team1.sets++;
             } else if (currentMatch.team2.score > currentMatch.team1.score) {
@@ -255,6 +271,7 @@ function initVolleyballScoreboard() {
                 forced: true
             });
             
+            // Verificar si con este set se ganó el partido
             if (!checkMatchWin()) {
                 currentMatch.currentSet++;
                 currentMatch.team1.score = 0;
@@ -282,6 +299,7 @@ function initVolleyballScoreboard() {
             currentMatch.currentSet = 1;
             currentMatch.startTime = new Date();
             currentMatch.setHistory = [];
+            isProcessingSet = false;
             renderCurrentMatch();
             saveToCookies();
         }
@@ -418,67 +436,6 @@ function initVolleyballScoreboard() {
             
             historyListEl.appendChild(historyItem);
         });
-    }
-
-    // Funciones de exportación
-    function exportToJson() {
-        const data = {
-            currentMatch: currentMatch,
-            matchHistory: matchHistory,
-            exportDate: new Date().toISOString()
-        };
-        
-        const jsonData = JSON.stringify(data, null, 2);
-        const blob = new Blob([jsonData], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `marcador_voleibol_${new Date().toISOString().slice(0, 10)}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        alert("Datos exportados a JSON correctamente.");
-    }
-
-    function exportToCsv() {
-        if (matchHistory.length === 0) {
-            alert("No hay datos para exportar. Guarda algunos partidos primero.");
-            return;
-        }
-        
-        let csv = "Fecha,Hora,Tipo Partido,Equipo 1,Puntos Equipo 1,Sets Equipo 1,Equipo 2,Puntos Equipo 2,Sets Equipo 2,Ganador,Duración (min),Detalle Sets\n";
-        
-        matchHistory.forEach(match => {
-            const date = new Date(match.timestamp);
-            const fecha = date.toLocaleDateString();
-            const hora = date.toLocaleTimeString();
-            const tipoPartido = match.config.totalSets === 3 ? "3 sets" : "5 sets";
-            const ganador = match.team1.sets > match.team2.sets ? match.team1.name : match.team2.name;
-            const duracion = match.duration || 0;
-            
-            let detalleSets = "";
-            if (match.setHistory && match.setHistory.length > 0) {
-                detalleSets = match.setHistory.map(s => `Set ${s.set}: ${s.team1}-${s.team2}`).join("; ");
-            }
-            
-            csv += `"${fecha}","${hora}","${tipoPartido}","${match.team1.name}",${match.team1.score},${match.team1.sets},"${match.team2.name}",${match.team2.score},${match.team2.sets},"${ganador}",${duracion},"${detalleSets}"\n`;
-        });
-        
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `marcador_voleibol_${new Date().toISOString().slice(0, 10)}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        alert("Datos exportados a CSV correctamente. Puedes abrir el archivo en Excel.");
     }
 
     // Funciones para compartir
@@ -635,9 +592,7 @@ function initVolleyballScoreboard() {
         if (saveMatchBtn) saveMatchBtn.addEventListener('click', saveCurrentMatch);
         if (clearHistoryBtn) clearHistoryBtn.addEventListener('click', clearMatchHistory);
         
-        // Event listeners para exportación y compartir
-        if (exportJsonBtn) exportJsonBtn.addEventListener('click', exportToJson);
-        if (exportCsvBtn) exportCsvBtn.addEventListener('click', exportToCsv);
+        // Event listeners para compartir
         if (shareWhatsappBtn) shareWhatsappBtn.addEventListener('click', shareToWhatsapp);
         if (shareResultsBtn) shareResultsBtn.addEventListener('click', openShareModal);
         
