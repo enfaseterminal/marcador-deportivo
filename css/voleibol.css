@@ -1,3 +1,5 @@
+[file name]: voleibol.css
+[file content begin]
 :root {
     --primary-color: #3498db;
     --secondary-color: #e74c3c;
@@ -216,6 +218,35 @@ h1 {
 .btn-info {
     background-color: #17a2b8;
     color: white;
+}
+
+/* Estilos para botones deshabilitados */
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #cccccc !important;
+}
+
+.btn:disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.score-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #cccccc !important;
+}
+
+.score-btn:disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 .btn:hover {
@@ -519,3 +550,4 @@ h1 {
         margin: 10px 0;
     }
 }
+[file content end]

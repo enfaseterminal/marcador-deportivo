@@ -1,3 +1,5 @@
+[file name]: voleibol.js
+[file content begin]
 // Variables globales
 let currentMatch = {
     team1: {
@@ -96,6 +98,33 @@ function getTargetScore() {
     return currentMatch.currentSet <= 4 ? 25 : 15;
 }
 
+// Funciones para manejar el estado de los botones
+function disableScoreButtons() {
+    team1AddBtn.disabled = true;
+    team1RemoveBtn.disabled = true;
+    team2AddBtn.disabled = true;
+    team2RemoveBtn.disabled = true;
+    
+    // Añadir clase visual para indicar deshabilitado
+    team1AddBtn.classList.add('disabled');
+    team1RemoveBtn.classList.add('disabled');
+    team2AddBtn.classList.add('disabled');
+    team2RemoveBtn.classList.add('disabled');
+}
+
+function enableScoreButtons() {
+    team1AddBtn.disabled = false;
+    team1RemoveBtn.disabled = false;
+    team2AddBtn.disabled = false;
+    team2RemoveBtn.disabled = false;
+    
+    // Remover clase visual
+    team1AddBtn.classList.remove('disabled');
+    team1RemoveBtn.classList.remove('disabled');
+    team2AddBtn.classList.remove('disabled');
+    team2RemoveBtn.classList.remove('disabled');
+}
+
 // Función para verificar si se ha ganado el set
 function checkSetWin() {
     // Si ya estamos procesando una victoria en el set, no hacer nada
@@ -175,6 +204,9 @@ function checkMatchWin() {
             winner = currentMatch.team2.name;
             currentMatch.winner = 'team2';
         }
+        
+        // Bloquear todos los botones de puntuación inmediatamente
+        disableScoreButtons();
         
         // Mostrar mensaje de victoria con notificación
         showNotification(`¡${winner} ha ganado el partido! ${currentMatch.team1.sets}-${currentMatch.team2.sets}`, 'success');
@@ -267,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Funciones principales
 function updateScore(team, change) {
     // Solo permitir actualizar si no estamos procesando una victoria
-    if (setWonInProgress || matchWonInProgress) {
+    if (setWonInProgress || matchWonInProgress || currentMatch.winner) {
         return;
     }
     
@@ -282,11 +314,14 @@ function updateScore(team, change) {
     // Verificar si se ganó el set después de actualizar el puntaje
     const setWon = checkSetWin();
     
-    // Si no se ganó el set, renderizar normalmente
-    if (!setWon) {
-        renderCurrentMatch();
-        saveToCookies();
+    // Si se ganó el set, bloquear botones temporalmente
+    if (setWon) {
+        disableScoreButtons();
     }
+    
+    // Renderizar normalmente
+    renderCurrentMatch();
+    saveToCookies();
 }
 
 function startNewSet() {
@@ -297,6 +332,9 @@ function startNewSet() {
         currentMatch.team2.score = 0;
         renderCurrentMatch();
         saveToCookies();
+        
+        // Reactivar botones para el nuevo set
+        enableScoreButtons();
         
         showNotification(`Comienza el set ${currentMatch.currentSet}`);
     } else {
@@ -326,6 +364,10 @@ function performReset() {
     currentMatch.winner = null;
     setWonInProgress = false;
     matchWonInProgress = false;
+    
+    // Reactivar todos los botones
+    enableScoreButtons();
+    
     renderCurrentMatch();
     saveToCookies();
     showNotification("Partido reiniciado correctamente");
@@ -351,11 +393,41 @@ function openSaveMatchModal() {
     // Mostrar la ubicación
     saveMatchLocationEl.textContent = currentMatch.location;
     
+    // Si se ganó el partido, forzar guardado y ocultar botón cancelar
+    if (savingMatchAfterWin) {
+        cancelSaveBtn.style.display = 'none';
+        // Mostrar mensaje explicativo
+        const message = document.createElement('p');
+        message.textContent = "Partido finalizado. Debes guardar para continuar.";
+        message.style.color = '#4CAF50';
+        message.style.marginTop = '10px';
+        message.style.fontWeight = 'bold';
+        
+        // Asegurarse de que no se añada múltiples veces
+        if (!document.querySelector('.force-save-message')) {
+            message.className = 'force-save-message';
+            saveMatchModal.querySelector('.modal-content').appendChild(message);
+        }
+    } else {
+        cancelSaveBtn.style.display = 'block';
+        // Remover mensaje si existe
+        const existingMessage = document.querySelector('.force-save-message');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+    }
+    
     // Mostrar el modal
     saveMatchModal.style.display = 'flex';
 }
 
 function closeSaveMatchModal() {
+    // Si se ganó el partido, no permitir cerrar el modal sin guardar
+    if (savingMatchAfterWin) {
+        showNotification("Debes guardar el partido para continuar.", "warning");
+        return;
+    }
+    
     saveMatchModal.style.display = 'none';
     savingMatchAfterWin = false;
 }
@@ -385,7 +457,16 @@ function saveCurrentMatch() {
     saveToCookies();
     
     // Cerrar el modal
-    closeSaveMatchModal();
+    saveMatchModal.style.display = 'none';
+    
+    // Restaurar botón cancelar
+    cancelSaveBtn.style.display = 'block';
+    
+    // Remover mensaje si existe
+    const existingMessage = document.querySelector('.force-save-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
     
     // Mostrar notificación
     showNotification("Partido guardado correctamente en el historial");
@@ -394,6 +475,7 @@ function saveCurrentMatch() {
     if (savingMatchAfterWin) {
         setTimeout(() => {
             performReset();
+            savingMatchAfterWin = false;
         }, 500);
     }
 }
@@ -632,3 +714,4 @@ function loadFromCookies() {
         }
     }
 }
+[file content end]
