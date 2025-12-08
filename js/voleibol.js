@@ -1,4 +1,4 @@
-// Variables globales para el voleibol
+// Variables globales
 let currentMatch = {
     team1: {
         name: "Equipo Local",
@@ -13,622 +13,622 @@ let currentMatch = {
     currentSet: 1,
     maxSets: 5,
     startTime: new Date(),
+    // Para almacenar los puntos de cada set
     setHistory: [],
-    config: {
-        totalSets: 5,
-        setsToWin: 3,
-        alwaysPlayAllSets: false
-    }
+    winner: null,
+    location: "No especificada"
 };
 
 let matchHistory = [];
 let editingTeam = null;
-let isProcessing = false; // Bandera para evitar procesamientos simultáneos
+let savingMatchAfterWin = false;
 
-// Configuración de sets
-const SETS_CONFIG = {
-    3: {
-        setsToWin: 2,
-        alwaysPlayAllSets: true,
-        description: "Liga Infantil (3 sets, siempre se juegan todos)"
-    },
-    5: {
-        setsToWin: 3,
-        alwaysPlayAllSets: false,
-        description: "Competitivo (5 sets, gana al conseguir 3)"
-    }
-};
+// Variables para controlar el estado del set
+let setWonInProgress = false;
+let matchWonInProgress = false;
 
-// Inicialización del marcador de voleibol
-function initVolleyballScoreboard() {
-    // Elementos DOM
-    const elements = {
-        team1Name: document.getElementById('team1-name'),
-        team1Score: document.getElementById('team1-score'),
-        team1Sets: document.getElementById('team1-sets'),
-        team1AddBtn: document.getElementById('team1-add'),
-        team1RemoveBtn: document.getElementById('team1-remove'),
-        
-        team2Name: document.getElementById('team2-name'),
-        team2Score: document.getElementById('team2-score'),
-        team2Sets: document.getElementById('team2-sets'),
-        team2AddBtn: document.getElementById('team2-add'),
-        team2RemoveBtn: document.getElementById('team2-remove'),
-        
-        newSetBtn: document.getElementById('new-set'),
-        resetMatchBtn: document.getElementById('reset-match'),
-        saveMatchBtn: document.getElementById('save-match'),
-        clearHistoryBtn: document.getElementById('clear-history'),
-        shareWhatsappBtn: document.getElementById('share-whatsapp'),
-        shareResultsBtn: document.getElementById('share-results'),
-        
-        historyList: document.getElementById('history-list'),
-        currentSetEl: document.getElementById('current-set'),
-        targetScoreEl: document.getElementById('target-score'),
-        totalSetsEl: document.getElementById('total-sets'),
-        setsSelectEl: document.getElementById('sets-select'),
-        ligaLinkEl: document.getElementById('liga-link'),
-        
-        teamNameModal: document.getElementById('team-name-modal'),
-        teamNameInput: document.getElementById('team-name-input'),
-        cancelEditBtn: document.getElementById('cancel-edit'),
-        saveNameBtn: document.getElementById('save-name'),
-        
-        shareModal: document.getElementById('share-modal'),
-        shareTextEl: document.getElementById('share-text'),
-        copyTextBtn: document.getElementById('copy-text'),
-        shareNativeBtn: document.getElementById('share-native'),
-        closeShareBtn: document.getElementById('close-share')
-    };
+// Elementos DOM
+const team1NameEl = document.getElementById('team1-name');
+const team1ScoreEl = document.getElementById('team1-score');
+const team1SetsEl = document.getElementById('team1-sets');
+const team1AddBtn = document.getElementById('team1-add');
+const team1RemoveBtn = document.getElementById('team1-remove');
 
-    // Función para obtener el puntaje objetivo según el set actual
-    function getTargetScore() {
-        if (currentMatch.config.totalSets === 3) {
-            return currentMatch.currentSet <= 2 ? 25 : 15;
-        } else {
-            return currentMatch.currentSet <= 4 ? 25 : 15;
-        }
-    }
+const team2NameEl = document.getElementById('team2-name');
+const team2ScoreEl = document.getElementById('team2-score');
+const team2SetsEl = document.getElementById('team2-sets');
+const team2AddBtn = document.getElementById('team2-add');
+const team2RemoveBtn = document.getElementById('team2-remove');
 
-    // Función para cambiar la configuración de sets
-    function updateSetsConfig(totalSets) {
-        const config = SETS_CONFIG[totalSets];
-        
-        currentMatch.config.totalSets = parseInt(totalSets);
-        currentMatch.config.setsToWin = config.setsToWin;
-        currentMatch.config.alwaysPlayAllSets = config.alwaysPlayAllSets;
-        currentMatch.maxSets = parseInt(totalSets);
-        
-        if (currentMatch.team1.sets > currentMatch.maxSets) {
-            currentMatch.team1.sets = currentMatch.maxSets;
-        }
-        if (currentMatch.team2.sets > currentMatch.maxSets) {
-            currentMatch.team2.sets = currentMatch.maxSets;
-        }
-        
-        if (elements.totalSetsEl) elements.totalSetsEl.textContent = currentMatch.maxSets;
-        renderCurrentMatch();
-        saveToCookies();
-    }
+const newSetBtn = document.getElementById('new-set');
+const resetMatchBtn = document.getElementById('reset-match');
+const saveMatchBtn = document.getElementById('save-match');
+const clearHistoryBtn = document.getElementById('clear-history');
+const shareWhatsappBtn = document.getElementById('share-whatsapp');
+const shareResultsBtn = document.getElementById('share-results');
 
-    // Función para verificar si se ha ganado el set (SIMPLIFICADA)
-    function checkSetWin() {
-        const targetScore = getTargetScore();
-        const score1 = currentMatch.team1.score;
-        const score2 = currentMatch.team2.score;
-        
-        let setWon = false;
-        let winner = null;
-        
-        if (score1 >= targetScore && score1 - score2 >= 2) {
-            setWon = true;
-            winner = 'team1';
-        } else if (score2 >= targetScore && score2 - score1 >= 2) {
-            setWon = true;
-            winner = 'team2';
-        }
-        
-        return { setWon, winner };
-    }
+const historyListEl = document.getElementById('history-list');
+const currentSetEl = document.getElementById('current-set');
+const targetScoreEl = document.getElementById('target-score');
+const maxSetsEl = document.getElementById('max-sets');
+const currentLocationEl = document.getElementById('current-location');
+const matchLocationInput = document.getElementById('match-location-input');
+const saveLocationBtn = document.getElementById('save-location');
 
-    // Función para procesar la victoria de un set
-    function processSetWin(winner) {
-        if (isProcessing) return;
-        isProcessing = true;
-        
-        // Incrementar set del equipo ganador
-        currentMatch[winner].sets++;
-        
-        // Guardar resultado del set
-        currentMatch.setHistory.push({
-            set: currentMatch.currentSet,
-            team1: currentMatch.team1.score,
-            team2: currentMatch.team2.score,
-            winner: currentMatch[winner].name,
-            targetScore: getTargetScore()
-        });
-        
-        renderCurrentMatch();
-        saveToCookies();
-        
-        // Verificar si se ganó el partido
-        const matchWon = checkMatchWin();
-        
-        if (!matchWon) {
-            // Pasar al siguiente set después de un breve retraso
-            setTimeout(() => {
-                currentMatch.currentSet++;
-                currentMatch.team1.score = 0;
-                currentMatch.team2.score = 0;
-                isProcessing = false;
-                renderCurrentMatch();
-                saveToCookies();
-            }, 1500);
-        } else {
-            isProcessing = false;
-        }
-    }
+const teamNameModal = document.getElementById('team-name-modal');
+const teamNameInput = document.getElementById('team-name-input');
+const cancelEditBtn = document.getElementById('cancel-edit');
+const saveNameBtn = document.getElementById('save-name');
 
-    // Función para verificar si se ha ganado el partido (SIMPLIFICADA)
-    function checkMatchWin() {
-        let matchWon = false;
-        
-        if (currentMatch.config.alwaysPlayAllSets) {
-            // Para 3 sets: se juegan todos los sets siempre
-            if (currentMatch.currentSet >= currentMatch.maxSets) {
-                matchWon = true;
-            }
-        } else {
-            // Para 5 sets: gana al conseguir 3 sets
-            const setsToWin = currentMatch.config.setsToWin;
-            if (currentMatch.team1.sets >= setsToWin || currentMatch.team2.sets >= setsToWin) {
-                matchWon = true;
-            }
-        }
-        
-        if (matchWon) {
-            setTimeout(() => {
-                let winner;
-                if (currentMatch.team1.sets > currentMatch.team2.sets) {
-                    winner = currentMatch.team1.name;
-                } else if (currentMatch.team2.sets > currentMatch.team1.sets) {
-                    winner = currentMatch.team2.name;
-                } else {
-                    winner = "Empate";
-                }
-                
-                if (winner !== "Empate") {
-                    alert(`¡${winner} ha ganado el partido! \n\nResultado final: ${currentMatch.team1.sets} - ${currentMatch.team2.sets}`);
-                } else {
-                    alert(`¡Empate! \n\nResultado final: ${currentMatch.team1.sets} - ${currentMatch.team2.sets}`);
-                }
-                
-                saveCurrentMatch();
-                resetCurrentMatch();
-            }, 1000);
-            
-            return true;
-        }
-        
+const saveMatchModal = document.getElementById('save-match-modal');
+const saveMatchResultEl = document.getElementById('save-match-result');
+const saveMatchLocationEl = document.getElementById('save-match-location');
+const cancelSaveBtn = document.getElementById('cancel-save');
+const confirmSaveBtn = document.getElementById('confirm-save');
+
+const shareModal = document.getElementById('share-modal');
+const shareTextEl = document.getElementById('share-text');
+const copyTextBtn = document.getElementById('copy-text');
+const shareNativeBtn = document.getElementById('share-native');
+const closeShareBtn = document.getElementById('close-share');
+
+const notificationEl = document.getElementById('notification');
+const notificationTextEl = document.getElementById('notification-text');
+
+// Función para mostrar notificaciones
+function showNotification(message, type = 'success') {
+    notificationTextEl.textContent = message;
+    notificationEl.className = `notification ${type}`;
+    notificationEl.style.display = 'flex';
+    
+    setTimeout(() => {
+        notificationEl.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => {
+            notificationEl.style.display = 'none';
+            notificationEl.style.animation = '';
+        }, 300);
+    }, 3000);
+}
+
+// Función para obtener el puntaje objetivo según el set actual
+function getTargetScore() {
+    // Los primeros 4 sets son a 25, el quinto set es a 15
+    return currentMatch.currentSet <= 4 ? 25 : 15;
+}
+
+// Función para verificar si se ha ganado el set
+function checkSetWin() {
+    // Si ya estamos procesando una victoria en el set, no hacer nada
+    if (setWonInProgress || matchWonInProgress) {
         return false;
     }
-
-    // Función principal para actualizar puntuación (SIMPLIFICADA)
-    function updateScore(team, change) {
-        if (isProcessing) return;
+    
+    const targetScore = getTargetScore();
+    const score1 = currentMatch.team1.score;
+    const score2 = currentMatch.team2.score;
+    
+    // Verificar si algún equipo alcanzó el puntaje objetivo con diferencia de 2
+    const team1Wins = score1 >= targetScore && score1 - score2 >= 2;
+    const team2Wins = score2 >= targetScore && score2 - score1 >= 2;
+    
+    if (team1Wins || team2Wins) {
+        setWonInProgress = true;
         
-        currentMatch[team].score += change;
-        
-        if (currentMatch[team].score < 0) {
-            currentMatch[team].score = 0;
-        }
-        
-        const setResult = checkSetWin();
-        
-        if (setResult.setWon) {
-            processSetWin(setResult.winner);
-        } else {
-            renderCurrentMatch();
-            saveToCookies();
-        }
-    }
-
-    function startNewSet() {
-        if (isProcessing) return;
-        
-        if (currentMatch.currentSet >= currentMatch.maxSets) {
-            alert("Ya se está jugando el último set.");
-            return;
-        }
-        
-        if (currentMatch.team1.score > 0 || currentMatch.team2.score > 0) {
-            if (!confirm("Hay puntos en juego. ¿Forzar fin del set actual y comenzar nuevo set?")) {
-                return;
-            }
+        // Determinar ganador
+        if (team1Wins) {
+            currentMatch.team1.sets++;
             
-            // Determinar ganador del set actual por puntaje
-            let winner = null;
-            if (currentMatch.team1.score > currentMatch.team2.score) {
-                winner = 'team1';
-            } else if (currentMatch.team2.score > currentMatch.team1.score) {
-                winner = 'team2';
-            } else {
-                alert("El set está empatado. No se puede asignar a ningún equipo.");
-                return;
-            }
-            
+            // Guardar resultado del set
             currentMatch.setHistory.push({
                 set: currentMatch.currentSet,
-                team1: currentMatch.team1.score,
-                team2: currentMatch.team2.score,
-                winner: currentMatch[winner].name,
-                targetScore: getTargetScore(),
-                forced: true
+                team1: score1,
+                team2: score2,
+                winner: currentMatch.team1.name
             });
             
-            currentMatch[winner].sets++;
-            
-            const matchWon = checkMatchWin();
-            
-            if (!matchWon) {
-                currentMatch.currentSet++;
-                currentMatch.team1.score = 0;
-                currentMatch.team2.score = 0;
-                renderCurrentMatch();
-                saveToCookies();
-            }
+            showNotification(`${currentMatch.team1.name} gana el set ${currentMatch.currentSet} (${score1}-${score2})`);
         } else {
-            currentMatch.currentSet++;
-            renderCurrentMatch();
-            saveToCookies();
-        }
-    }
-
-    function resetCurrentMatch() {
-        if (confirm("¿Estás seguro de que quieres reiniciar el partido? Se perderá el progreso actual.")) {
-            currentMatch.team1.score = 0;
-            currentMatch.team2.score = 0;
-            currentMatch.team1.sets = 0;
-            currentMatch.team2.sets = 0;
-            currentMatch.currentSet = 1;
-            currentMatch.startTime = new Date();
-            currentMatch.setHistory = [];
-            isProcessing = false;
-            renderCurrentMatch();
-            saveToCookies();
-        }
-    }
-
-    function saveCurrentMatch() {
-        if (currentMatch.team1.sets === 0 && currentMatch.team2.sets === 0) {
-            alert("No se puede guardar un partido sin sets ganados.");
-            return;
-        }
-        
-        const now = new Date();
-        const matchData = {
-            team1: {...currentMatch.team1},
-            team2: {...currentMatch.team2},
-            currentSet: currentMatch.currentSet,
-            setHistory: [...currentMatch.setHistory],
-            config: {...currentMatch.config},
-            date: now.toLocaleString(),
-            timestamp: now.getTime(),
-            duration: Math.round((now - currentMatch.startTime) / 1000 / 60)
-        };
-        
-        matchHistory.unshift(matchData);
-        
-        if (matchHistory.length > 20) {
-            matchHistory = matchHistory.slice(0, 20);
-        }
-        
-        renderMatchHistory();
-        saveToCookies();
-        
-        alert("Partido guardado correctamente en el historial.");
-    }
-
-    function clearMatchHistory() {
-        if (confirm("¿Estás seguro de que quieres borrar todo el historial de partidos?")) {
-            matchHistory = [];
-            renderMatchHistory();
-            saveToCookies();
-        }
-    }
-
-    function openTeamNameModal(team) {
-        editingTeam = team;
-        elements.teamNameInput.value = currentMatch[team].name;
-        elements.teamNameModal.style.display = 'flex';
-    }
-
-    function closeTeamNameModal() {
-        elements.teamNameModal.style.display = 'none';
-        editingTeam = null;
-    }
-
-    function saveTeamName() {
-        if (editingTeam && elements.teamNameInput.value.trim() !== '') {
-            currentMatch[editingTeam].name = elements.teamNameInput.value.trim();
-            renderCurrentMatch();
-            saveToCookies();
-        }
-        closeTeamNameModal();
-    }
-
-    // Funciones de renderizado
-    function renderCurrentMatch() {
-        if (elements.team1Name) elements.team1Name.textContent = currentMatch.team1.name;
-        if (elements.team2Name) elements.team2Name.textContent = currentMatch.team2.name;
-        
-        if (elements.team1Score) elements.team1Score.textContent = currentMatch.team1.score;
-        if (elements.team2Score) elements.team2Score.textContent = currentMatch.team2.score;
-        
-        renderSets(elements.team1Sets, currentMatch.team1.sets);
-        renderSets(elements.team2Sets, currentMatch.team2.sets);
-        
-        if (elements.currentSetEl) elements.currentSetEl.textContent = currentMatch.currentSet;
-        if (elements.totalSetsEl) elements.totalSetsEl.textContent = currentMatch.maxSets;
-        if (elements.targetScoreEl) elements.targetScoreEl.textContent = getTargetScore();
-    }
-
-    function renderSets(container, setsWon) {
-        if (!container) return;
-        
-        container.innerHTML = '';
-        for (let i = 0; i < currentMatch.maxSets; i++) {
-            const setEl = document.createElement('div');
-            setEl.className = 'set';
-            if (i < setsWon) {
-                setEl.classList.add('won');
-            }
-            setEl.textContent = i + 1;
-            container.appendChild(setEl);
-        }
-    }
-
-    function renderMatchHistory() {
-        if (!elements.historyList) return;
-        
-        elements.historyList.innerHTML = '';
-        
-        if (matchHistory.length === 0) {
-            const emptyMessage = document.createElement('div');
-            emptyMessage.className = 'empty-history';
-            emptyMessage.innerHTML = '<i class="fas fa-clipboard-list fa-2x"></i><p>No hay partidos guardados. ¡Juega y guarda algunos partidos!</p>';
-            elements.historyList.appendChild(emptyMessage);
-            return;
-        }
-        
-        matchHistory.forEach((match, index) => {
-            const historyItem = document.createElement('div');
-            historyItem.className = 'history-item';
+            currentMatch.team2.sets++;
             
-            const teamsDiv = document.createElement('div');
-            teamsDiv.className = 'history-teams';
-            teamsDiv.textContent = `${match.team1.name} vs ${match.team2.name}`;
-            
-            const scoreDiv = document.createElement('div');
-            scoreDiv.className = 'history-score';
-            scoreDiv.textContent = `${match.team1.sets}-${match.team2.sets}`;
-            
-            const dateDiv = document.createElement('div');
-            dateDiv.className = 'history-date';
-            dateDiv.textContent = match.date;
-            
-            const typeDiv = document.createElement('div');
-            typeDiv.className = 'history-date';
-            typeDiv.textContent = match.config.totalSets === 3 ? " (3 sets)" : " (5 sets)";
-            typeDiv.style.marginLeft = '10px';
-            typeDiv.style.fontStyle = 'italic';
-            
-            historyItem.appendChild(teamsDiv);
-            historyItem.appendChild(scoreDiv);
-            historyItem.appendChild(dateDiv);
-            historyItem.appendChild(typeDiv);
-            
-            elements.historyList.appendChild(historyItem);
-        });
-    }
-
-    // Funciones para compartir
-    function generateShareText() {
-        const now = new Date();
-        const dateStr = now.toLocaleDateString();
-        const timeStr = now.toLocaleTimeString();
-        const tipoPartido = currentMatch.config.totalSets === 3 ? "Liga Infantil (3 sets)" : "Competitivo (5 sets)";
-        const setsToWin = currentMatch.config.setsToWin;
-        const ligaLink = elements.ligaLinkEl ? elements.ligaLinkEl.value : "https://www.ligaescolar.es/voleibol/";
-        
-        let text = `🏐 MARCADOR DE VOLEIBOL 🏐\n`;
-        text += `📅 ${dateStr} 🕒 ${timeStr}\n`;
-        text += `📊 ${tipoPartido} - Gana al conseguir ${setsToWin} sets\n\n`;
-        text += `=== PARTIDO ACTUAL ===\n`;
-        text += `${currentMatch.team1.name}: ${currentMatch.team1.score} puntos\n`;
-        text += `${currentMatch.team2.name}: ${currentMatch.team2.score} puntos\n\n`;
-        text += `Sets ganados:\n`;
-        text += `${currentMatch.team1.name}: ${currentMatch.team1.sets}\n`;
-        text += `${currentMatch.team2.name}: ${currentMatch.team2.sets}\n\n`;
-        text += `Set actual: ${currentMatch.currentSet} de ${currentMatch.maxSets}\n`;
-        text += `Puntos para ganar: ${getTargetScore()} (con diferencia de 2)\n\n`;
-        
-        if (currentMatch.setHistory.length > 0) {
-            text += `=== HISTORIAL DE SETS ===\n`;
-            currentMatch.setHistory.forEach(set => {
-                text += `Set ${set.set}: ${set.team1}-${set.team2} (Ganador: ${set.winner})\n`;
+            // Guardar resultado del set
+            currentMatch.setHistory.push({
+                set: currentMatch.currentSet,
+                team1: score1,
+                team2: score2,
+                winner: currentMatch.team2.name
             });
-            text += `\n`;
+            
+            showNotification(`${currentMatch.team2.name} gana el set ${currentMatch.currentSet} (${score1}-${score2})`);
         }
         
-        if (matchHistory.length > 0) {
-            text += `=== ÚLTIMOS PARTIDOS ===\n`;
-            const recentMatches = matchHistory.slice(0, 3);
-            recentMatches.forEach((match, index) => {
-                const matchDate = new Date(match.timestamp).toLocaleDateString();
-                const matchType = match.config.totalSets === 3 ? "3s" : "5s";
-                text += `${index + 1}. ${match.team1.name} ${match.team1.sets}-${match.team2.sets} ${match.team2.name} (${matchDate}, ${matchType})\n`;
-            });
+        // Verificar si se ganó el partido
+        setTimeout(() => {
+            checkMatchWin();
+            setWonInProgress = false;
+        }, 100);
+        
+        return true;
+    }
+    
+    return false;
+}
+
+// Función para verificar si se ha ganado el partido
+function checkMatchWin() {
+    const setsToWin = Math.ceil(currentMatch.maxSets / 2); // 3 de 5 sets
+    
+    if (currentMatch.team1.sets >= setsToWin || currentMatch.team2.sets >= setsToWin) {
+        // Evitar múltiples ejecuciones
+        if (matchWonInProgress) {
+            return false;
         }
         
-        text += `\n🏆 Generado con Marcador de Voleibol\n`;
-        text += `🔗 Más información: ${ligaLink}\n`;
-        text += `🌐 Web oficial: https://www.ligaescolar.es`;
+        matchWonInProgress = true;
         
-        return text;
-    }
-
-    function openShareModal() {
-        if (elements.shareTextEl) {
-            elements.shareTextEl.textContent = generateShareText();
-        }
-        if (elements.shareModal) {
-            elements.shareModal.style.display = 'flex';
-        }
-    }
-
-    function closeShareModal() {
-        if (elements.shareModal) {
-            elements.shareModal.style.display = 'none';
-        }
-    }
-
-    function copyShareText() {
-        const text = generateShareText();
-        navigator.clipboard.writeText(text).then(() => {
-            alert("Texto copiado al portapapeles. Puedes pegarlo en cualquier aplicación.");
-        }).catch(err => {
-            console.error('Error al copiar texto: ', err);
-            alert("No se pudo copiar el texto. Intenta manualmente.");
-        });
-    }
-
-    function shareViaNative() {
-        const text = generateShareText();
+        // Determinar ganador
+        let winner;
         
-        if (navigator.share) {
-            navigator.share({
-                title: 'Resultado de Voleibol - Liga Escolar',
-                text: text,
-                url: elements.ligaLinkEl ? elements.ligaLinkEl.value : window.location.href
-            }).then(() => {
-                console.log('Contenido compartido exitosamente');
-            }).catch((error) => {
-                console.log('Error al compartir:', error);
-            });
+        if (currentMatch.team1.sets > currentMatch.team2.sets) {
+            winner = currentMatch.team1.name;
+            currentMatch.winner = 'team1';
         } else {
-            copyShareText();
-        }
-    }
-
-    function shareToWhatsapp() {
-        const text = generateShareText();
-        const encodedText = encodeURIComponent(text);
-        const whatsappUrl = `https://wa.me/?text=${encodedText}`;
-        
-        window.open(whatsappUrl, '_blank');
-    }
-
-    // Funciones de almacenamiento con cookies
-    function saveToCookies() {
-        const data = {
-            currentMatch: currentMatch,
-            matchHistory: matchHistory
-        };
-        
-        const jsonData = JSON.stringify(data);
-        const expirationDays = 30;
-        const date = new Date();
-        date.setTime(date.getTime() + (expirationDays * 24 * 60 * 60 * 1000));
-        const expires = "expires=" + date.toUTCString();
-        
-        document.cookie = `volleyballScoreboard=${encodeURIComponent(jsonData)}; ${expires}; path=/`;
-    }
-
-    function loadFromCookies() {
-        const cookies = document.cookie.split(';');
-        let volleyballScoreboardCookie = null;
-        
-        for (const cookie of cookies) {
-            const [name, value] = cookie.trim().split('=');
-            if (name === 'volleyballScoreboard') {
-                volleyballScoreboardCookie = value;
-                break;
-            }
+            winner = currentMatch.team2.name;
+            currentMatch.winner = 'team2';
         }
         
-        if (volleyballScoreboardCookie) {
-            try {
-                const data = JSON.parse(decodeURIComponent(volleyballScoreboardCookie));
-                currentMatch = data.currentMatch || currentMatch;
-                matchHistory = data.matchHistory || matchHistory;
-            } catch (e) {
-                console.error('Error al cargar datos de cookies:', e);
-            }
+        // Mostrar mensaje de victoria con notificación
+        showNotification(`¡${winner} ha ganado el partido! ${currentMatch.team1.sets}-${currentMatch.team2.sets}`, 'success');
+        
+        // Mostrar celebración
+        if (typeof showCelebration === 'function') {
+            showCelebration();
         }
+        
+        // Preparar para guardar el partido automáticamente después de un breve retraso
+        setTimeout(() => {
+            savingMatchAfterWin = true;
+            openSaveMatchModal();
+            matchWonInProgress = false;
+        }, 2000);
+        
+        return true;
+    } else {
+        // Pasar al siguiente set después de un breve retraso
+        setTimeout(() => {
+            startNewSet();
+        }, 1500);
+        return false;
     }
+}
 
-    // Inicialización del DOM
-    function initEventListeners() {
-        // Event listeners para los botones de puntuación
-        if (elements.team1AddBtn) elements.team1AddBtn.addEventListener('click', () => updateScore('team1', 1));
-        if (elements.team1RemoveBtn) elements.team1RemoveBtn.addEventListener('click', () => updateScore('team1', -1));
-        if (elements.team2AddBtn) elements.team2AddBtn.addEventListener('click', () => updateScore('team2', 1));
-        if (elements.team2RemoveBtn) elements.team2RemoveBtn.addEventListener('click', () => updateScore('team2', -1));
-        
-        // Event listeners para los nombres de equipos (edición)
-        if (elements.team1Name) elements.team1Name.addEventListener('click', () => openTeamNameModal('team1'));
-        if (elements.team2Name) elements.team2Name.addEventListener('click', () => openTeamNameModal('team2'));
-        
-        // Event listeners para los controles del partido
-        if (elements.newSetBtn) elements.newSetBtn.addEventListener('click', startNewSet);
-        if (elements.resetMatchBtn) elements.resetMatchBtn.addEventListener('click', resetCurrentMatch);
-        if (elements.saveMatchBtn) elements.saveMatchBtn.addEventListener('click', saveCurrentMatch);
-        if (elements.clearHistoryBtn) elements.clearHistoryBtn.addEventListener('click', clearMatchHistory);
-        
-        // Event listeners para compartir
-        if (elements.shareWhatsappBtn) elements.shareWhatsappBtn.addEventListener('click', shareToWhatsapp);
-        if (elements.shareResultsBtn) elements.shareResultsBtn.addEventListener('click', openShareModal);
-        
-        // Event listeners para el modal de edición de nombres
-        if (elements.cancelEditBtn) elements.cancelEditBtn.addEventListener('click', closeTeamNameModal);
-        if (elements.saveNameBtn) elements.saveNameBtn.addEventListener('click', saveTeamName);
-        
-        // Event listeners para el modal de compartir
-        if (elements.copyTextBtn) elements.copyTextBtn.addEventListener('click', copyShareText);
-        if (elements.shareNativeBtn) elements.shareNativeBtn.addEventListener('click', shareViaNative);
-        if (elements.closeShareBtn) elements.closeShareBtn.addEventListener('click', closeShareModal);
-        
-        // Configurar el selector de sets
-        if (elements.setsSelectEl) {
-            elements.setsSelectEl.value = currentMatch.config.totalSets.toString();
-            elements.setsSelectEl.addEventListener('change', function() {
-                if (confirm("¿Cambiar el número de sets? Se reiniciará el partido actual.")) {
-                    updateSetsConfig(this.value);
-                    resetCurrentMatch();
-                } else {
-                    this.value = currentMatch.config.totalSets.toString();
-                }
-            });
-        }
-    }
-
-    // Inicialización principal
+// Inicialización
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar datos guardados
     loadFromCookies();
-    
-    // Actualizar configuración inicial
-    if (currentMatch.config.totalSets) {
-        updateSetsConfig(currentMatch.config.totalSets.toString());
-    }
-    
     renderCurrentMatch();
     renderMatchHistory();
     
-    // Inicializar event listeners
-    initEventListeners();
+    // Event listeners para los botones de puntuación
+    team1AddBtn.addEventListener('click', () => updateScore('team1', 1));
+    team1RemoveBtn.addEventListener('click', () => updateScore('team1', -1));
+    team2AddBtn.addEventListener('click', () => updateScore('team2', 1));
+    team2RemoveBtn.addEventListener('click', () => updateScore('team2', -1));
+    
+    // Event listeners para los nombres de equipos (edición)
+    team1NameEl.addEventListener('click', () => openTeamNameModal('team1'));
+    team2NameEl.addEventListener('click', () => openTeamNameModal('team2'));
+    
+    // Event listeners para los controles del partido
+    newSetBtn.addEventListener('click', () => {
+        if (currentMatch.team1.score === 0 && currentMatch.team2.score === 0) {
+            showNotification("No hay puntos en el set actual. Agrega puntos antes de comenzar un nuevo set.", "warning");
+        } else {
+            openSaveMatchModal();
+        }
+    });
+    
+    resetMatchBtn.addEventListener('click', resetCurrentMatch);
+    saveMatchBtn.addEventListener('click', () => {
+        if (currentMatch.setHistory.length === 0) {
+            showNotification("No hay sets completados para guardar.", "warning");
+        } else {
+            openSaveMatchModal();
+        }
+    });
+    
+    clearHistoryBtn.addEventListener('click', clearMatchHistory);
+    
+    // Event listener para guardar ubicación
+    saveLocationBtn.addEventListener('click', saveLocation);
+    matchLocationInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            saveLocation();
+        }
+    });
+    
+    // Event listeners para exportación y compartir
+    shareWhatsappBtn.addEventListener('click', shareToWhatsapp);
+    shareResultsBtn.addEventListener('click', openShareModal);
+    
+    // Event listeners para el modal de edición de nombres
+    cancelEditBtn.addEventListener('click', closeTeamNameModal);
+    saveNameBtn.addEventListener('click', saveTeamName);
+    
+    // Event listeners para el modal de guardar partido
+    cancelSaveBtn.addEventListener('click', closeSaveMatchModal);
+    confirmSaveBtn.addEventListener('click', saveCurrentMatch);
+    
+    // Event listeners para el modal de compartir
+    copyTextBtn.addEventListener('click', copyShareText);
+    shareNativeBtn.addEventListener('click', shareViaNative);
+    closeShareBtn.addEventListener('click', closeShareModal);
+});
+
+// Funciones principales
+function updateScore(team, change) {
+    // Solo permitir actualizar si no estamos procesando una victoria
+    if (setWonInProgress || matchWonInProgress) {
+        return;
+    }
+    
+    // Aplicar el cambio
+    currentMatch[team].score += change;
+    
+    // Asegurarse de que el marcador no sea negativo
+    if (currentMatch[team].score < 0) {
+        currentMatch[team].score = 0;
+    }
+    
+    // Verificar si se ganó el set después de actualizar el puntaje
+    const setWon = checkSetWin();
+    
+    // Si no se ganó el set, renderizar normalmente
+    if (!setWon) {
+        renderCurrentMatch();
+        saveToCookies();
+    }
 }
 
-// Inicializar cuando el DOM esté cargado
-if (document.getElementById('team1-score')) {
-    document.addEventListener('DOMContentLoaded', initVolleyballScoreboard);
+function startNewSet() {
+    // Solo avanzar al siguiente set si no hemos alcanzado el máximo
+    if (currentMatch.currentSet < currentMatch.maxSets) {
+        currentMatch.currentSet++;
+        currentMatch.team1.score = 0;
+        currentMatch.team2.score = 0;
+        renderCurrentMatch();
+        saveToCookies();
+        
+        showNotification(`Comienza el set ${currentMatch.currentSet}`);
+    } else {
+        showNotification("Ya se han jugado todos los sets del partido.", "warning");
+    }
+}
+
+function resetCurrentMatch() {
+    // Verificar si hay datos que perder
+    if (currentMatch.team1.score > 0 || currentMatch.team2.score > 0 || currentMatch.setHistory.length > 0) {
+        if (confirm("¿Estás seguro de que quieres reiniciar el partido? Se perderá el progreso actual.")) {
+            performReset();
+        }
+    } else {
+        performReset();
+    }
+}
+
+function performReset() {
+    currentMatch.team1.score = 0;
+    currentMatch.team2.score = 0;
+    currentMatch.team1.sets = 0;
+    currentMatch.team2.sets = 0;
+    currentMatch.currentSet = 1;
+    currentMatch.startTime = new Date();
+    currentMatch.setHistory = [];
+    currentMatch.winner = null;
+    setWonInProgress = false;
+    matchWonInProgress = false;
+    renderCurrentMatch();
+    saveToCookies();
+    showNotification("Partido reiniciado correctamente");
+}
+
+function saveLocation() {
+    const location = matchLocationInput.value.trim();
+    if (location) {
+        currentMatch.location = location;
+        currentLocationEl.textContent = location;
+        saveToCookies();
+        showNotification(`Ubicación guardada: ${location}`);
+        matchLocationInput.value = '';
+    } else {
+        showNotification("Por favor, ingresa una ubicación válida", "warning");
+    }
+}
+
+function openSaveMatchModal() {
+    // Mostrar el resultado en el modal
+    saveMatchResultEl.textContent = `${currentMatch.team1.name} ${currentMatch.team1.sets} - ${currentMatch.team2.sets} ${currentMatch.team2.name}`;
+    
+    // Mostrar la ubicación
+    saveMatchLocationEl.textContent = currentMatch.location;
+    
+    // Mostrar el modal
+    saveMatchModal.style.display = 'flex';
+}
+
+function closeSaveMatchModal() {
+    saveMatchModal.style.display = 'none';
+    savingMatchAfterWin = false;
+}
+
+function saveCurrentMatch() {
+    const now = new Date();
+    const matchData = {
+        team1: {...currentMatch.team1},
+        team2: {...currentMatch.team2},
+        currentSet: currentMatch.currentSet,
+        setHistory: [...currentMatch.setHistory],
+        winner: currentMatch.winner,
+        location: currentMatch.location,
+        date: now.toLocaleString(),
+        timestamp: now.getTime(),
+        duration: Math.round((now - currentMatch.startTime) / 1000 / 60) // Duración en minutos
+    };
+    
+    matchHistory.unshift(matchData);
+    
+    // Mantener solo los últimos 20 partidos
+    if (matchHistory.length > 20) {
+        matchHistory = matchHistory.slice(0, 20);
+    }
+    
+    renderMatchHistory();
+    saveToCookies();
+    
+    // Cerrar el modal
+    closeSaveMatchModal();
+    
+    // Mostrar notificación
+    showNotification("Partido guardado correctamente en el historial");
+    
+    // Si se estaba guardando después de ganar, reiniciar el partido
+    if (savingMatchAfterWin) {
+        setTimeout(() => {
+            performReset();
+        }, 500);
+    }
+}
+
+function clearMatchHistory() {
+    if (confirm("¿Estás seguro de que quieres borrar todo el historial de partidos?")) {
+        matchHistory = [];
+        renderMatchHistory();
+        saveToCookies();
+        showNotification("Historial de partidos borrado correctamente");
+    }
+}
+
+function openTeamNameModal(team) {
+    editingTeam = team;
+    teamNameInput.value = currentMatch[team].name;
+    teamNameModal.style.display = 'flex';
+}
+
+function closeTeamNameModal() {
+    teamNameModal.style.display = 'none';
+    editingTeam = null;
+}
+
+function saveTeamName() {
+    if (editingTeam && teamNameInput.value.trim() !== '') {
+        currentMatch[editingTeam].name = teamNameInput.value.trim();
+        renderCurrentMatch();
+        saveToCookies();
+        showNotification(`Nombre cambiado a: ${currentMatch[editingTeam].name}`);
+    }
+    closeTeamNameModal();
+}
+
+// Funciones de renderizado
+function renderCurrentMatch() {
+    // Actualizar nombres
+    team1NameEl.textContent = currentMatch.team1.name;
+    team2NameEl.textContent = currentMatch.team2.name;
+    
+    // Actualizar puntuaciones
+    team1ScoreEl.textContent = currentMatch.team1.score;
+    team2ScoreEl.textContent = currentMatch.team2.score;
+    
+    // Actualizar sets
+    renderSets(team1SetsEl, currentMatch.team1.sets);
+    renderSets(team2SetsEl, currentMatch.team2.sets);
+    
+    // Actualizar información del set actual
+    currentSetEl.textContent = currentMatch.currentSet;
+    maxSetsEl.textContent = currentMatch.maxSets;
+    targetScoreEl.textContent = getTargetScore();
+    
+    // Actualizar ubicación
+    currentLocationEl.textContent = currentMatch.location;
+}
+
+function renderSets(container, setsWon) {
+    container.innerHTML = '';
+    for (let i = 0; i < currentMatch.maxSets; i++) {
+        const setEl = document.createElement('div');
+        setEl.className = 'set';
+        if (i < setsWon) {
+            setEl.classList.add('won');
+        }
+        setEl.textContent = i + 1;
+        container.appendChild(setEl);
+    }
+}
+
+function renderMatchHistory() {
+    historyListEl.innerHTML = '';
+    
+    if (matchHistory.length === 0) {
+        const emptyMessage = document.createElement('div');
+        emptyMessage.className = 'empty-history';
+        emptyMessage.innerHTML = '<i class="fas fa-clipboard-list fa-2x"></i><p>No hay partidos guardados. ¡Juega y guarda algunos partidos!</p>';
+        historyListEl.appendChild(emptyMessage);
+        return;
+    }
+    
+    matchHistory.forEach((match, index) => {
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        
+        const teamsDiv = document.createElement('div');
+        teamsDiv.className = 'history-teams';
+        teamsDiv.textContent = `${match.team1.name} vs ${match.team2.name}`;
+        
+        const scoreDiv = document.createElement('div');
+        scoreDiv.className = 'history-score';
+        scoreDiv.textContent = `${match.team1.sets}-${match.team2.sets}`;
+        
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'history-info';
+        infoDiv.innerHTML = `
+            <div>${match.date}</div>
+            <div class="history-location"><i class="fas fa-map-marker-alt"></i> ${match.location}</div>
+        `;
+        
+        historyItem.appendChild(teamsDiv);
+        historyItem.appendChild(scoreDiv);
+        historyItem.appendChild(infoDiv);
+        
+        historyListEl.appendChild(historyItem);
+    });
+}
+
+// Funciones para compartir
+function generateShareText() {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString();
+    const timeStr = now.toLocaleTimeString();
+    
+    let text = `🏐 MARCADOR DE VOLEIBOL 🏐\n`;
+    text += `📅 ${dateStr} 🕒 ${timeStr}\n\n`;
+    text += `=== PARTIDO ACTUAL ===\n`;
+    text += `${currentMatch.team1.name}: ${currentMatch.team1.score} puntos\n`;
+    text += `${currentMatch.team2.name}: ${currentMatch.team2.score} puntos\n\n`;
+    text += `Sets ganados:\n`;
+    text += `${currentMatch.team1.name}: ${currentMatch.team1.sets}\n`;
+    text += `${currentMatch.team2.name}: ${currentMatch.team2.sets}\n\n`;
+    text += `Set actual: ${currentMatch.currentSet} de ${currentMatch.maxSets}\n`;
+    text += `Puntos para ganar: ${getTargetScore()} (con diferencia de 2)\n\n`;
+    text += `📍 Ubicación: ${currentMatch.location}\n\n`;
+    
+    if (currentMatch.setHistory.length > 0) {
+        text += `=== HISTORIAL DE SETS ===\n`;
+        currentMatch.setHistory.forEach(set => {
+            text += `Set ${set.set}: ${set.team1}-${set.team2} (Ganador: ${set.winner})\n`;
+        });
+        text += `\n`;
+    }
+    
+    if (matchHistory.length > 0) {
+        text += `=== ÚLTIMOS PARTIDOS ===\n`;
+        const recentMatches = matchHistory.slice(0, 3);
+        recentMatches.forEach((match, index) => {
+            const matchDate = new Date(match.timestamp).toLocaleDateString();
+            text += `${index + 1}. ${match.team1.name} ${match.team1.sets}-${match.team2.sets} ${match.team2.name}`;
+            if (match.location && match.location !== "No especificada") {
+                text += ` (${match.location})`;
+            }
+            text += `\n`;
+        });
+    }
+    
+    text += `\n📱 Generado con Marcador de Voleibol`;
+    text += `\n🔗 Más info: https://www.ligaescolar.es/voleibol/`;
+    
+    return text;
+}
+
+function openShareModal() {
+    shareTextEl.textContent = generateShareText();
+    shareModal.style.display = 'flex';
+}
+
+function closeShareModal() {
+    shareModal.style.display = 'none';
+}
+
+function copyShareText() {
+    const text = generateShareText();
+    navigator.clipboard.writeText(text).then(() => {
+        showNotification("Texto copiado al portapapeles. Puedes pegarlo en cualquier aplicación.");
+    }).catch(err => {
+        console.error('Error al copiar texto: ', err);
+        showNotification("No se pudo copiar el texto. Intenta manualmente.", "error");
+    });
+}
+
+function shareViaNative() {
+    const text = generateShareText();
+    
+    if (navigator.share) {
+        navigator.share({
+            title: 'Resultado de Voleibol - Liga Escolar',
+            text: text,
+            url: 'https://www.ligaescolar.es/voleibol/'
+        }).then(() => {
+            console.log('Contenido compartido exitosamente');
+        }).catch((error) => {
+            console.log('Error al compartir:', error);
+        });
+    } else {
+        // Fallback para navegadores que no soportan la Web Share API
+        copyShareText();
+    }
+}
+
+function shareToWhatsapp() {
+    const text = generateShareText();
+    const encodedText = encodeURIComponent(text);
+    const whatsappUrl = `https://wa.me/?text=${encodedText}`;
+    
+    // Intentar abrir WhatsApp Web o la app
+    window.open(whatsappUrl, '_blank');
+}
+
+// Funciones de almacenamiento con cookies
+function saveToCookies() {
+    const data = {
+        currentMatch: currentMatch,
+        matchHistory: matchHistory
+    };
+    
+    const jsonData = JSON.stringify(data);
+    const expirationDays = 30;
+    const date = new Date();
+    date.setTime(date.getTime() + (expirationDays * 24 * 60 * 60 * 1000));
+    const expires = "expires=" + date.toUTCString();
+    
+    document.cookie = `volleyballScoreboard=${encodeURIComponent(jsonData)}; ${expires}; path=/`;
+}
+
+function loadFromCookies() {
+    const cookies = document.cookie.split(';');
+    let volleyballScoreboardCookie = null;
+    
+    for (const cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'volleyballScoreboard') {
+            volleyballScoreboardCookie = value;
+            break;
+        }
+    }
+    
+    if (volleyballScoreboardCookie) {
+        try {
+            const data = JSON.parse(decodeURIComponent(volleyballScoreboardCookie));
+            currentMatch = data.currentMatch || currentMatch;
+            matchHistory = data.matchHistory || matchHistory;
+        } catch (e) {
+            console.error('Error al cargar datos de cookies:', e);
+        }
+    }
 }

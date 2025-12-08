@@ -1,58 +1,131 @@
-/* Estilos específicos para el marcador de voleibol */
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #e74c3c;
+    --dark-color: #2c3e50;
+    --light-color: #ecf0f1;
+    --success-color: #2ecc71;
+    --warning-color: #f39c12;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
 
-.config-panel {
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+    color: var(--light-color);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Cabecera reorganizada */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    padding: 20px;
     background-color: rgba(44, 62, 80, 0.9);
     border-radius: 15px;
-    padding: 15px;
-    margin-bottom: 20px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    align-items: center;
     box-shadow: var(--shadow);
+    flex-wrap: wrap;
 }
 
-.config-group {
+.header-left {
+    flex: 1;
+    min-width: 200px;
+}
+
+.header-right {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 8px;
+    align-items: flex-end;
+    gap: 15px;
 }
 
-.config-group label {
-    font-weight: bold;
-    font-size: 0.9rem;
+h1 {
+    font-size: 2.2rem;
+    margin-bottom: 5px;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.config-group select, .config-group input {
+.subtitle {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin-bottom: 15px;
+}
+
+.location-edit {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+#match-location-input {
+    flex: 1;
     padding: 8px 12px;
     border-radius: 8px;
     border: none;
     background-color: rgba(255, 255, 255, 0.1);
     color: white;
-    font-size: 1rem;
-    cursor: pointer;
+    font-size: 0.9rem;
 }
 
-.config-group select option {
-    background-color: var(--dark-color);
+.btn-small {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+}
+
+.btn-home {
+    background-color: #9b59b6;
+    color: white;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+}
+
+.btn-home:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
     color: white;
 }
 
-.config-group input {
-    width: 250px;
+.clock-container {
+    background-color: rgba(52, 152, 219, 0.8);
+    padding: 12px 20px;
+    border-radius: 10px;
     text-align: center;
-    cursor: default;
+    box-shadow: var(--shadow);
+    min-width: 150px;
 }
 
-.current-set {
-    text-align: center;
-    margin-bottom: 10px;
-    font-size: 1.2rem;
-    background-color: rgba(255, 255, 255, 0.1);
-    padding: 10px;
-    border-radius: 8px;
+#clock {
+    font-size: 1.4rem;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+#date {
+    font-size: 0.9rem;
+    margin-top: 5px;
 }
 
 .scoreboard {
@@ -105,6 +178,51 @@
     margin-top: 20px;
 }
 
+.btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.btn-success {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.btn-warning {
+    background-color: var(--warning-color);
+    color: white;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+}
+
 .sets {
     display: flex;
     justify-content: center;
@@ -135,6 +253,15 @@
     margin: 30px 0;
 }
 
+.current-set {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 8px;
+}
+
 .history {
     background-color: rgba(44, 62, 80, 0.9);
     border-radius: 15px;
@@ -163,10 +290,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .history-teams {
     flex: 1;
+    min-width: 200px;
 }
 
 .history-score {
@@ -175,9 +304,78 @@
     margin: 0 15px;
 }
 
-.history-date {
+.history-info {
     font-size: 0.9rem;
-    opacity: 0.7;
+    opacity: 0.8;
+    width: 100%;
+    margin-top: 5px;
+}
+
+.history-location {
+    color: var(--primary-color);
+    font-style: italic;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.modal-content {
+    background-color: var(--dark-color);
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: var(--shadow);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal h2 {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 1rem;
+}
+
+.form-group textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
 }
 
 .empty-history {
@@ -218,8 +416,65 @@
     overflow-y: auto;
 }
 
-/* Responsive específico para voleibol */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: var(--success-color);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    z-index: 1001;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    max-width: 300px;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+.notification.warning {
+    background-color: var(--warning-color);
+}
+
+.notification.error {
+    background-color: var(--secondary-color);
+}
+
 @media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .header-left, .header-right {
+        width: 100%;
+        align-items: center;
+    }
+    
     .scoreboard {
         flex-direction: column;
     }
@@ -228,26 +483,39 @@
         font-size: 3rem;
     }
     
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    .btn {
+        padding: 8px 12px;
+        font-size: 1rem;
+    }
+    
     .match-controls {
         gap: 10px;
-    }
-    
-    .config-panel {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .config-group input {
-        width: 200px;
     }
 }
 
 @media (max-width: 480px) {
-    .export-controls {
+    .container {
+        padding: 10px;
+    }
+    
+    .match-controls, .export-controls {
         flex-direction: column;
     }
     
-    .config-group input {
+    .btn {
         width: 100%;
+    }
+    
+    .history-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .history-score {
+        margin: 10px 0;
     }
 }
