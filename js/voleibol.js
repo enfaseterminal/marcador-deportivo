@@ -1,5 +1,3 @@
-[file name]: voleibol.js
-[file content begin]
 // Variables globales
 let currentMatch = {
     team1: {
@@ -714,4 +712,3 @@ function loadFromCookies() {
         }
     }
 }
-[file content end]
