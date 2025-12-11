@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marcador de Minivoleibol - Liga Escolar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/minivoley.css">
+    <link rel="icon" type="image/x-icon" href="https://cdn-icons-png.flaticon.com/512/66/66854.png">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <h1><i class="fas fa-volleyball-ball"></i> Marcador de Minivoleibol</h1>
+                <p class="subtitle">Liga Escolar - <span id="current-location">No especificada</span></p>
+                <p class="game-rules"><i class="fas fa-info-circle"></i> 3 sets | 25 puntos (diferencia 2) | Todos los sets se juegan</p>
+                <div class="location-edit">
+                    <input type="text" id="match-location-input" placeholder="Ingresa la ubicación del partido">
+                    <button class="btn btn-small" id="save-location">
+                        <i class="fas fa-check"></i> Guardar
+                    </button>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="clock-container">
+                    <div id="clock">00:00:00</div>
+                    <div id="date">--/--/----</div>
+                </div>
+                <a href="/" class="btn btn-home">
+                    <i class="fas fa-home"></i> Liga Escolar
+                </a>
+            </div>
+        </header>
+
+        <div class="current-set">
+            <strong>Set Actual:</strong> <span id="current-set">1</span> de <span id="max-sets">3</span> | 
+            <strong>Puntos para ganar:</strong> <span id="target-score">25</span> (con diferencia de 2) |
+            <strong>Gana:</strong> Mejor de 3 sets (todos se juegan)
+        </div>
+
+        <div class="scoreboard">
+            <div class="team" id="team1">
+                <div class="team-name" id="team1-name">Equipo Local</div>
+                <div class="score" id="team1-score">0</div>
+                <div class="sets" id="team1-sets">
+                    <!-- Los sets se generarán dinámicamente -->
+                </div>
+                <div class="score-controls">
+                    <button class="btn btn-primary" id="team1-add">
+                        <i class="fas fa-plus"></i> Punto
+                    </button>
+                    <button class="btn btn-secondary" id="team1-remove">
+                        <i class="fas fa-minus"></i> Punto
+                    </button>
+                </div>
+            </div>
+
+            <div class="team" id="team2">
+                <div class="team-name" id="team2-name">Equipo Visitante</div>
+                <div class="score" id="team2-score">0</div>
+                <div class="sets" id="team2-sets">
+                    <!-- Los sets se generarán dinámicamente -->
+                </div>
+                <div class="score-controls">
+                    <button class="btn btn-primary" id="team2-add">
+                        <i class="fas fa-plus"></i> Punto
+                    </button>
+                    <button class="btn btn-secondary" id="team2-remove">
+                        <i class="fas fa-minus"></i> Punto
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="match-controls">
+            <button class="btn btn-success" id="new-set">
+                <i class="fas fa-flag"></i> Nuevo Set
+            </button>
+            <button class="btn btn-warning" id="reset-match">
+                <i class="fas fa-redo"></i> Reiniciar Partido
+            </button>
+            <button class="btn btn-primary" id="save-match">
+                <i class="fas fa-save"></i> Guardar Partido
+            </button>
+        </div>
+
+        <div class="export-controls">
+            <button class="btn btn-success" id="share-whatsapp">
+                <i class="fab fa-whatsapp"></i> Compartir por WhatsApp
+            </button>
+            <button class="btn btn-primary" id="share-results">
+                <i class="fas fa-share-alt"></i> Compartir Resultados
+            </button>
+        </div>
+
+        <div class="history">
+            <h2><i class="fas fa-history"></i> Historial de Partidos (Minivoleibol)</h2>
+            <div class="history-list" id="history-list">
+                <!-- Los partidos guardados se mostrarán aquí -->
+            </div>
+            <div class="match-controls">
+                <button class="btn btn-secondary" id="clear-history">
+                    <i class="fas fa-trash"></i> Borrar Historial
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar nombres de equipos -->
+    <div class="modal" id="team-name-modal">
+        <div class="modal-content">
+            <h2>Editar Nombre del Equipo</h2>
+            <div class="form-group">
+                <label for="team-name-input">Nombre del equipo:</label>
+                <input type="text" id="team-name-input" placeholder="Ingresa el nombre del equipo">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" id="cancel-edit">Cancelar</button>
+                <button class="btn btn-primary" id="save-name">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para guardar partido -->
+    <div class="modal" id="save-match-modal">
+        <div class="modal-content">
+            <h2>Guardar Partido (Minivoleibol)</h2>
+            <div class="form-group">
+                <label>Resultado:</label>
+                <div style="background-color: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                    <p id="save-match-result"></p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Ubicación:</label>
+                <div style="background-color: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                    <p id="save-match-location"></p>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" id="cancel-save">Cancelar</button>
+                <button class="btn btn-primary" id="confirm-save">Guardar Partido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para compartir resultados -->
+    <div class="modal" id="share-modal">
+        <div class="modal-content">
+            <h2>Compartir Resultados (Minivoleibol)</h2>
+            <div class="share-preview">
+                <h3>Vista previa del resultado:</h3>
+                <div id="share-text">
+                    <!-- Texto generado dinámicamente -->
+                </div>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" id="copy-text">
+                        <i class="fas fa-copy"></i> Copiar Texto
+                    </button>
+                    <button class="btn btn-success" id="share-native">
+                        <i class="fas fa-share"></i> Compartir
+                    </button>
+                    <button class="btn btn-secondary" id="close-share">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificación -->
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-text">Operación realizada con éxito</span>
+    </div>
+
+    <!-- Scripts con rutas absolutas -->
+    <script src="/js/clock.js"></script>
+    <script src="/js/celebrate.js"></script>
+    <script src="/js/minivoley.js"></script>
+</body>
+</html>
