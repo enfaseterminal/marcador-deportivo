@@ -1,4 +1,4 @@
-// /js/common.js
+// /js/common.js (VERSIÓN CORREGIDA)
 // Funciones que son idénticas en todos los marcadores
 
 // Función para mostrar notificaciones
@@ -83,9 +83,9 @@ function saveTeamName() {
     if (newName !== '') {
         window.currentMatch[window.editingTeam].name = newName;
         
-        // Actualizar en la interfaz
-        if (typeof window.renderCurrentMatch === 'function') {
-            window.renderCurrentMatch();
+        // Actualizar en la interfaz usando matchCore
+        if (window.matchCore && window.matchCore.renderCurrentMatch) {
+            window.matchCore.renderCurrentMatch();
         }
         
         // Guardar en cookies si la función está disponible

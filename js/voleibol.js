@@ -1,9 +1,7 @@
 // /js/voleibol.js
-// Configuración específica de voleibol
-window.sportName = "Voleibol";
-window.sportUrl = "https://www.ligaescolar.es/voleibol/";
+// Configuración específica de voleibol (versión modular)
 
-// Variables específicas
+// Variables globales específicas de voleibol
 window.currentMatch = {
     team1: { name: "Equipo Local", score: 0, sets: 0 },
     team2: { name: "Equipo Visitante", score: 0, sets: 0 },
@@ -21,8 +19,13 @@ window.savingMatchAfterWin = false;
 window.setWonInProgress = false;
 window.matchWonInProgress = false;
 
-// Función específica para obtener puntaje objetivo
+// Configuración específica del deporte
+window.sportName = "Voleibol";
+window.sportUrl = "https://www.ligaescolar.es/voleibol/";
+
+// Función específica para obtener puntaje objetivo según el set actual
 function getTargetScore() {
+    // Los primeros 4 sets son a 25, el quinto set es a 15
     return window.currentMatch.currentSet <= 4 ? 25 : 15;
 }
 
@@ -34,36 +37,45 @@ function checkSetWin() {
     const score1 = window.currentMatch.team1.score;
     const score2 = window.currentMatch.team2.score;
     
+    // Verificar si algún equipo alcanzó el puntaje objetivo con diferencia de 2
     const team1Wins = score1 >= targetScore && score1 - score2 >= 2;
     const team2Wins = score2 >= targetScore && score2 - score1 >= 2;
     
     if (team1Wins || team2Wins) {
         window.setWonInProgress = true;
         
+        // Determinar ganador
         if (team1Wins) {
             window.currentMatch.team1.sets++;
+            
+            // Guardar resultado del set
             window.currentMatch.setHistory.push({
                 set: window.currentMatch.currentSet,
                 team1: score1,
                 team2: score2,
                 winner: window.currentMatch.team1.name
             });
-            if (window.common?.showNotification) {
+            
+            if (window.common && window.common.showNotification) {
                 window.common.showNotification(`${window.currentMatch.team1.name} gana el set ${window.currentMatch.currentSet} (${score1}-${score2})`);
             }
         } else {
             window.currentMatch.team2.sets++;
+            
+            // Guardar resultado del set
             window.currentMatch.setHistory.push({
                 set: window.currentMatch.currentSet,
                 team1: score1,
                 team2: score2,
                 winner: window.currentMatch.team2.name
             });
-            if (window.common?.showNotification) {
+            
+            if (window.common && window.common.showNotification) {
                 window.common.showNotification(`${window.currentMatch.team2.name} gana el set ${window.currentMatch.currentSet} (${score1}-${score2})`);
             }
         }
         
+        // Verificar si se ganó el partido
         setTimeout(() => {
             checkMatchWin();
             window.setWonInProgress = false;
@@ -71,19 +83,25 @@ function checkSetWin() {
         
         return true;
     }
+    
     return false;
 }
 
-// Función específica para verificar victoria en partido
+// Función específica para verificar si se ha ganado el partido
 function checkMatchWin() {
-    const setsToWin = Math.ceil(window.currentMatch.maxSets / 2);
+    const setsToWin = Math.ceil(window.currentMatch.maxSets / 2); // 3 de 5 sets
     
     if (window.currentMatch.team1.sets >= setsToWin || window.currentMatch.team2.sets >= setsToWin) {
-        if (window.matchWonInProgress) return false;
+        // Evitar múltiples ejecuciones
+        if (window.matchWonInProgress) {
+            return false;
+        }
         
         window.matchWonInProgress = true;
         
+        // Determinar ganador
         let winner;
+        
         if (window.currentMatch.team1.sets > window.currentMatch.team2.sets) {
             winner = window.currentMatch.team1.name;
             window.currentMatch.winner = 'team1';
@@ -92,22 +110,33 @@ function checkMatchWin() {
             window.currentMatch.winner = 'team2';
         }
         
-        if (window.common?.disableScoreButtons) window.common.disableScoreButtons();
+        // Bloquear todos los botones de puntuación inmediatamente
+        if (window.common && window.common.disableScoreButtons) {
+            window.common.disableScoreButtons();
+        }
         
-        if (window.common?.showNotification) {
+        // Mostrar mensaje de victoria con notificación
+        if (window.common && window.common.showNotification) {
             window.common.showNotification(`¡${winner} ha ganado el partido! ${window.currentMatch.team1.sets}-${window.currentMatch.team2.sets}`, 'success');
         }
         
-        if (typeof showCelebration === 'function') showCelebration();
+        // Mostrar celebración
+        if (typeof window.showCelebration === 'function') {
+            window.showCelebration();
+        }
         
+        // Preparar para guardar el partido automáticamente después de un breve retraso
         setTimeout(() => {
             window.savingMatchAfterWin = true;
-            if (window.modalManager?.openSaveMatchModal) window.modalManager.openSaveMatchModal();
+            if (window.modalManager && window.modalManager.openSaveMatchModal) {
+                window.modalManager.openSaveMatchModal();
+            }
             window.matchWonInProgress = false;
         }, 2000);
         
         return true;
     } else {
+        // Pasar al siguiente set después de un breve retraso
         setTimeout(() => {
             startNewSet();
         }, 1500);
@@ -117,18 +146,70 @@ function checkMatchWin() {
 
 // Función específica para nuevo set
 function startNewSet() {
+    // Solo avanzar al siguiente set si no hemos alcanzado el máximo
     if (window.currentMatch.currentSet < window.currentMatch.maxSets) {
         window.currentMatch.currentSet++;
         window.currentMatch.team1.score = 0;
         window.currentMatch.team2.score = 0;
         
-        if (window.matchCore?.renderCurrentMatch) window.matchCore.renderCurrentMatch();
-        if (window.saveToCookies) window.saveToCookies();
-        if (window.common?.enableScoreButtons) window.common.enableScoreButtons();
-        if (window.common?.showNotification) window.common.showNotification(`Comienza el set ${window.currentMatch.currentSet}`);
+        // Renderizar y guardar
+        if (window.matchCore && window.matchCore.renderCurrentMatch) {
+            window.matchCore.renderCurrentMatch();
+        }
+        
+        if (window.saveToCookies) {
+            window.saveToCookies();
+        }
+        
+        // Reactivar botones para el nuevo set
+        if (window.common && window.common.enableScoreButtons) {
+            window.common.enableScoreButtons();
+        }
+        
+        if (window.common && window.common.showNotification) {
+            window.common.showNotification(`Comienza el set ${window.currentMatch.currentSet}`);
+        }
     } else {
-        if (window.common?.showNotification) window.common.showNotification("Ya se han jugado todos los sets del partido.", "warning");
+        if (window.common && window.common.showNotification) {
+            window.common.showNotification("Ya se han jugado todos los sets del partido.", "warning");
+        }
     }
+}
+
+// Función específica para forzar el fin del set actual (para minivoleibol)
+function forceEndCurrentSet() {
+    const score1 = window.currentMatch.team1.score;
+    const score2 = window.currentMatch.team2.score;
+    
+    // Determinar ganador del set basado en el puntaje actual
+    let setWinner;
+    if (score1 > score2) {
+        window.currentMatch.team1.sets++;
+        setWinner = window.currentMatch.team1.name;
+    } else if (score2 > score1) {
+        window.currentMatch.team2.sets++;
+        setWinner = window.currentMatch.team2.name;
+    } else {
+        // Empate en puntos
+        setWinner = "Ninguno (empate)";
+    }
+    
+    // Guardar resultado del set
+    window.currentMatch.setHistory.push({
+        set: window.currentMatch.currentSet,
+        team1: score1,
+        team2: score2,
+        winner: setWinner
+    });
+    
+    if (window.common && window.common.showNotification) {
+        window.common.showNotification(`Set ${window.currentMatch.currentSet} finalizado: ${score1}-${score2} (Ganador: ${setWinner})`);
+    }
+    
+    // Verificar si se ha completado el partido
+    setTimeout(() => {
+        checkMatchWin();
+    }, 100);
 }
 
 // Función específica para generar texto para compartir
@@ -182,13 +263,14 @@ function saveToCookies() {
         currentMatch: window.currentMatch,
         matchHistory: window.matchHistory
     };
-    if (window.storage?.saveToCookies) {
+    
+    if (window.storage && window.storage.saveToCookies) {
         window.storage.saveToCookies('volleyballScoreboard', data);
     }
 }
 
 function loadFromCookies() {
-    if (window.storage?.loadFromCookies) {
+    if (window.storage && window.storage.loadFromCookies) {
         const data = window.storage.loadFromCookies('volleyballScoreboard');
         if (data) {
             window.currentMatch = data.currentMatch || window.currentMatch;
@@ -203,21 +285,57 @@ document.addEventListener('DOMContentLoaded', function() {
     loadFromCookies();
     
     // Inicializar funciones de módulos comunes
-    if (window.matchCore?.renderCurrentMatch) window.matchCore.renderCurrentMatch();
-    if (window.matchCore?.renderMatchHistory) window.matchCore.renderMatchHistory();
+    if (window.matchCore && window.matchCore.renderCurrentMatch) {
+        window.matchCore.renderCurrentMatch();
+    }
+    if (window.matchCore && window.matchCore.renderMatchHistory) {
+        window.matchCore.renderMatchHistory();
+    }
     
     // Inicializar event listeners
-    if (window.scoreManager?.initScoreEventListeners) window.scoreManager.initScoreEventListeners();
-    if (window.common?.initCommonEventListeners) window.common.initCommonEventListeners();
-    if (window.modalManager?.initModalEventListeners) window.modalManager.initModalEventListeners();
+    if (window.scoreManager && window.scoreManager.initScoreEventListeners) {
+        window.scoreManager.initScoreEventListeners();
+    }
+    if (window.common && window.common.initCommonEventListeners) {
+        window.common.initCommonEventListeners();
+    }
+    if (window.modalManager && window.modalManager.initModalEventListeners) {
+        window.modalManager.initModalEventListeners();
+    }
     
-    // Asignar funciones específicas al objeto global
+    // Configurar el botón "Nuevo Set" específicamente para voleibol
+    const newSetBtn = document.getElementById('new-set');
+    if (newSetBtn) {
+        newSetBtn.addEventListener('click', () => {
+            if (window.currentMatch.team1.score === 0 && window.currentMatch.team2.score === 0) {
+                if (window.common && window.common.showNotification) {
+                    window.common.showNotification("No hay puntos en el set actual. Agrega puntos antes de comenzar un nuevo set.", "warning");
+                }
+            } else {
+                // En voleibol regular, abrir modal para guardar
+                if (window.modalManager && window.modalManager.openSaveMatchModal) {
+                    window.modalManager.openSaveMatchModal();
+                }
+            }
+        });
+    }
+    
+    // Asignar funciones específicas al objeto global para que los módulos las puedan usar
     window.getTargetScore = getTargetScore;
     window.checkSetWin = checkSetWin;
+    window.checkMatchWin = checkMatchWin;
     window.startNewSet = startNewSet;
     window.generateShareText = generateShareText;
     window.saveToCookies = saveToCookies;
     window.loadFromCookies = loadFromCookies;
-    window.resetCurrentMatch = window.matchCore?.resetCurrentMatch;
-    window.saveLocation = window.storage?.saveLocation;
+    
+    if (window.matchCore && window.matchCore.resetCurrentMatch) {
+        window.resetCurrentMatch = window.matchCore.resetCurrentMatch;
+    }
+    
+    if (window.storage && window.storage.saveLocation) {
+        window.saveLocation = window.storage.saveLocation;
+    }
+    
+    console.log("Voleibol modular inicializado correctamente");
 });

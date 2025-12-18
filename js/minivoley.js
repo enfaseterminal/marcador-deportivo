@@ -1,9 +1,7 @@
 // /js/minivoley.js
-// Configuración específica de minivoleibol
-window.sportName = "Minivoleibol";
-window.sportUrl = "https://www.ligaescolar.es/minivoley/";
+// Configuración específica de minivoleibol (versión modular)
 
-// Variables específicas
+// Variables globales específicas de minivoleibol
 window.currentMatch = {
     team1: { name: "Equipo Local", score: 0, sets: 0 },
     team2: { name: "Equipo Visitante", score: 0, sets: 0 },
@@ -20,6 +18,10 @@ window.editingTeam = null;
 window.savingMatchAfterWin = false;
 window.setWonInProgress = false;
 window.matchWonInProgress = false;
+
+// Configuración específica del deporte
+window.sportName = "Minivoleibol";
+window.sportUrl = "https://www.ligaescolar.es/minivoley/";
 
 // Función específica para obtener puntaje objetivo (siempre 25 en minivoleibol)
 function getTargetScore() {
@@ -48,7 +50,7 @@ function checkSetWin() {
                 team2: score2,
                 winner: window.currentMatch.team1.name
             });
-            if (window.common?.showNotification) {
+            if (window.common && window.common.showNotification) {
                 window.common.showNotification(`${window.currentMatch.team1.name} gana el set ${window.currentMatch.currentSet} (${score1}-${score2})`);
             }
         } else {
@@ -59,7 +61,7 @@ function checkSetWin() {
                 team2: score2,
                 winner: window.currentMatch.team2.name
             });
-            if (window.common?.showNotification) {
+            if (window.common && window.common.showNotification) {
                 window.common.showNotification(`${window.currentMatch.team2.name} gana el set ${window.currentMatch.currentSet} (${score1}-${score2})`);
             }
         }
@@ -101,22 +103,26 @@ function checkMatchCompletion() {
         }
         
         // Bloquear todos los botones de puntuación
-        if (window.common?.disableScoreButtons) window.common.disableScoreButtons();
+        if (window.common && window.common.disableScoreButtons) {
+            window.common.disableScoreButtons();
+        }
         
         // Mostrar mensaje de finalización del partido
-        if (window.common?.showNotification) {
+        if (window.common && window.common.showNotification) {
             window.common.showNotification(`${winnerMessage} (Partido completado)`, 'success');
         }
         
         // Mostrar celebración solo si hay un ganador (no empate)
-        if (window.currentMatch.winner !== 'draw' && typeof showCelebration === 'function') {
-            showCelebration();
+        if (window.currentMatch.winner !== 'draw' && typeof window.showCelebration === 'function') {
+            window.showCelebration();
         }
         
         // Preparar para guardar el partido automáticamente después de un breve retraso
         setTimeout(() => {
             window.savingMatchAfterWin = true;
-            if (window.modalManager?.openSaveMatchModal) window.modalManager.openSaveMatchModal();
+            if (window.modalManager && window.modalManager.openSaveMatchModal) {
+                window.modalManager.openSaveMatchModal();
+            }
             window.matchWonInProgress = false;
         }, 2000);
         
@@ -156,7 +162,7 @@ function forceEndCurrentSet() {
         winner: setWinner
     });
     
-    if (window.common?.showNotification) {
+    if (window.common && window.common.showNotification) {
         window.common.showNotification(`Set ${window.currentMatch.currentSet} finalizado: ${score1}-${score2} (Ganador: ${setWinner})`);
     }
     
@@ -173,11 +179,21 @@ function startNewSet() {
         window.currentMatch.team1.score = 0;
         window.currentMatch.team2.score = 0;
         
-        if (window.matchCore?.renderCurrentMatch) window.matchCore.renderCurrentMatch();
-        if (window.saveToCookies) window.saveToCookies();
-        if (window.common?.enableScoreButtons) window.common.enableScoreButtons();
+        // Renderizar y guardar
+        if (window.matchCore && window.matchCore.renderCurrentMatch) {
+            window.matchCore.renderCurrentMatch();
+        }
         
-        if (window.common?.showNotification) {
+        if (window.saveToCookies) {
+            window.saveToCookies();
+        }
+        
+        // Reactivar botones para el nuevo set
+        if (window.common && window.common.enableScoreButtons) {
+            window.common.enableScoreButtons();
+        }
+        
+        if (window.common && window.common.showNotification) {
             window.common.showNotification(`Comienza el set ${window.currentMatch.currentSet} (Último: ${window.currentMatch.maxSets})`);
         }
     }
@@ -246,13 +262,13 @@ function saveToCookies() {
         currentMatch: window.currentMatch,
         matchHistory: window.matchHistory
     };
-    if (window.storage?.saveToCookies) {
+    if (window.storage && window.storage.saveToCookies) {
         window.storage.saveToCookies('minivoleyScoreboard', data);
     }
 }
 
 function loadFromCookies() {
-    if (window.storage?.loadFromCookies) {
+    if (window.storage && window.storage.loadFromCookies) {
         const data = window.storage.loadFromCookies('minivoleyScoreboard');
         if (data) {
             window.currentMatch = data.currentMatch || window.currentMatch;
@@ -267,20 +283,30 @@ document.addEventListener('DOMContentLoaded', function() {
     loadFromCookies();
     
     // Inicializar funciones de módulos comunes
-    if (window.matchCore?.renderCurrentMatch) window.matchCore.renderCurrentMatch();
-    if (window.matchCore?.renderMatchHistory) window.matchCore.renderMatchHistory();
+    if (window.matchCore && window.matchCore.renderCurrentMatch) {
+        window.matchCore.renderCurrentMatch();
+    }
+    if (window.matchCore && window.matchCore.renderMatchHistory) {
+        window.matchCore.renderMatchHistory();
+    }
     
     // Inicializar event listeners
-    if (window.scoreManager?.initScoreEventListeners) window.scoreManager.initScoreEventListeners();
-    if (window.common?.initCommonEventListeners) window.common.initCommonEventListeners();
-    if (window.modalManager?.initModalEventListeners) window.modalManager.initModalEventListeners();
+    if (window.scoreManager && window.scoreManager.initScoreEventListeners) {
+        window.scoreManager.initScoreEventListeners();
+    }
+    if (window.common && window.common.initCommonEventListeners) {
+        window.common.initCommonEventListeners();
+    }
+    if (window.modalManager && window.modalManager.initModalEventListeners) {
+        window.modalManager.initModalEventListeners();
+    }
     
     // Configurar el botón "Nuevo Set" específicamente para minivoleibol
     const newSetBtn = document.getElementById('new-set');
     if (newSetBtn) {
         newSetBtn.addEventListener('click', () => {
             if (window.currentMatch.team1.score === 0 && window.currentMatch.team2.score === 0) {
-                if (window.common?.showNotification) {
+                if (window.common && window.common.showNotification) {
                     window.common.showNotification("No hay puntos en el set actual. Agrega puntos antes de comenzar un nuevo set.", "warning");
                 }
             } else {
@@ -289,7 +315,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Forzar el fin del set actual y guardar resultado
                     forceEndCurrentSet();
                 } else {
-                    if (window.common?.showNotification) {
+                    if (window.common && window.common.showNotification) {
                         window.common.showNotification("Ya se han jugado todos los sets del partido.", "warning");
                     }
                 }
@@ -297,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Asignar funciones específicas al objeto global
+    // Asignar funciones específicas al objeto global para que los módulos las puedan usar
     window.getTargetScore = getTargetScore;
     window.checkSetWin = checkSetWin;
     window.checkMatchCompletion = checkMatchCompletion;
@@ -306,6 +332,14 @@ document.addEventListener('DOMContentLoaded', function() {
     window.generateShareText = generateShareText;
     window.saveToCookies = saveToCookies;
     window.loadFromCookies = loadFromCookies;
-    window.resetCurrentMatch = window.matchCore?.resetCurrentMatch;
-    window.saveLocation = window.storage?.saveLocation;
+    
+    if (window.matchCore && window.matchCore.resetCurrentMatch) {
+        window.resetCurrentMatch = window.matchCore.resetCurrentMatch;
+    }
+    
+    if (window.storage && window.storage.saveLocation) {
+        window.saveLocation = window.storage.saveLocation;
+    }
+    
+    console.log("Minivoleibol modular inicializado correctamente");
 });

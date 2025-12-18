@@ -1,4 +1,4 @@
-// /js/score-manager.js
+// /js/score-manager.js (VERSIÓN CORREGIDA)
 // Gestión básica de puntuaciones
 
 function updateScore(team, change) {
@@ -24,14 +24,14 @@ function updateScore(team, change) {
         const setWon = window.checkSetWin();
         
         // Si se ganó el set, bloquear botones temporalmente
-        if (setWon && typeof window.common?.disableScoreButtons === 'function') {
+        if (setWon && window.common && window.common.disableScoreButtons) {
             window.common.disableScoreButtons();
         }
     }
     
-    // Renderizar normalmente
-    if (typeof window.renderCurrentMatch === 'function') {
-        window.renderCurrentMatch();
+    // Renderizar normalmente usando matchCore
+    if (window.matchCore && window.matchCore.renderCurrentMatch) {
+        window.matchCore.renderCurrentMatch();
     }
     
     if (typeof window.saveToCookies === 'function') {
