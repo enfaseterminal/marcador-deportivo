@@ -1,6 +1,8 @@
 // /js/modal-manager.js
 // Gestión de modales para guardar partidos
 
+let modalEventListenersInitialized = false;
+
 function openSaveMatchModal() {
     const saveMatchModal = document.getElementById('save-match-modal');
     const saveMatchResultEl = document.getElementById('save-match-result');
@@ -140,6 +142,14 @@ function clearMatchHistory() {
 
 // Inicializar event listeners de modales
 function initModalEventListeners() {
+    // Evitar inicialización duplicada
+    if (modalEventListenersInitialized) {
+        console.log('Modal event listeners ya inicializados');
+        return;
+    }
+    
+    console.log('Inicializando modal event listeners...');
+    
     const cancelSaveBtn = document.getElementById('cancel-save');
     const confirmSaveBtn = document.getElementById('confirm-save');
     const clearHistoryBtn = document.getElementById('clear-history');
@@ -147,6 +157,15 @@ function initModalEventListeners() {
     const resetMatchBtn = document.getElementById('reset-match');
     const saveMatchBtn = document.getElementById('save-match');
     
+    // Remover event listeners previos si existen
+    if (cancelSaveBtn) cancelSaveBtn.removeEventListener('click', closeSaveMatchModal);
+    if (confirmSaveBtn) confirmSaveBtn.removeEventListener('click', saveCurrentMatch);
+    if (clearHistoryBtn) clearHistoryBtn.removeEventListener('click', clearMatchHistory);
+    if (newSetBtn) newSetBtn.removeEventListener('click', handleNewSet);
+    if (resetMatchBtn) resetMatchBtn.removeEventListener('click', window.resetCurrentMatch);
+    if (saveMatchBtn) saveMatchBtn.removeEventListener('click', openSaveMatchModal);
+    
+    // Agregar event listeners
     if (cancelSaveBtn) cancelSaveBtn.addEventListener('click', closeSaveMatchModal);
     if (confirmSaveBtn) confirmSaveBtn.addEventListener('click', saveCurrentMatch);
     if (clearHistoryBtn) clearHistoryBtn.addEventListener('click', clearMatchHistory);
@@ -157,26 +176,30 @@ function initModalEventListeners() {
     
     if (saveMatchBtn) saveMatchBtn.addEventListener('click', openSaveMatchModal);
     
-    if (newSetBtn) {
-        newSetBtn.addEventListener('click', () => {
-            if (!window.currentMatch) return;
-            
-            if (window.currentMatch.team1.score === 0 && window.currentMatch.team2.score === 0) {
-                if (typeof window.showNotification === 'function') {
-                    window.showNotification("No hay puntos en el set actual. Agrega puntos antes de comenzar un nuevo set.", "warning");
-                }
-            } else {
-                // Esta función debe ser implementada en el archivo específico del deporte
-                if (typeof window.forceEndCurrentSet === 'function') {
-                    window.forceEndCurrentSet();
-                } else {
-                    openSaveMatchModal();
-                }
+    // Función para manejar nuevo set
+    function handleNewSet() {
+        if (!window.currentMatch) return;
+        
+        if (window.currentMatch.team1.score === 0 && window.currentMatch.team2.score === 0) {
+            if (typeof window.showNotification === 'function') {
+                window.showNotification("No hay puntos en el set actual. Agrega puntos antes de comenzar un nuevo set.", "warning");
             }
-        });
+        } else {
+            if (typeof window.forceEndCurrentSet === 'function') {
+                window.forceEndCurrentSet();
+            } else {
+                openSaveMatchModal();
+            }
+        }
     }
+    
+    if (newSetBtn) {
+        newSetBtn.addEventListener('click', handleNewSet);
+    }
+    
+    modalEventListenersInitialized = true; // Marcar como inicializado
+    console.log('Modal event listeners inicializados');
 }
-
 // Exportar funciones
 window.modalManager = {
     openSaveMatchModal,
