@@ -336,6 +336,56 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.storage && window.storage.saveLocation) {
         window.saveLocation = window.storage.saveLocation;
     }
-    
+       // Fallback: inicializar manualmente si scoreManager no se cargó
+    setTimeout(() => {
+        if (!window.scoreManager && document.getElementById('team1-add')) {
+            console.log('Inicializando scoreManager manualmente...');
+            
+            // Definir funciones básicas
+            function manualUpdateScore(team, change) {
+                if (!window.currentMatch) return;
+                
+                if ((typeof window.setWonInProgress !== 'undefined' && window.setWonInProgress) ||
+                    (typeof window.matchWonInProgress !== 'undefined' && window.matchWonInProgress) ||
+                    window.currentMatch.winner) {
+                    return;
+                }
+                
+                window.currentMatch[team].score += change;
+                
+                if (window.currentMatch[team].score < 0) {
+                    window.currentMatch[team].score = 0;
+                }
+                
+                if (typeof window.checkSetWin === 'function') {
+                    const setWon = window.checkSetWin();
+                    if (setWon && window.common && window.common.disableScoreButtons) {
+                        window.common.disableScoreButtons();
+                    }
+                }
+                
+                if (window.matchCore && window.matchCore.renderCurrentMatch) {
+                    window.matchCore.renderCurrentMatch();
+                }
+                
+                if (typeof window.saveToCookies === 'function') {
+                    window.saveToCookies();
+                }
+            }
+            
+            // Agregar event listeners manualmente
+            const team1AddBtn = document.getElementById('team1-add');
+            const team1RemoveBtn = document.getElementById('team1-remove');
+            const team2AddBtn = document.getElementById('team2-add');
+            const team2RemoveBtn = document.getElementById('team2-remove');
+            
+            if (team1AddBtn) team1AddBtn.addEventListener('click', () => manualUpdateScore('team1', 1));
+            if (team1RemoveBtn) team1RemoveBtn.addEventListener('click', () => manualUpdateScore('team1', -1));
+            if (team2AddBtn) team2AddBtn.addEventListener('click', () => manualUpdateScore('team2', 1));
+            if (team2RemoveBtn) team2RemoveBtn.addEventListener('click', () => manualUpdateScore('team2', -1));
+            
+            console.log('scoreManager inicializado manualmente');
+        }
+    }, 1000); 
     console.log("Voleibol modular inicializado correctamente");
 });
