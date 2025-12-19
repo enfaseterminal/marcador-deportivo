@@ -1,5 +1,5 @@
 // /js/modal-manager.js
-// Gestión de modales para guardar partidos
+// Gestión de modales para guardar partidos - VERSIÓN CORREGIDA
 
 function openSaveMatchModal() {
     const saveMatchModal = document.getElementById('save-match-modal');
@@ -48,22 +48,31 @@ function openSaveMatchModal() {
 function closeSaveMatchModal() {
     const saveMatchModal = document.getElementById('save-match-modal');
     
-    // Si se completó el partido, no permitir cerrar el modal sin guardar
-    if (typeof window.savingMatchAfterWin !== 'undefined' && window.savingMatchAfterWin) {
-        if (typeof window.showNotification === 'function') {
-            window.showNotification("Debes guardar el partido para continuar.", "warning");
-        }
-        return;
+    if (saveMatchModal) {
+        saveMatchModal.style.display = 'none';
     }
     
-    if (saveMatchModal) saveMatchModal.style.display = 'none';
+    // Limpiar el estado de guardado después de victoria
     if (typeof window.savingMatchAfterWin !== 'undefined') {
         window.savingMatchAfterWin = false;
+    }
+    
+    // Remover mensaje si existe
+    const existingMessage = document.querySelector('.force-save-message');
+    if (existingMessage) {
+        existingMessage.remove();
     }
 }
 
 function saveCurrentMatch() {
     if (!window.currentMatch || !window.matchHistory) return;
+    
+    // Deshabilitar el botón para evitar múltiples clics
+    const confirmSaveBtn = document.getElementById('confirm-save');
+    if (confirmSaveBtn) {
+        confirmSaveBtn.disabled = true;
+        confirmSaveBtn.textContent = 'Guardando...';
+    }
     
     const now = new Date();
     const matchData = {
@@ -98,8 +107,16 @@ function saveCurrentMatch() {
         window.saveToCookies();
     }
     
-    // Cerrar el modal
+    // Cerrar el modal inmediatamente
     closeSaveMatchModal();
+    
+    // Restaurar el botón
+    if (confirmSaveBtn) {
+        setTimeout(() => {
+            confirmSaveBtn.disabled = false;
+            confirmSaveBtn.textContent = 'Guardar Partido';
+        }, 1000);
+    }
     
     // Mostrar notificación
     if (typeof window.showNotification === 'function') {
@@ -113,7 +130,7 @@ function saveCurrentMatch() {
                 window.performReset();
             }
             window.savingMatchAfterWin = false;
-        }, 500);
+        }, 1000);
     }
 }
 
