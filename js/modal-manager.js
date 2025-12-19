@@ -1,8 +1,6 @@
 // /js/modal-manager.js
 // Gestión de modales para guardar partidos
 
-let modalEventListenersInitialized = false;
-
 function openSaveMatchModal() {
     const saveMatchModal = document.getElementById('save-match-modal');
     const saveMatchResultEl = document.getElementById('save-match-result');
@@ -143,7 +141,7 @@ function clearMatchHistory() {
 // Inicializar event listeners de modales
 function initModalEventListeners() {
     // Evitar inicialización duplicada
-    if (modalEventListenersInitialized) {
+    if (window.modalManager && window.modalManager.initialized) {
         console.log('Modal event listeners ya inicializados');
         return;
     }
@@ -197,14 +195,16 @@ function initModalEventListeners() {
         newSetBtn.addEventListener('click', handleNewSet);
     }
     
-    modalEventListenersInitialized = true; // Marcar como inicializado
+    window.modalManager.initialized = true; // Marcar como inicializado
     console.log('Modal event listeners inicializados');
 }
+
 // Exportar funciones
 window.modalManager = {
     openSaveMatchModal,
     closeSaveMatchModal,
     saveCurrentMatch,
     clearMatchHistory,
-    initModalEventListeners
+    initModalEventListeners,
+    initialized: false // AÑADIR ESTA PROPIEDAD
 };

@@ -1,7 +1,5 @@
-// /js/common.js (VERSIÓN CORREGIDA)
+// /js/common.js (VERSIÓN CORREGIDA COMPLETA)
 // Funciones que son idénticas en todos los marcadores
-
-let commonEventListenersInitialized = false; 
 
 // Función para mostrar notificaciones
 function showNotification(message, type = 'success') {
@@ -183,18 +181,57 @@ function shareToWhatsapp() {
 // Inicializar event listeners comunes
 function initCommonEventListeners() {
     // Evitar inicialización duplicada
-    if (commonEventListenersInitialized) {
+    if (window.common && window.common.initialized) {
         console.log('Common event listeners ya inicializados');
         return;
     }
     
     console.log('Inicializando common event listeners...');
     
-    // ... resto del código SIN CAMBIOS hasta el final...
+    // Nombres de equipos (edición)
+    const team1NameEl = document.getElementById('team1-name');
+    const team2NameEl = document.getElementById('team2-name');
+    const cancelEditBtn = document.getElementById('cancel-edit');
+    const saveNameBtn = document.getElementById('save-name');
     
-    commonEventListenersInitialized = true; // Marcar como inicializado
+    if (team1NameEl) team1NameEl.addEventListener('click', () => openTeamNameModal('team1'));
+    if (team2NameEl) team2NameEl.addEventListener('click', () => openTeamNameModal('team2'));
+    if (cancelEditBtn) cancelEditBtn.addEventListener('click', closeTeamNameModal);
+    if (saveNameBtn) saveNameBtn.addEventListener('click', saveTeamName);
+    
+    // Compartir
+    const shareResultsBtn = document.getElementById('share-results');
+    const shareWhatsappBtn = document.getElementById('share-whatsapp');
+    const copyTextBtn = document.getElementById('copy-text');
+    const shareNativeBtn = document.getElementById('share-native');
+    const closeShareBtn = document.getElementById('close-share');
+    
+    if (shareResultsBtn) shareResultsBtn.addEventListener('click', openShareModal);
+    if (shareWhatsappBtn) shareWhatsappBtn.addEventListener('click', shareToWhatsapp);
+    if (copyTextBtn) copyTextBtn.addEventListener('click', copyShareText);
+    if (shareNativeBtn) shareNativeBtn.addEventListener('click', shareViaNative);
+    if (closeShareBtn) closeShareBtn.addEventListener('click', closeShareModal);
+    
+    // Ubicación
+    const saveLocationBtn = document.getElementById('save-location');
+    const matchLocationInput = document.getElementById('match-location-input');
+    
+    if (saveLocationBtn && typeof window.saveLocation === 'function') {
+        saveLocationBtn.addEventListener('click', window.saveLocation);
+    }
+    
+    if (matchLocationInput && typeof window.saveLocation === 'function') {
+        matchLocationInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                window.saveLocation();
+            }
+        });
+    }
+    
+    window.common.initialized = true; // Marcar como inicializado
     console.log('Common event listeners inicializados');
 }
+
 // Exportar funciones
 window.common = {
     showNotification,
@@ -209,5 +246,6 @@ window.common = {
     copyShareText,
     shareViaNative,
     shareToWhatsapp,
-    initCommonEventListeners
+    initCommonEventListeners,
+    initialized: false // Bandera para evitar inicialización duplicada
 };
