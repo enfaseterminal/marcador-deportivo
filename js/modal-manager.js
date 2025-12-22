@@ -215,7 +215,89 @@ function initModalEventListeners() {
     window.modalManager.initialized = true; // Marcar como inicializado
     console.log('Modal event listeners inicializados');
 }
+// Función específica para guardar encuentro de dominó
+function saveDominoMatch() {
+    if (!window.currentMatch || !window.matchHistory) return;
+    
+    // Deshabilitar el botón para evitar múltiples clics
+    const confirmSaveBtn = document.getElementById('confirm-save');
+    if (confirmSaveBtn) {
+        confirmSaveBtn.disabled = true;
+        confirmSaveBtn.textContent = 'Guardando...';
+    }
+    
+    const now = new Date();
+    const duration = Math.round((now - window.currentMatch.startTime) / 1000 / 60);
+    
+    const matchData = {
+        team1: {...window.currentMatch.team1},
+        team2: {...window.currentMatch.team2},
+        currentGame: window.currentMatch.currentGame,
+        gameHistory: window.currentMatch.gameHistory ? [...window.currentMatch.gameHistory] : [],
+        winner: window.currentMatch.winner,
+        location: window.currentMatch.location,
+        date: now.toLocaleString(),
+        timestamp: now.getTime(),
+        duration: duration,
+        maxPoints: window.currentMatch.maxPoints,
+        bestOf: window.currentMatch.bestOf
+    };
+    
+    // Añadir información del deporte
+    if (typeof window.sportName !== 'undefined') {
+        matchData.sport = window.sportName;
+    }
+    
+    window.matchHistory.unshift(matchData);
+    
+    // Mantener solo los últimos 20 encuentros
+    if (window.matchHistory.length > 20) {
+        window.matchHistory = window.matchHistory.slice(0, 20);
+    }
+    
+    // Renderizar historial
+    if (typeof window.renderDominoMatchHistory === 'function') {
+        window.renderDominoMatchHistory();
+    } else if (typeof window.renderMatchHistory === 'function') {
+        window.renderMatchHistory();
+    }
+    
+    if (typeof window.saveToCookies === 'function') {
+        window.saveToCookies();
+    }
+    
+    // Cerrar el modal
+    const saveMatchModal = document.getElementById('save-match-modal');
+    if (saveMatchModal) {
+        saveMatchModal.style.display = 'none';
+    }
+    
+    // Restaurar el botón
+    if (confirmSaveBtn) {
+        setTimeout(() => {
+            confirmSaveBtn.disabled = false;
+            confirmSaveBtn.textContent = 'Guardar Encuentro';
+        }, 1000);
+    }
+    
+    // Mostrar notificación
+    if (typeof window.showNotification === 'function') {
+        window.showNotification("Encuentro guardado correctamente en el historial");
+    }
+    
+    // Si se estaba guardando después de completar el encuentro, reiniciar
+    if (typeof window.savingMatchAfterWin !== 'undefined' && window.savingMatchAfterWin) {
+        setTimeout(() => {
+            if (typeof window.resetCurrentMatch === 'function') {
+                window.resetCurrentMatch();
+            }
+            window.savingMatchAfterWin = false;
+        }, 1000);
+    }
+}
 
+// Y en la función initModalEventListeners, reemplaza saveCurrentMatch por saveDominoMatch para dominó
+// O mejor, verifica qué deporte se está jugando
 // Exportar funciones
 window.modalManager = {
     openSaveMatchModal,

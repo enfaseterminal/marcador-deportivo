@@ -135,7 +135,49 @@ function resetCurrentMatch() {
         performReset();
     }
 }
-
+// Función para renderizar historial de encuentros de dominó
+function renderDominoMatchHistory() {
+    const historyListEl = document.getElementById('history-list');
+    if (!historyListEl || !window.matchHistory) return;
+    
+    historyListEl.innerHTML = '';
+    
+    if (window.matchHistory.length === 0) {
+        const emptyMessage = document.createElement('div');
+        emptyMessage.className = 'empty-history';
+        emptyMessage.innerHTML = '<i class="fas fa-clipboard-list fa-2x"></i><p>No hay encuentros guardados. ¡Juega y guarda algunos encuentros!</p>';
+        historyListEl.appendChild(emptyMessage);
+        return;
+    }
+    
+    window.matchHistory.forEach((match) => {
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        
+        const teamsDiv = document.createElement('div');
+        teamsDiv.className = 'history-teams';
+        teamsDiv.textContent = `${match.team1.name} vs ${match.team2.name}`;
+        
+        const scoreDiv = document.createElement('div');
+        scoreDiv.className = 'history-score';
+        scoreDiv.textContent = `${match.team1.gamesWon}-${match.team2.gamesWon}`;
+        
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'history-info';
+        infoDiv.innerHTML = `
+            <div>${match.date}</div>
+            <div class="history-location"><i class="fas fa-map-marker-alt"></i> ${match.location}</div>
+            ${match.duration ? `<div class="history-duration"><i class="fas fa-clock"></i> ${match.duration} minutos</div>` : ''}
+            ${match.sport ? `<div class="history-sport"><i class="fas fa-th-large"></i> ${match.sport}</div>` : ''}
+        `;
+        
+        historyItem.appendChild(teamsDiv);
+        historyItem.appendChild(scoreDiv);
+        historyItem.appendChild(infoDiv);
+        
+        historyListEl.appendChild(historyItem);
+    });
+}
 // Exportar funciones
 window.matchCore = {
     renderCurrentMatch,
