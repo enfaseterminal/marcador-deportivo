@@ -1,8 +1,7 @@
 /* ESTILOS MUY ESPECÍFICOS PARA MINIVOLEY */
-/* Solo estilos que NO existen en los módulos base */
+/* Compatibilidad con estructura antigua y modular */
 
 /* Fondo degradado específico - ya se aplica desde themes.css */
-/* Se mantiene por compatibilidad */
 body.theme-minivoley {
     background: var(--gradient);
 }
@@ -41,42 +40,52 @@ body.theme-minivoley {
     font-size: 1rem;
 }
 
-/* Scoreboard específico - usa las clases base pero con prefijo */
-.scoreboard-minivoley {
+/* Scoreboard específico - COMPATIBILIDAD */
+.scoreboard, .scoreboard-minivoley {
     display: flex;
     justify-content: space-between;
     margin-bottom: 30px;
     gap: 20px;
 }
 
-.team-minivoley {
+.team, .team-minivoley {
     background-color: rgba(44, 62, 80, 0.9);
     border-radius: 15px;
     padding: 20px;
     text-align: center;
     flex: 1;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    position: relative;
 }
 
-.team-name-minivoley {
+.team:hover, .team-minivoley:hover {
+    transform: translateY(-5px);
+}
+
+.team-name, .team-name-minivoley {
     font-size: 1.5rem;
     margin-bottom: 15px;
+    font-weight: bold;
     cursor: pointer;
     padding: 5px;
     border-radius: 5px;
     transition: var(--transition);
 }
 
-.team-name-minivoley:hover {
+.team-name:hover, .team-name-minivoley:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-.score-minivoley {
+.score, .score-minivoley {
     font-size: 4rem;
     font-weight: bold;
     margin: 20px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.sets-container-minivoley {
+/* Contenedor de sets - COMPATIBILIDAD */
+.sets, .sets-container, .sets-container-minivoley {
     display: flex;
     justify-content: center;
     gap: 10px;
@@ -84,7 +93,8 @@ body.theme-minivoley {
     flex-wrap: wrap;
 }
 
-.set-minivoley {
+/* Sets individuales - COMPATIBILIDAD */
+.set, .set-minivoley {
     width: 30px;
     height: 30px;
     border-radius: 50%;
@@ -95,27 +105,27 @@ body.theme-minivoley {
     font-weight: bold;
 }
 
-.set-minivoley.won {
+.set.won, .set-minivoley.won {
     background-color: var(--success-color);
 }
 
-/* Responsivo para minivoley */
+/* Responsivo para minivoley - COMPATIBILIDAD */
 @media (max-width: 768px) {
-    .scoreboard-minivoley {
+    .scoreboard, .scoreboard-minivoley {
         flex-direction: column;
     }
     
-    .score-minivoley {
+    .score, .score-minivoley {
         font-size: 3rem;
     }
     
-    .team-minivoley {
+    .team, .team-minivoley {
         padding: 15px;
     }
 }
 
 @media (max-width: 480px) {
-    .score-minivoley {
+    .score, .score-minivoley {
         font-size: 2.5rem;
     }
     
