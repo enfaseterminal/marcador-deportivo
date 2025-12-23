@@ -6,17 +6,27 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <title>Marcador de Minivoleibol - Liga Escolar</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/minivoley.css">
+    <!-- Módulos CSS -->
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/themes.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <!-- Estilo específico de minivoleibol -->
+    <link rel="stylesheet" href="/css/sport-specific/minivoley.css">
     <link rel="icon" type="image/x-icon" href="https://cdn-icons-png.flaticon.com/512/66/66854.png">
+    <script>
+        // Aplicar tema específico
+        document.body.classList.add('theme-minivoley');
+    </script>
 </head>
 <body>
     <div class="container">
-        <header>
+        <header class="app-header">
             <div class="header-left">
                 <h1><i class="fas fa-volleyball-ball"></i> Marcador de Minivoleibol</h1>
                 <p class="subtitle">Liga Escolar - <span id="current-location">No especificada</span></p>
-                <p class="game-rules"><i class="fas fa-info-circle"></i> 3 sets | 25 puntos (diferencia 2) | Todos los sets se juegan</p>
-                <div class="location-edit">
+                <p class="game-rules-minivoley"><i class="fas fa-info-circle"></i> 3 sets | 25 puntos (diferencia 2) | Todos los sets se juegan</p>
+                <div class="input-group">
                     <input type="text" id="match-location-input" placeholder="Ingresa la ubicación del partido">
                     <button class="btn btn-small" id="save-location">
                         <i class="fas fa-check"></i> Guardar
@@ -24,27 +34,27 @@
                 </div>
             </div>
             <div class="header-right">
-                <div class="clock-container">
+                <div class="clock-container clock-container-minivoley">
                     <div id="clock">00:00:00</div>
                     <div id="date">--/--/----</div>
                 </div>
-                <a href="/" class="btn btn-home">
+                <a href="/" class="btn btn-home-minivoley">
                     <i class="fas fa-home"></i> Liga Escolar
                 </a>
             </div>
         </header>
 
-        <div class="current-set">
+        <div class="current-set-info-minivoley">
             <strong>Set Actual:</strong> <span id="current-set">1</span> de <span id="max-sets">3</span> | 
             <strong>Puntos para ganar:</strong> <span id="target-score">25</span> (con diferencia de 2) |
             <strong>Gana:</strong> Mejor de 3 sets (todos se juegan)
         </div>
 
-        <div class="scoreboard">
-            <div class="team" id="team1">
-                <div class="team-name" id="team1-name">Equipo Local</div>
-                <div class="score" id="team1-score">0</div>
-                <div class="sets" id="team1-sets">
+        <div class="scoreboard-minivoley">
+            <div class="team-minivoley" id="team1">
+                <div class="team-name-minivoley editable" data-team="1" id="team1-name">Equipo Local</div>
+                <div class="score-minivoley" id="team1-score">0</div>
+                <div class="sets-container-minivoley" id="team1-sets">
                     <!-- Los sets se generarán dinámicamente -->
                 </div>
                 <div class="score-controls">
@@ -57,10 +67,10 @@
                 </div>
             </div>
 
-            <div class="team" id="team2">
-                <div class="team-name" id="team2-name">Equipo Visitante</div>
-                <div class="score" id="team2-score">0</div>
-                <div class="sets" id="team2-sets">
+            <div class="team-minivoley" id="team2">
+                <div class="team-name-minivoley editable" data-team="2" id="team2-name">Equipo Visitante</div>
+                <div class="score-minivoley" id="team2-score">0</div>
+                <div class="sets-container-minivoley" id="team2-sets">
                     <!-- Los sets se generarán dinámicamente -->
                 </div>
                 <div class="score-controls">
@@ -108,7 +118,7 @@
         </div>
     </div>
 
-    <!-- Modal para editar nombres de equipos -->
+    <!-- Modales -->
     <div class="modal" id="team-name-modal">
         <div class="modal-content">
             <h2>Editar Nombre del Equipo</h2>
@@ -123,19 +133,18 @@
         </div>
     </div>
 
-    <!-- Modal para guardar partido -->
     <div class="modal" id="save-match-modal">
         <div class="modal-content">
             <h2>Guardar Partido (Minivoleibol)</h2>
             <div class="form-group">
                 <label>Resultado:</label>
-                <div style="background-color: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                <div class="card">
                     <p id="save-match-result"></p>
                 </div>
             </div>
             <div class="form-group">
                 <label>Ubicación:</label>
-                <div style="background-color: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                <div class="card">
                     <p id="save-match-location"></p>
                 </div>
             </div>
@@ -146,7 +155,6 @@
         </div>
     </div>
 
-    <!-- Modal para compartir resultados -->
     <div class="modal" id="share-modal">
         <div class="modal-content">
             <h2>Compartir Resultados (Minivoleibol)</h2>
@@ -174,16 +182,14 @@
         <span id="notification-text">Operación realizada con éxito</span>
     </div>
 
-    <!-- Scripts con rutas absolutas -->
+    <!-- Scripts -->
     <script src="/js/clock.js"></script>
     <script src="/js/celebrate.js"></script>
-     <script src="/js/common.js"></script>
-     <script src="/js/storage.js"></script>
-     <script src="/js/match-core.js"></script>
-     <script src="/js/modal-manager.js"></script>
-     <script src="/js/score-manager.js"></script>
-     <script src="/js/clock.js"></script>
-     <script src="/js/celebrate.js"></script>
+    <script src="/js/common.js"></script>
+    <script src="/js/storage.js"></script>
+    <script src="/js/match-core.js"></script>
+    <script src="/js/modal-manager.js"></script>
+    <script src="/js/score-manager.js"></script>
     <script src="/js/minivoley.js"></script>
 </body>
 </html>

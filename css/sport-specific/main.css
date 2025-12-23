@@ -1,4 +1,6 @@
-/* Estilos específicos para la página principal */
+/* sport-specific/main.css */
+/* Solo estilos específicos de la página principal */
+
 .main-content {
     background-color: rgba(44, 62, 80, 0.9);
     border-radius: 15px;
@@ -184,7 +186,19 @@ footer {
     color: var(--primary-color);
 }
 
-/* Responsive para página principal */
+.sport-tag {
+    display: inline-block;
+    background-color: #e74c3c;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 5px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* Responsive específico para página principal */
 @media (max-width: 768px) {
     .sports-container {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -211,16 +225,4 @@ footer {
     .main-content {
         padding: 20px;
     }
-}
-/* Estilo para etiqueta "Nuevo" en las tarjetas de deportes */
-.sport-tag {
-    display: inline-block;
-    background-color: #e74c3c;
-    color: white;
-    font-size: 0.7rem;
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin-top: 5px;
-    font-weight: bold;
-    text-transform: uppercase;
 }

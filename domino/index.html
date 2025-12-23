@@ -6,19 +6,27 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <title>Marcador de Dominó - Liga Escolar</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/domino.css">
+    <!-- Módulos CSS -->
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/themes.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <!-- Estilo específico de dominó -->
+    <link rel="stylesheet" href="/css/sport-specific/domino.css">
     <link rel="icon" type="image/x-icon" href="https://cdn-icons-png.flaticon.com/512/66/66854.png">
+    <script>
+        // Aplicar tema específico
+        document.body.classList.add('theme-domino');
+    </script>
 </head>
 <body>
     <div class="container">
-        <header>
+        <header class="app-header">
             <div class="header-left">
                 <h1><i class="fas fa-th-large"></i> Marcador de Dominó</h1>
                 <p class="subtitle">Liga Escolar - <span id="current-location">No especificada</span></p>
-                <div class="game-rules">
-                    <i class="fas fa-info-circle"></i> Parejas | Puntos: <span id="max-points-display">200</span> | Mejor de <span id="best-of-display">3</span> partidas
-                </div>
-                <div class="location-edit">
+                <p class="game-rules-domino"><i class="fas fa-info-circle"></i> Parejas | Puntos: <span id="max-points-display">200</span> | Mejor de <span id="best-of-display">3</span> partidas</p>
+                <div class="input-group">
                     <input type="text" id="match-location-input" placeholder="Ingresa la ubicación del partido">
                     <button class="btn btn-small" id="save-location">
                         <i class="fas fa-check"></i> Guardar
@@ -26,17 +34,17 @@
                 </div>
             </div>
             <div class="header-right">
-                <div class="clock-container">
+                <div class="clock-container clock-container-domino">
                     <div id="clock">00:00:00</div>
                     <div id="date">--/--/----</div>
                 </div>
-                <a href="/" class="btn btn-home">
+                <a href="/" class="btn btn-home-domino">
                     <i class="fas fa-home"></i> Liga Escolar
                 </a>
             </div>
         </header>
 
-        <div class="config-panel">
+        <div class="config-panel-domino">
             <div class="config-item">
                 <label for="max-points"><i class="fas fa-bullseye"></i> Puntos para ganar:</label>
                 <div class="config-control">
@@ -59,11 +67,11 @@
             </div>
         </div>
 
-        <div class="scoreboard">
-            <div class="team" id="team1">
-                <div class="team-header">
-                    <div class="team-name" id="team1-name">Pareja 1</div>
-                    <div class="players-info" id="team1-players">Jugador 1 & Jugador 2</div>
+        <div class="scoreboard-domino">
+            <div class="team-domino" id="team1">
+                <div class="team-header-domino">
+                    <div class="team-name-domino editable" data-team="1" id="team1-name">Pareja 1</div>
+                    <div class="players-info-domino" id="team1-players">Jugador 1 & Jugador 2</div>
                 </div>
                 <div class="domino-score">
                     <div class="current-score">
@@ -81,16 +89,16 @@
                 </div>
                 <div class="score-controls">
                     <div class="point-controls">
-                        <button class="btn btn-point" data-team="1" data-points="5">
+                        <button class="btn btn-point-domino" data-team="1" data-points="5">
                             +5
                         </button>
-                        <button class="btn btn-point" data-team="1" data-points="10">
+                        <button class="btn btn-point-domino" data-team="1" data-points="10">
                             +10
                         </button>
-                        <button class="btn btn-point" data-team="1" data-points="15">
+                        <button class="btn btn-point-domino" data-team="1" data-points="15">
                             +15
                         </button>
-                        <button class="btn btn-point" data-team="1" data-points="20">
+                        <button class="btn btn-point-domino" data-team="1" data-points="20">
                             +20
                         </button>
                     </div>
@@ -106,10 +114,10 @@
                 </div>
             </div>
 
-            <div class="team" id="team2">
-                <div class="team-header">
-                    <div class="team-name" id="team2-name">Pareja 2</div>
-                    <div class="players-info" id="team2-players">Jugador 3 & Jugador 4</div>
+            <div class="team-domino" id="team2">
+                <div class="team-header-domino">
+                    <div class="team-name-domino editable" data-team="2" id="team2-name">Pareja 2</div>
+                    <div class="players-info-domino" id="team2-players">Jugador 3 & Jugador 4</div>
                 </div>
                 <div class="domino-score">
                     <div class="current-score">
@@ -127,16 +135,16 @@
                 </div>
                 <div class="score-controls">
                     <div class="point-controls">
-                        <button class="btn btn-point" data-team="2" data-points="5">
+                        <button class="btn btn-point-domino" data-team="2" data-points="5">
                             +5
                         </button>
-                        <button class="btn btn-point" data-team="2" data-points="10">
+                        <button class="btn btn-point-domino" data-team="2" data-points="10">
                             +10
                         </button>
-                        <button class="btn btn-point" data-team="2" data-points="15">
+                        <button class="btn btn-point-domino" data-team="2" data-points="15">
                             +15
                         </button>
-                        <button class="btn btn-point" data-team="2" data-points="20">
+                        <button class="btn btn-point-domino" data-team="2" data-points="20">
                             +20
                         </button>
                     </div>
@@ -153,7 +161,7 @@
             </div>
         </div>
 
-        <div class="current-game-info">
+        <div class="current-game-info-domino">
             <div class="info-item">
                 <strong>Partida Actual:</strong> <span id="current-game">1</span> de <span id="max-games">3</span>
             </div>
@@ -177,7 +185,7 @@
             </button>
         </div>
 
-        <div class="round-history">
+        <div class="round-history-domino">
             <h3><i class="fas fa-list-ol"></i> Historial de Partidas</h3>
             <div class="rounds-list" id="rounds-list">
                 <!-- Las partidas se mostrarán aquí -->
@@ -235,19 +243,19 @@
             <h2>Guardar Encuentro de Dominó</h2>
             <div class="form-group">
                 <label>Resultado:</label>
-                <div class="result-display">
+                <div class="card">
                     <p id="save-match-result"></p>
                 </div>
             </div>
             <div class="form-group">
                 <label>Duración:</label>
-                <div class="result-display">
+                <div class="card">
                     <p id="save-match-duration"></p>
                 </div>
             </div>
             <div class="form-group">
                 <label>Ubicación:</label>
-                <div class="result-display">
+                <div class="card">
                     <p id="save-match-location"></p>
                 </div>
             </div>
@@ -288,11 +296,12 @@
 
     <!-- Scripts -->
     <script src="/js/clock.js"></script>
+    <script src="/js/celebrate.js"></script>
     <script src="/js/common.js"></script>
     <script src="/js/storage.js"></script>
     <script src="/js/match-core.js"></script>
     <script src="/js/modal-manager.js"></script>
-    <script src="/js/celebrate.js"></script>
+    <script src="/js/score-manager.js"></script>
     <script src="/js/domino.js"></script>
 </body>
 </html>
