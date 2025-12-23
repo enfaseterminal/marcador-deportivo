@@ -1,8 +1,10 @@
 /* ESTILOS MUY ESPECÍFICOS PARA VOLEIBOL */
+/* Solo estilos que NO existen en los módulos base */
 
-/* Fondo degradado específico */
+/* Fondo degradado específico - ya se aplica desde themes.css */
+/* Se mantiene por compatibilidad */
 body.theme-voleibol {
-    background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+    background: var(--gradient);
 }
 
 /* Reloj con color específico */
@@ -22,6 +24,7 @@ body.theme-voleibol {
     align-items: center;
     gap: 5px;
     margin-bottom: 10px;
+    font-size: 0.9rem;
 }
 
 .game-rules-voleibol i {
@@ -35,10 +38,10 @@ body.theme-voleibol {
     border-radius: 8px;
     margin-bottom: 20px;
     text-align: center;
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 
-/* Scoreboard específico - usa las clases base pero con prefijo */
+/* Scoreboard específico */
 .scoreboard-voleibol {
     display: flex;
     justify-content: space-between;
@@ -51,11 +54,20 @@ body.theme-voleibol {
     border-radius: 15px;
     padding: 20px;
     text-align: center;
+    flex: 1;
 }
 
 .team-name-voleibol {
     font-size: 1.5rem;
     margin-bottom: 15px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+    transition: var(--transition);
+}
+
+.team-name-voleibol:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .score-voleibol {
@@ -96,10 +108,18 @@ body.theme-voleibol {
     .score-voleibol {
         font-size: 3rem;
     }
+    
+    .team-voleibol {
+        padding: 15px;
+    }
 }
 
 @media (max-width: 480px) {
     .score-voleibol {
         font-size: 2.5rem;
+    }
+    
+    .current-set-info-voleibol {
+        font-size: 0.9rem;
     }
 }

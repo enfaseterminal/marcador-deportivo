@@ -1,6 +1,6 @@
 /* ===== TEMA BASE ===== */
 :root {
-    /* Colores neutros (comunes) */
+    /* Estas variables están duplicadas de base.css para compatibilidad */
     --dark-color: #2c3e50;
     --light-color: #ecf0f1;
     --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -11,6 +11,12 @@
     --warning-color: #f39c12;
     --error-color: #e74c3c;
     --info-color: #3498db;
+    
+    /* Valores por defecto */
+    --primary-color: #3498db;
+    --secondary-color: #e74c3c;
+    --gradient: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+    --accent-color: #9b59b6;
 }
 
 /* ===== TEMA VOLEIBOL ===== */
@@ -44,3 +50,9 @@
     --gradient: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
     --accent-color: #9b59b6;
 }
+
+/* Aplicar el gradiente al body según el tema */
+body.theme-voleibol { background: var(--gradient); }
+body.theme-minivoley { background: var(--gradient); }
+body.theme-domino { background: var(--gradient); }
+body.theme-main { background: var(--gradient); }

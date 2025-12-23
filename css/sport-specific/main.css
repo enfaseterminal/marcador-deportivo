@@ -6,6 +6,8 @@
     border-radius: 15px;
     padding: 30px;
     box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+    animation: fadeIn 0.6s ease;
 }
 
 .welcome-section {
@@ -59,12 +61,24 @@
     align-items: center;
     gap: 15px;
     border: 1px solid rgba(255, 255, 255, 0.1);
+    height: 100%;
 }
 
 .sport-card:hover {
     background-color: rgba(255, 255, 255, 0.2);
     transform: translateY(-5px);
     border-color: var(--primary-color);
+}
+
+.sport-card.coming-soon {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.sport-card.coming-soon:hover {
+    transform: none;
+    border-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .sport-icon {
@@ -76,6 +90,7 @@
     align-items: center;
     justify-content: center;
     font-size: 1.8rem;
+    flex-shrink: 0;
 }
 
 .sport-info h4 {
@@ -86,6 +101,7 @@
 .sport-info p {
     font-size: 0.9rem;
     opacity: 0.8;
+    margin-bottom: 5px;
 }
 
 .info-section {
@@ -117,6 +133,11 @@
     padding: 10px;
     background-color: rgba(255, 255, 255, 0.05);
     border-radius: 8px;
+    transition: var(--transition);
+}
+
+.feature:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .feature i {
@@ -156,39 +177,18 @@
     color: var(--light-color);
     text-decoration: none;
     transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .website-link a:hover {
     color: var(--primary-color);
 }
 
-/* Footer */
-footer {
-    text-align: center;
-    margin-top: 30px;
-    padding: 20px;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.9rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.footer-links {
-    margin-top: 10px;
-}
-
-.footer-links a {
-    color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
-    transition: var(--transition);
-}
-
-.footer-links a:hover {
-    color: var(--primary-color);
-}
-
 .sport-tag {
     display: inline-block;
-    background-color: #e74c3c;
+    background-color: var(--secondary-color);
     color: white;
     font-size: 0.7rem;
     padding: 2px 6px;
@@ -211,6 +211,10 @@ footer {
     .welcome-section h2 {
         font-size: 1.6rem;
     }
+    
+    .main-content {
+        padding: 20px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -223,6 +227,10 @@ footer {
     }
     
     .main-content {
-        padding: 20px;
+        padding: 15px;
+    }
+    
+    .welcome-section h2 {
+        font-size: 1.4rem;
     }
 }

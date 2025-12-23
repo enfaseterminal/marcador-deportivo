@@ -6,11 +6,29 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+:root {
+    /* Colores neutros (comunes) */
+    --dark-color: #2c3e50;
+    --light-color: #ecf0f1;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+    
+    /* Estados */
+    --success-color: #2ecc71;
+    --warning-color: #f39c12;
+    --error-color: #e74c3c;
+    --info-color: #3498db;
+    
+    /* Gradiente por defecto (para páginas sin tema) */
+    --gradient: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+}
+
 body {
     min-height: 100vh;
     padding: 20px;
     background: var(--gradient);
     color: var(--light-color);
+    animation: fadeIn 0.5s ease;
 }
 
 .container {
@@ -18,7 +36,6 @@ body {
     margin: 0 auto;
     padding: 20px;
 }
-
 
 /* ===== TIPOGRAFÍA ===== */
 h1, h2, h3, h4, h5, h6 {
@@ -29,6 +46,11 @@ h1, h2, h3, h4, h5, h6 {
 p {
     line-height: 1.6;
     margin-bottom: 1em;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
 }
 
 /* ===== ANIMACIONES ===== */
@@ -57,4 +79,17 @@ p {
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
+}
+
+/* ===== UTILIDADES ===== */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.hidden { display: none; }
+.visible { display: block; }
+.flex { display: flex; }
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
