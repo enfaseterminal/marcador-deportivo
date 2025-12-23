@@ -9,6 +9,8 @@
 body {
     min-height: 100vh;
     padding: 20px;
+    background: var(--gradient);
+    color: var(--light-color);
 }
 
 .container {
@@ -16,6 +18,7 @@ body {
     margin: 0 auto;
     padding: 20px;
 }
+
 
 /* ===== TIPOGRAFÍA ===== */
 h1, h2, h3, h4, h5, h6 {
