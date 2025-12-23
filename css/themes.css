@@ -1,0 +1,46 @@
+/* ===== TEMA BASE ===== */
+:root {
+    /* Colores neutros (comunes) */
+    --dark-color: #2c3e50;
+    --light-color: #ecf0f1;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+    
+    /* Estados */
+    --success-color: #2ecc71;
+    --warning-color: #f39c12;
+    --error-color: #e74c3c;
+    --info-color: #3498db;
+}
+
+/* ===== TEMA VOLEIBOL ===== */
+.theme-voleibol {
+    --primary-color: #3498db;
+    --secondary-color: #e74c3c;
+    --gradient: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+    --accent-color: #9b59b6;
+}
+
+/* ===== TEMA MINIVOLEY ===== */
+.theme-minivoley {
+    --primary-color: #9b59b6;
+    --secondary-color: #e74c3c;
+    --gradient: linear-gradient(135deg, #6a11cb, #2575fc);
+    --accent-color: #ffd700;
+}
+
+/* ===== TEMA DOMINÓ ===== */
+.theme-domino {
+    --primary-color: #2ecc71;
+    --secondary-color: #e74c3c;
+    --gradient: linear-gradient(135deg, #1a5276, #27ae60, #f39c12);
+    --accent-color: #34495e;
+}
+
+/* ===== TEMA PRINCIPAL ===== */
+.theme-main {
+    --primary-color: #3498db;
+    --secondary-color: #e74c3c;
+    --gradient: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+    --accent-color: #9b59b6;
+}
