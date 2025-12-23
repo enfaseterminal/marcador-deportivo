@@ -1,12 +1,44 @@
-/* voleibol.css - Solo estilos específicos */
+/* ESTILOS MUY ESPECÍFICOS PARA VOLEIBOL */
 
-/* Aplicar tema */
+/* Fondo degradado específico */
 body.theme-voleibol {
-    background: var(--gradient);
-    color: var(--light-color);
+    background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
 }
 
-/* Scoreboard específico de voleibol */
+/* Reloj con color específico */
+.clock-container-voleibol {
+    background-color: rgba(52, 152, 219, 0.8);
+}
+
+/* Botón de inicio con color específico */
+.btn-home-voleibol {
+    background-color: #9b59b6;
+}
+
+/* Reglas del juego - diseño específico */
+.game-rules-voleibol {
+    color: #ffd700;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.game-rules-voleibol i {
+    color: var(--warning-color);
+}
+
+/* Información del set actual */
+.current-set-info-voleibol {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+/* Scoreboard específico - usa las clases base pero con prefijo */
 .scoreboard-voleibol {
     display: flex;
     justify-content: space-between;
@@ -15,30 +47,32 @@ body.theme-voleibol {
 }
 
 .team-voleibol {
-    flex: 1;
     background-color: rgba(44, 62, 80, 0.9);
     border-radius: 15px;
     padding: 20px;
     text-align: center;
-    box-shadow: var(--shadow);
-    position: relative;
+}
+
+.team-name-voleibol {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
 }
 
 .score-voleibol {
     font-size: 4rem;
     font-weight: bold;
     margin: 20px 0;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.sets-container {
+.sets-container-voleibol {
     display: flex;
     justify-content: center;
     gap: 10px;
     margin-top: 20px;
+    flex-wrap: wrap;
 }
 
-.set-indicator {
+.set-voleibol {
     width: 30px;
     height: 30px;
     border-radius: 50%;
@@ -49,16 +83,23 @@ body.theme-voleibol {
     font-weight: bold;
 }
 
-.set-indicator.won {
+.set-voleibol.won {
     background-color: var(--success-color);
 }
 
-/* Info específica */
-.current-set-info {
-    text-align: center;
-    margin-bottom: 10px;
-    font-size: 1.2rem;
-    background-color: rgba(255, 255, 255, 0.1);
-    padding: 10px;
-    border-radius: 8px;
+/* Responsivo para voleibol */
+@media (max-width: 768px) {
+    .scoreboard-voleibol {
+        flex-direction: column;
+    }
+    
+    .score-voleibol {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .score-voleibol {
+        font-size: 2.5rem;
+    }
 }

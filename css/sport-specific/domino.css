@@ -1,243 +1,212 @@
-/* sport-specific/domino.css */
-/* Solo estilos específicos del dominó */
+/* ESTILOS MUY ESPECÍFICOS PARA DOMINÓ */
 
+/* Fondo degradado específico */
 body.theme-domino {
-    background: var(--gradient);
-    color: var(--light-color);
+    background: linear-gradient(135deg, #1a5276, #27ae60, #f39c12);
 }
 
-/* Configuración específica */
+/* Reloj con color específico */
+.clock-container-domino {
+    background-color: rgba(46, 204, 113, 0.8);
+}
+
+/* Botón de inicio con color específico */
+.btn-home-domino {
+    background-color: var(--primary-color);
+}
+
+/* Reglas del juego - diseño específico */
+.game-rules-domino {
+    color: #ffd700;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.game-rules-domino i {
+    color: var(--warning-color);
+}
+
+/* Panel de configuración específico para dominó */
 .config-panel-domino {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    margin-bottom: 25px;
-    padding: 15px;
     background-color: rgba(44, 62, 80, 0.9);
     border-radius: 15px;
-    box-shadow: var(--shadow);
-}
-
-.config-item-domino {
+    padding: 20px;
+    margin-bottom: 20px;
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
 }
 
-.config-control-domino {
+.config-item {
+    flex: 1;
+    min-width: 250px;
+}
+
+.config-item label {
+    color: var(--light-color);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.config-control {
     display: flex;
     gap: 10px;
-    align-items: center;
 }
 
-/* Scoreboard específico */
+/* Scoreboard específico para dominó */
 .scoreboard-domino {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-    gap: 25px;
+    display: flex;
+    justify-content: space-between;
     margin-bottom: 30px;
+    gap: 20px;
 }
 
 .team-domino {
     background-color: rgba(44, 62, 80, 0.9);
     border-radius: 15px;
-    padding: 25px;
-    box-shadow: var(--shadow);
-    border: 2px solid transparent;
-}
-
-.team-domino:hover {
-    transform: translateY(-5px);
-    border-color: var(--primary-color);
-}
-
-.team-domino.winning {
-    border-color: var(--success-color);
-    box-shadow: 0 0 15px rgba(46, 204, 113, 0.3);
+    padding: 20px;
+    text-align: center;
 }
 
 .team-header-domino {
     margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .team-name-domino {
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: var(--primary-color);
+    font-size: 1.5rem;
+    margin-bottom: 5px;
 }
 
 .players-info-domino {
     font-size: 0.9rem;
     opacity: 0.8;
-    font-style: italic;
 }
 
-.domino-score-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+.domino-score {
+    display: flex;
+    justify-content: space-around;
     margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-.current-score-box, .total-score-box {
-    background-color: rgba(0, 0, 0, 0.2);
-    padding: 15px;
-    border-radius: 10px;
+.current-score, .total-score {
     text-align: center;
+    flex: 1;
+    min-width: 120px;
 }
 
-.score-label-domino {
+.score-label {
     font-size: 0.9rem;
     opacity: 0.8;
     margin-bottom: 5px;
 }
 
-.score-value-domino {
+.score-value {
     font-size: 2.5rem;
     font-weight: bold;
-    color: var(--primary-color);
 }
 
-.games-won-domino {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.2);
-    padding: 15px;
-    border-radius: 10px;
+.games-won {
     margin-bottom: 20px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
 }
 
-.games-value-domino {
+.games-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.games-value {
     font-size: 2rem;
     font-weight: bold;
-    color: var(--warning-color);
-    background-color: rgba(0, 0, 0, 0.3);
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
+    color: var(--accent-color);
 }
 
-/* Controles de puntos específicos */
-.point-controls-domino {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+.point-controls {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
     gap: 10px;
+    margin-bottom: 15px;
 }
 
 .btn-point-domino {
-    background-color: var(--accent-color);
-    color: white;
-    padding: 12px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: var(--transition);
-    box-shadow: var(--shadow);
+    background-color: var(--primary-color);
+    padding: 10px 15px;
+    min-width: 60px;
 }
 
-.btn-point-domino:hover {
-    background-color: color-mix(in srgb, var(--accent-color) 80%, white);
-    transform: scale(1.05);
-}
-
-.custom-points-domino {
+.custom-points {
     display: flex;
     gap: 10px;
-    align-items: center;
+    margin-bottom: 15px;
 }
 
-/* Info de partida actual */
+/* Información de la partida actual */
 .current-game-info-domino {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin-bottom: 25px;
-    padding: 15px;
-    background-color: rgba(44, 62, 80, 0.9);
-    border-radius: 15px;
-    box-shadow: var(--shadow);
-}
-
-.info-item-domino {
-    text-align: center;
+    background-color: rgba(255, 255, 255, 0.1);
     padding: 10px;
-    background-color: rgba(0, 0, 0, 0.2);
     border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
-/* Historial de partidas */
+/* Historial de partidas específico */
 .round-history-domino {
     background-color: rgba(44, 62, 80, 0.9);
     border-radius: 15px;
     padding: 20px;
-    box-shadow: var(--shadow);
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
-.rounds-list-domino {
+.rounds-list {
     max-height: 200px;
     overflow-y: auto;
-    padding: 10px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
 }
 
-.round-item-domino {
+.round-item {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px;
-    margin-bottom: 8px;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    border-left: 4px solid var(--primary-color);
 }
 
-.round-item-domino.won {
-    border-left-color: var(--success-color);
-    background-color: rgba(46, 204, 113, 0.1);
-}
-
-.round-number-domino {
-    font-weight: bold;
-    color: var(--primary-color);
-}
-
-.round-winner-domino {
-    color: var(--success-color);
-    font-weight: bold;
-}
-
-/* Responsive específico */
+/* Responsivo para dominó */
 @media (max-width: 768px) {
     .scoreboard-domino {
-        grid-template-columns: 1fr;
+        flex-direction: column;
     }
     
-    .domino-score-layout {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-    
-    .point-controls-domino {
-        grid-template-columns: repeat(4, 1fr);
+    .score-value {
+        font-size: 2rem;
     }
     
     .config-panel-domino {
-        grid-template-columns: 1fr;
+        flex-direction: column;
     }
 }
 
 @media (max-width: 480px) {
-    .point-controls-domino {
-        grid-template-columns: repeat(2, 1fr);
+    .score-value {
+        font-size: 1.8rem;
+    }
+    
+    .btn-point-domino {
+        min-width: 50px;
+        padding: 8px 10px;
     }
 }
