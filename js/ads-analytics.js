@@ -1,16 +1,17 @@
 /**
- * Gestión Centralizada de Publicidad y Analítica - Liga Escolar
- * Incluye: Consent Mode v2, Google Analytics, AdSense y Botón de Configuración
+ * ads-analytics.js - Versión Corregida
  */
 
 const GA_MEASUREMENT_ID = 'G-X1Y91HQML1'; 
 const ADSENSE_PUB_ID = 'pub-4118238634514264'; 
 
-// 1. Configuración de Consentimiento
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 
-if (!localStorage.getItem('cookie_consent_granted')) {
+// 1. Verificar estado al cargar
+const consentStatus = localStorage.getItem('cookie_consent_granted');
+
+if (consentStatus === null) {
     gtag('consent', 'default', {
         'ad_storage': 'denied',
         'analytics_storage': 'denied',
@@ -19,7 +20,7 @@ if (!localStorage.getItem('cookie_consent_granted')) {
     });
 }
 
-// 2. Carga de Scripts de Google
+// 2. Carga de Scripts
 function loadGoogleScripts() {
     const gaScript = document.createElement('script');
     gaScript.async = true;
@@ -34,56 +35,10 @@ function loadGoogleScripts() {
     adsScript.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_PUB_ID}`;
     adsScript.crossOrigin = "anonymous";
     document.head.appendChild(adsScript);
-    
-    gtag('consent', 'update', {
-        'ad_storage': 'granted',
-        'analytics_storage': 'granted',
-        'ad_user_data': 'granted',
-        'ad_personalization': 'granted'
-    });
 }
 
-// 3. Crear Botón de Configuración (Icono de Galleta)
-function createConfigButton() {
-    if (document.getElementById('cookie-settings-btn')) return;
-
-    const btn = document.createElement('button');
-    btn.id = 'cookie-settings-btn';
-    btn.innerHTML = '<i class="fas fa-cookie-bite"></i>';
-    btn.title = 'Configuración de Cookies';
-    
-    // Estilos para que combine con Liga Escolar
-    Object.assign(btn.style, {
-        position: 'fixed',
-        bottom: '20px',
-        right: '20px',
-        width: '45px',
-        height: '45px',
-        borderRadius: '50%',
-        border: 'none',
-        backgroundColor: '#1a2a6c', // Azul oscuro de tu tema
-        color: 'white',
-        cursor: 'pointer',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
-        zIndex: '9999',
-        fontSize: '20px',
-        display: 'flex',
-        alignItems: 'center',
-        justify-content: 'center',
-        transition: '0.3s'
-    });
-
-    btn.onclick = function() {
-        localStorage.removeItem('cookie_consent_granted');
-        location.reload(); 
-    };
-
-    document.body.appendChild(btn);
-}
-
-// 4. Crear Banner de Cookies
+// 3. El Banner (Aseguramos que se vea)
 function createCookieBanner() {
-    // Si ya existe una decisión, cargamos scripts y el botón de reset
     if (localStorage.getItem('cookie_consent_granted') !== null) {
         if (localStorage.getItem('cookie_consent_granted') === 'true') {
             loadGoogleScripts();
@@ -94,28 +49,36 @@ function createCookieBanner() {
 
     const banner = document.createElement('div');
     banner.id = 'cookie-banner';
+    // Estilos de emergencia por si el CSS no carga
+    banner.style.cssText = "position:fixed; bottom:20px; left:20px; right:20px; background:white; color:black; padding:20px; border-radius:12px; z-index:99999; box-shadow:0 0 20px rgba(0,0,0,0.5); border-left:8px solid #1a2a6c;";
+    
     banner.innerHTML = `
-        <div class="cookie-content">
-            <p><strong>Configuración de Cookies</strong><br>
-            Usamos cookies para mejorar tu experiencia y mostrar publicidad. Puedes cambiar tu elección en cualquier momento.</p>
-            <div class="cookie-buttons">
-                <button onclick="acceptCookies()" class="btn-accept">Aceptar todas</button>
-                <button onclick="rejectCookies()" class="btn-reject">Solo técnicas</button>
-            </div>
+        <div style="max-width:800px; margin:0 auto;">
+            <p style="margin-bottom:15px; font-family:sans-serif;"><strong>Privacidad en Liga Escolar</strong><br>
+            Usamos cookies para estadísticas y publicidad. ¿Aceptas su uso?</p>
+            <button onclick="acceptCookies()" style="background:#1a2a6c; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold; margin-right:10px;">Aceptar todas</button>
+            <button onclick="rejectCookies()" style="background:#eee; color:#333; border:none; padding:10px 20px; border-radius:5px; cursor:pointer;">Solo técnicas</button>
         </div>
     `;
     document.body.appendChild(banner);
 }
 
-window.acceptCookies = function() {
-    localStorage.setItem('cookie_consent_granted', 'true');
-    location.reload(); 
-};
+// 4. Botón Flotante (Icono de Galleta)
+function createConfigButton() {
+    if (document.getElementById('cookie-settings-btn')) return;
+    const btn = document.createElement('button');
+    btn.id = 'cookie-settings-btn';
+    btn.innerHTML = '🍪'; 
+    Object.assign(btn.style, {
+        position: 'fixed', bottom: '20px', right: '20px', width: '45px', height: '45px',
+        borderRadius: '50%', border: 'none', backgroundColor: '#1a2a6c', color: 'white',
+        cursor: 'pointer', zIndex: '9999', fontSize: '20px'
+    });
+    btn.onclick = () => { localStorage.removeItem('cookie_consent_granted'); location.reload(); };
+    document.body.appendChild(btn);
+}
 
-window.rejectCookies = function() {
-    localStorage.setItem('cookie_consent_granted', 'false');
-    location.reload();
-};
+window.acceptCookies = () => { localStorage.setItem('cookie_consent_granted', 'true'); location.reload(); };
+window.rejectCookies = () => { localStorage.setItem('cookie_consent_granted', 'false'); location.reload(); };
 
-// Inicialización al cargar la página
-window.addEventListener('DOMContentLoaded', createCookieBanner);
+window.addEventListener('load', createCookieBanner);
