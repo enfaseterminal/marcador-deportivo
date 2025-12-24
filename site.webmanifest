@@ -1,0 +1,22 @@
+{
+  "name": "Liga Escolar",
+  "short_name": "Liga Escolar",
+  "description": "Plataforma de competiciones y resultados de la Liga Escolar",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f3b2e",
+  "theme_color": "#0f3b2e",
+  "icons": [
+    {
+      "src": "/imagenes/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/imagenes/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
