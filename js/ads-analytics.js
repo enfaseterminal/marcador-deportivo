@@ -1,9 +1,10 @@
 /**
  * Gestión Centralizada de Publicidad y Analítica - Liga Escolar
  * Cumple con RGPD y Google Consent Mode v2
+ * Integrado con el sistema de notificaciones de la web
  */
 
-// 1. CONFIGURACIÓN - REEMPLAZA CON TUS DATOS
+// 1. CONFIGURACIÓN
 const GA_MEASUREMENT_ID = 'G-X1Y91HQML1'; // Tu ID de Analytics
 const ADSENSE_PUB_ID = 'pub-4118238634514264'; // Tu ID de AdSense
 
@@ -22,7 +23,6 @@ if (!localStorage.getItem('cookie_consent_granted')) {
 
 // 3. FUNCIÓN PARA CARGAR LOS SCRIPTS DE GOOGLE
 function loadGoogleScripts() {
-    // Cargar Google Analytics
     const gaScript = document.createElement('script');
     gaScript.async = true;
     gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
@@ -31,14 +31,12 @@ function loadGoogleScripts() {
     gtag('js', new Date());
     gtag('config', GA_MEASUREMENT_ID);
 
-    // Cargar Google AdSense
     const adsScript = document.createElement('script');
     adsScript.async = true;
     adsScript.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_PUB_ID}`;
     adsScript.crossOrigin = "anonymous";
     document.head.appendChild(adsScript);
     
-    // Actualizar consentimiento a concedido
     gtag('consent', 'update', {
         'ad_storage': 'granted',
         'analytics_storage': 'granted',
@@ -50,7 +48,7 @@ function loadGoogleScripts() {
 // 4. CREACIÓN DINÁMICA DEL BANNER DE COOKIES
 function createCookieBanner() {
     if (localStorage.getItem('cookie_consent_granted')) {
-        loadGoogleScripts(); // Si ya aceptó antes, cargar scripts directamente
+        loadGoogleScripts(); 
         return;
     }
 
@@ -59,7 +57,7 @@ function createCookieBanner() {
     banner.innerHTML = `
         <div class="cookie-content">
             <p><strong>Configuración de Cookies</strong><br>
-            Utilizamos cookies propias para el funcionamiento de la web y de terceros (Google) para analizar el tráfico y mostrar publicidad personalizada según tus hábitos de navegación.</p>
+            Utilizamos cookies propias para el funcionamiento de la web y de terceros (Google) para analizar el tráfico y mostrar publicidad personalizada.</p>
             <div class="cookie-buttons">
                 <button onclick="acceptCookies()" class="btn-accept">Aceptar todas</button>
                 <button onclick="rejectCookies()" class="btn-reject">Solo técnicas</button>
@@ -69,25 +67,30 @@ function createCookieBanner() {
     document.body.appendChild(banner);
 }
 
-// 5. ACCIONES DEL BANNER
+// 5. ACCIONES DEL BANNER (Con corrección integrada)
 window.acceptCookies = function() {
-    localStorage.setItem('cookie_consent_granted', 'true');
-    document.getElementById('cookie-banner').remove();
-    loadGoogleScripts();
+    localStorage.setItem('cookie_consent_granted', 'true'); //
+    document.getElementById('cookie-banner').remove(); //
+    loadGoogleScripts(); //
+    
+    // MEJORA: Notificación visual usando main.js
+    if (typeof showNotification === 'function') {
+        showNotification('Preferencias de privacidad guardadas correctamente', 'success');
+    }
 };
 
 window.rejectCookies = function() {
-    localStorage.setItem('cookie_consent_granted', 'false');
-    document.getElementById('cookie-banner').remove();
-    // No cargamos los scripts de Google, solo se mantienen las locales técnicas
+    localStorage.setItem('cookie_consent_granted', 'false'); //
+    document.getElementById('cookie-banner').remove(); //
+    
+    // MEJORA: Notificación visual usando main.js
+    if (typeof showNotification === 'function') {
+        showNotification('Solo se utilizarán cookies técnicas necesarias', 'info');
+    }
 };
 
-// Iniciar al cargar la página
-window.addEventListener('DOMContentLoaded', createCookieBanner);
-
-// Función para crear el botón flotante de configuración
+// 6. BOTÓN FLOTANTE DE CONFIGURACIÓN
 function createConfigButton() {
-    // Si ya existe, no crearlo de nuevo
     if (document.getElementById('cookie-settings-btn')) return;
 
     const btn = document.createElement('button');
@@ -95,7 +98,6 @@ function createConfigButton() {
     btn.innerHTML = '<i class="fas fa-cookie-bite"></i>';
     btn.title = 'Configuración de Cookies';
     
-    // Estilos inline para asegurar visibilidad (o puedes moverlo a base.css)
     Object.assign(btn.style, {
         position: 'fixed',
         bottom: '20px',
@@ -118,15 +120,17 @@ function createConfigButton() {
 
     btn.onclick = function() {
         localStorage.removeItem('cookie_consent_granted');
-        location.reload(); // Recarga para resetear scripts y mostrar banner
+        location.reload(); 
     };
 
     document.body.appendChild(btn);
 }
 
-// Modificamos la función createCookieBanner existente para llamar al botón
+// 7. INICIALIZACIÓN
 const originalCreateBanner = createCookieBanner;
 createCookieBanner = function() {
     originalCreateBanner();
     createConfigButton();
 };
+
+window.addEventListener('DOMContentLoaded', createCookieBanner);
