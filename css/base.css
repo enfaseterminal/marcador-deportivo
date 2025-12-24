@@ -153,3 +153,7 @@ a {
 @media (max-width: 600px) {
     .cookie-buttons { flex-direction: column; }
 }
+#cookie-settings-btn:hover {
+    transform: scale(1.1);
+    background-color: #b21f1f !important; /* Rojo al pasar el ratón */
+}

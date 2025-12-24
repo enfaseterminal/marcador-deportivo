@@ -84,3 +84,49 @@ window.rejectCookies = function() {
 
 // Iniciar al cargar la página
 window.addEventListener('DOMContentLoaded', createCookieBanner);
+
+// Función para crear el botón flotante de configuración
+function createConfigButton() {
+    // Si ya existe, no crearlo de nuevo
+    if (document.getElementById('cookie-settings-btn')) return;
+
+    const btn = document.createElement('button');
+    btn.id = 'cookie-settings-btn';
+    btn.innerHTML = '<i class="fas fa-cookie-bite"></i>';
+    btn.title = 'Configuración de Cookies';
+    
+    // Estilos inline para asegurar visibilidad (o puedes moverlo a base.css)
+    Object.assign(btn.style, {
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        width: '45px',
+        height: '45px',
+        borderRadius: '50%',
+        border: 'none',
+        backgroundColor: '#1a2a6c',
+        color: 'white',
+        cursor: 'pointer',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+        zIndex: '9999',
+        fontSize: '20px',
+        display: 'flex',
+        alignItems: 'center',
+        justify-content: 'center',
+        transition: '0.3s'
+    });
+
+    btn.onclick = function() {
+        localStorage.removeItem('cookie_consent_granted');
+        location.reload(); // Recarga para resetear scripts y mostrar banner
+    };
+
+    document.body.appendChild(btn);
+}
+
+// Modificamos la función createCookieBanner existente para llamar al botón
+const originalCreateBanner = createCookieBanner;
+createCookieBanner = function() {
+    originalCreateBanner();
+    createConfigButton();
+};
