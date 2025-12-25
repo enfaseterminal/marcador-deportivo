@@ -1,0 +1,142 @@
+/* Chinchon - Estilos específicos */
+
+.theme-chinchon {
+    --primary-color: #8B4513;
+    --secondary-color: #D2691E;
+    --accent-color: #A0522D;
+    --success-color: #27ae60;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    --info-color: #3498db;
+}
+
+/* Header específico para Chinchón */
+.clock-container-chinchon {
+    background: rgba(139, 69, 19, 0.8);
+    border: 2px solid #A0522D;
+}
+
+.btn-home-chinchon {
+    background: #8B4513;
+    border: 2px solid #A0522D;
+}
+
+.btn-home-chinchon:hover {
+    background: #A0522D;
+    transform: scale(1.05);
+}
+
+/* Jugadores - colores por posición */
+.player-position-1 {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #333;
+}
+
+.player-position-2 {
+    background: linear-gradient(135deg, #C0C0C0, #A9A9A9);
+    color: white;
+}
+
+.player-position-3 {
+    background: linear-gradient(135deg, #CD7F32, #8B4513);
+    color: white;
+}
+
+.player-position-4 {
+    background: linear-gradient(135deg, #8B4513, #654321);
+    color: white;
+}
+
+/* Cartas de jugador - colores según puntuación */
+.player-card.low-score {
+    border-left: 5px solid #27ae60;
+}
+
+.player-card.medium-score {
+    border-left: 5px solid #f39c12;
+}
+
+.player-card.high-score {
+    border-left: 5px solid #e74c3c;
+}
+
+/* Efectos especiales para Chinchón */
+.chinchon-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Tabla de rondas */
+.rounds-table .winner-cell {
+    background: rgba(39, 174, 96, 0.2);
+    font-weight: bold;
+}
+
+.rounds-table .loser-cell {
+    background: rgba(231, 76, 60, 0.1);
+}
+
+.rounds-table .chinchon-cell {
+    background: rgba(155, 89, 182, 0.2);
+    font-weight: bold;
+}
+
+/* Botones específicos */
+.btn-chinchon {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    color: white;
+    border: none;
+}
+
+.btn-chinchon:hover {
+    background: linear-gradient(135deg, #8e44ad, #9b59b6);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(155, 89, 182, 0.4);
+}
+
+/* Responsive específico para Chinchón */
+@media (max-width: 768px) {
+    .player-card {
+        padding: 12px;
+    }
+    
+    .player-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .game-info {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .game-info {
+        grid-template-columns: 1fr;
+    }
+    
+    .player-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .player-position {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+}

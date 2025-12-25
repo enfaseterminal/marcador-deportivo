@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Google Analytics con consentimiento -->
+    <script src="../js/ads-analytics.js"></script>
+    <!-- End Google Analytics -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <title>Marcador de Chinchón | Liga Escolar - Juego de Cartas</title>
+    <meta name="description" content="Marcador digital para el juego de Chinchón. Anota puntos, gestiona jugadores y lleva el control de partidas de 2 a 4 jugadores.">
+    <link rel="canonical" href="https://www.ligaescolar.es/chinchon/">
+    <meta property="og:title" content="Marcador de Chinchón | Liga Escolar">
+    <meta property="og:url" content="https://www.ligaescolar.es/chinchon/">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Liga Escolar">
+    <link rel="apple-touch-icon" href="/imagenes/apple-touch-icon-180x180.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ESTILOS BASE -->
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/themes.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <!-- HEADER CON IMAGEN DE FONDO -->
+    <link rel="stylesheet" href="../css/header-with-bg.css">
+    <!-- Estilo específico de chinchón -->
+    <link rel="stylesheet" href="../css/sport-specific/chinchon.css">
+    
+    <!-- Favicons -->
+    <link rel="icon" href="/imagenes/favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="32x32" href="/imagenes/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/imagenes/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/imagenes/apple-touch-icon-180x180.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <style>
+        /* Estilos críticos para Chinchón */
+        body {
+            background: linear-gradient(135deg, #8B4513, #D2691E, #A0522D);
+            color: #ecf0f1;
+            min-height: 100vh;
+            margin: 0;
+            padding: 15px;
+            font-size: 14px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+        
+        /* Configuración específica para Chinchón */
+        .chinchon-config {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            background: rgba(44, 62, 80, 0.85);
+            padding: 15px;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .config-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .config-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .config-control {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .config-control input,
+        .config-control select {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        .config-control button {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: none;
+            background: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .config-control button:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+        
+        /* Scoreboard para múltiples jugadores */
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .player-card {
+            background: rgba(44, 62, 80, 0.9);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .player-card.winning {
+            box-shadow: 0 0 0 3px #27ae60;
+        }
+        
+        .player-card.losing {
+            box-shadow: 0 0 0 3px #e74c3c;
+        }
+        
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .player-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 6px;
+            transition: background 0.2s;
+            flex: 1;
+            margin-right: 10px;
+        }
+        
+        .player-name:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .player-position {
+            background: var(--accent-color);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        /* Estadísticas del jugador */
+        .player-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .stat-value.total {
+            color: #f39c12;
+        }
+        
+        .stat-value.round {
+            color: #3498db;
+        }
+        
+        /* Controles de puntos */
+        .points-controls {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .points-input {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            text-align: center;
+        }
+        
+        .points-input:focus {
+            outline: 2px solid var(--primary-color);
+        }
+        
+        .btn-points {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-add {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-subtract {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-add:hover,
+        .btn-subtract:hover {
+            transform: scale(1.1);
+            opacity: 0.9;
+        }
+        
+        /* Historial de rondas */
+        .rounds-history {
+            background: rgba(44, 62, 80, 0.9);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .rounds-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .rounds-header h3 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .rounds-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .rounds-table th {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .rounds-table td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .rounds-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Botones de acción */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .btn-action {
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .btn-new-round {
+            background: #2ecc71;
+            color: white;
+        }
+        
+        .btn-reset-round {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .btn-reset-game {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-save-game {
+            background: #3498db;
+            color: white;
+        }
+        
+        /* Información del juego */
+        .game-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        
+        .info-item {
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .info-item strong {
+            display: block;
+            margin-bottom: 5px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .info-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .players-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chinchon-config {
+                grid-template-columns: 1fr;
+            }
+            
+            .player-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .points-controls {
+                flex-direction: column;
+            }
+            
+            .btn-points {
+                width: 100%;
+                border-radius: 8px;
+                height: 45px;
+            }
+            
+            .rounds-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+                font-size: 13px;
+            }
+            
+            .container {
+                padding: 5px;
+            }
+            
+            .player-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .player-position {
+                align-self: flex-end;
+            }
+        }
+        
+        /* Estados especiales */
+        .chinchon-achieved {
+            animation: pulse-chinchon 1.5s infinite;
+            background: linear-gradient(135deg, rgba(155, 89, 182, 0.2), rgba(155, 89, 182, 0.4));
+        }
+        
+        @keyframes pulse-chinchon {
+            0% { box-shadow: 0 0 0 0 rgba(155, 89, 182, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(155, 89, 182, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(155, 89, 182, 0); }
+        }
+        
+        .empty-message {
+            text-align: center;
+            padding: 20px;
+            opacity: 0.6;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.6);
+        }
+    </style>
+</head>
+<body class="theme-chinchon">
+    <div class="container">
+        <header class="app-header">
+            <!-- Imagen de fondo -->
+            <div class="header-bg">
+                <img src="/imagenes/pizarra.png" alt="Fondo pizarra deportiva" class="header-bg-image">
+            </div>
+            
+            <!-- Contenido sobre la imagen -->
+            <div class="header-content">
+                <div class="header-left">
+                    <h1><i class="fas fa-cards"></i> Marcador de Chinchón</h1>
+                    <p class="subtitle">Liga Escolar - <span id="current-location">No especificada</span></p>
+                    <div class="input-group" style="margin-top: 10px;">
+                        <input type="text" id="match-location-input" placeholder="📍 Ingresa ubicación">
+                        <button class="btn btn-small" id="save-location" style="padding: 8px 12px;">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="clock-container clock-container-chinchon">
+                        <div id="clock">00:00:00</div>
+                        <div id="date">--/--/----</div>
+                    </div>
+                    <a href="../index.html" class="btn btn-home btn-home-chinchon" style="margin-top: 10px; padding: 8px 12px;">
+                        <i class="fas fa-home"></i>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Configuración del juego -->
+        <div class="chinchon-config">
+            <div class="config-group">
+                <label><i class="fas fa-users"></i> Número de Jugadores:</label>
+                <div class="config-control">
+                    <select id="player-count">
+                        <option value="2">2 Jugadores</option>
+                        <option value="3" selected>3 Jugadores</option>
+                        <option value="4">4 Jugadores</option>
+                    </select>
+                    <button class="btn btn-small" id="apply-players" style="padding: 10px 15px;">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="config-group">
+                <label><i class="fas fa-trophy"></i> Puntos Objetivo:</label>
+                <div class="config-control">
+                    <select id="target-score">
+                        <option value="100">100 puntos</option>
+                        <option value="150" selected>150 puntos</option>
+                        <option value="200">200 puntos</option>
+                    </select>
+                    <button class="btn btn-small" id="apply-target" style="padding: 10px 15px;">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="config-group">
+                <label><i class="fas fa-crown"></i> Bonus Chinchón:</label>
+                <div class="config-control">
+                    <select id="chinchon-bonus">
+                        <option value="-10">-10 puntos</option>
+                        <option value="-20" selected>-20 puntos</option>
+                        <option value="-30">-30 puntos</option>
+                    </select>
+                    <button class="btn btn-small" id="apply-bonus" style="padding: 10px 15px;">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tablero de jugadores -->
+        <div class="players-grid" id="players-container">
+            <!-- Los jugadores se añaden dinámicamente aquí -->
+        </div>
+
+        <!-- Información del juego -->
+        <div class="game-info">
+            <div class="info-item">
+                <strong><i class="fas fa-gamepad"></i> Ronda Actual:</strong>
+                <div class="info-value" id="current-round">1</div>
+            </div>
+            <div class="info-item">
+                <strong><i class="fas fa-trophy"></i> Puntos Objetivo:</strong>
+                <div class="info-value" id="display-target">150</div>
+            </div>
+            <div class="info-item">
+                <strong><i class="fas fa-chess-king"></i> Líder:</strong>
+                <div class="info-value" id="current-leader">Ninguno</div>
+            </div>
+            <div class="info-item">
+                <strong><i class="fas fa-clock"></i> Duración:</strong>
+                <div class="info-value" id="game-duration">00:00</div>
+            </div>
+        </div>
+
+        <!-- Controles de acción -->
+        <div class="action-buttons">
+            <button class="btn-action btn-new-round" id="new-round">
+                <i class="fas fa-plus-circle"></i> Nueva Ronda
+            </button>
+            <button class="btn-action btn-reset-round" id="reset-round">
+                <i class="fas fa-redo"></i> Reiniciar Ronda
+            </button>
+            <button class="btn-action btn-reset-game" id="reset-game">
+                <i class="fas fa-redo-alt"></i> Reiniciar Juego
+            </button>
+            <button class="btn-action btn-save-game" id="save-game">
+                <i class="fas fa-save"></i> Guardar Partida
+            </button>
+        </div>
+
+        <!-- Historial de rondas -->
+        <div class="rounds-history">
+            <div class="rounds-header">
+                <h3><i class="fas fa-history"></i> Historial de Rondas</h3>
+                <button class="btn btn-small" id="clear-history" style="padding: 6px 10px;" title="Limpiar historial">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            <div class="rounds-table-container" style="overflow-x: auto;">
+                <table class="rounds-table" id="rounds-table">
+                    <thead>
+                        <tr>
+                            <th>Ronda</th>
+                            <!-- Las columnas de jugadores se añaden dinámicamente -->
+                        </tr>
+                    </thead>
+                    <tbody id="rounds-body">
+                        <!-- Las rondas se añaden dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Historial de partidas -->
+        <div class="rounds-history">
+            <div class="rounds-header">
+                <h3><i class="fas fa-trophy"></i> Partidas Guardadas</h3>
+                <button class="btn btn-small" id="clear-matches" style="padding: 6px 10px;" title="Borrar partidas">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            <div class="saved-matches" id="saved-matches" style="max-height: 200px; overflow-y: auto;">
+                <!-- Las partidas guardadas se muestran aquí -->
+            </div>
+        </div>
+
+        <!-- Sección para compartir -->
+        <div class="share-section">
+            <h3 style="text-align: center; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <i class="fas fa-share-alt"></i> Compartir Resultados
+            </h3>
+            <div class="share-buttons">
+                <button class="btn-share btn-share-current" id="share-current" title="Compartir partida actual">
+                    <i class="fas fa-share-square"></i> Partida Actual
+                </button>
+                <button class="btn-share btn-share-history" id="share-history" title="Compartir historial">
+                    <i class="fas fa-history"></i> Historial
+                </button>
+                <button class="btn-share btn-share-whatsapp" id="share-whatsapp" title="Compartir por WhatsApp" style="background: #25D366; color: white;">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </button>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer style="margin-top: 20px; padding: 15px; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.8rem;">
+            <p>© 2025 Liga Escolar - Marcador de Chinchón</p>
+            <p class="footer-links" style="margin-top: 8px;">
+                <a href="https://www.ligaescolar.es/privacidad.html" style="color: rgba(255, 255, 255, 0.7);">Privacidad</a> |
+                <a href="#" style="color: rgba(255, 255, 255, 0.7);">Términos</a> |
+                <a href="https://www.enfaseterminal.com/" style="color: rgba(255, 255, 255, 0.7);">Blog</a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Modal para editar jugador -->
+    <div class="modal" id="player-edit-modal">
+        <div class="modal-content" style="max-width: 90%; padding: 20px;">
+            <h2 style="font-size: 1.3rem; margin-bottom: 15px;">Editar Jugador</h2>
+            <div class="form-group">
+                <label for="edit-player-name" style="font-size: 0.9rem;">Nombre del jugador:</label>
+                <input type="text" id="edit-player-name" placeholder="Nombre del jugador" style="padding: 10px;">
+            </div>
+            <div class="modal-buttons" style="margin-top: 20px;">
+                <button class="btn btn-secondary" id="cancel-edit" style="padding: 10px 15px;">Cancelar</button>
+                <button class="btn btn-primary" id="save-player" style="padding: 10px 15px;">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para guardar partida -->
+    <div class="modal" id="save-modal">
+        <div class="modal-content" style="max-width: 90%; padding: 20px;">
+            <h2 style="font-size: 1.3rem; margin-bottom: 15px;">Guardar Partida</h2>
+            <div class="form-group">
+                <label for="save-game-name" style="font-size: 0.9rem;">Nombre de la partida:</label>
+                <input type="text" id="save-game-name" placeholder="Ej: Torneo Familiar" style="padding: 10px;">
+            </div>
+            <div class="form-group">
+                <label style="font-size: 0.9rem;">Resultado final:</label>
+                <div class="card" style="padding: 12px; margin: 5px 0;">
+                    <p id="save-game-result" style="text-align: center; font-weight: bold;"></p>
+                </div>
+            </div>
+            <div class="modal-buttons" style="margin-top: 20px;">
+                <button class="btn btn-secondary" id="cancel-save" style="padding: 10px 15px;">Cancelar</button>
+                <button class="btn btn-primary" id="confirm-save" style="padding: 10px 15px;">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para compartir -->
+    <div class="modal" id="share-modal">
+        <div class="modal-content" style="max-width: 90%; padding: 20px;">
+            <h2 style="font-size: 1.3rem; margin-bottom: 15px;">Compartir Resultados</h2>
+            <div class="share-preview">
+                <h3 style="font-size: 1rem; margin-bottom: 10px;">Vista previa:</h3>
+                <div id="share-text" style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 8px; max-height: 200px; overflow-y: auto; font-size: 0.85rem; white-space: pre-wrap; margin-bottom: 15px;">
+                    <!-- Texto generado dinámicamente -->
+                </div>
+                <div class="modal-buttons" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                    <button class="btn btn-secondary" id="copy-text" style="flex: 1; padding: 10px;">
+                        <i class="fas fa-copy"></i> Copiar
+                    </button>
+                    <button class="btn btn-success" id="share-native" style="flex: 1; padding: 10px;">
+                        <i class="fas fa-share"></i> Compartir
+                    </button>
+                    <button class="btn btn-secondary" id="close-share" style="flex: 1; padding: 10px;">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificación -->
+    <div class="notification" id="notification" style="top: 10px; right: 10px; left: 10px; max-width: 100%; padding: 12px;">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-text" style="font-size: 0.9rem;">Operación realizada</span>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/clock.js"></script>
+    <script src="../js/celebrate.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/storage.js"></script>
+    <script src="../js/match-core.js"></script>
+    <script src="../js/modal-manager.js"></script>
+    <script src="../js/score-manager.js"></script>
+    <script src="../js/chinchon.js"></script>
+    
+    <!-- Service Worker -->
+    <script>
+       if ('serviceWorker' in navigator) {
+         window.addEventListener('load', () => {
+           navigator.serviceWorker.register('/sw.js')
+             .then(reg => console.log('Service Worker registrado', reg))
+             .catch(err => console.error('Error al registrar SW', err));
+         });
+       }
+       
+       // Inicialización rápida para móvil
+       document.addEventListener('DOMContentLoaded', function() {
+           console.log('Marcador de Chinchón cargado');
+       });
+    </script>
+
+</body>
+</html>
