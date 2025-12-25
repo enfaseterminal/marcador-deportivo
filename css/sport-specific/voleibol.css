@@ -248,8 +248,7 @@ body.theme-voleibol {
     .history-score {
         margin: 10px 0;
     }
-}
-
+    
     .container {
         padding: 5px;
     }
@@ -289,6 +288,7 @@ body.theme-voleibol {
         font-size: 1.2rem !important;
     }
 }
+
 /* Modo Marcador Gigante para PWA */
 @media (orientation: landscape) and (max-height: 500px) {
     /* 1. Escondemos el header para ganar espacio vertical */
@@ -324,5 +324,181 @@ body.theme-voleibol {
 
     .btn-score {
         padding: 10px 25px !important;
+    }
+}
+
+/* ===== BOTONES DE CONTROL MEJORADOS ===== */
+
+/* Contenedor principal de controles */
+.match-controls, .export-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+/* Estilo para botones con iconos */
+.btn-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 90px;
+    height: 90px;
+    padding: 10px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: white;
+    font-size: 0.8rem;
+    text-align: center;
+    gap: 8px;
+    position: relative;
+}
+
+.btn-icon i {
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+/* Colores específicos para cada botón */
+.btn-new-set {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+}
+
+.btn-reset {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.btn-save {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.btn-share-current {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+}
+
+.btn-share-history {
+    background: linear-gradient(135deg, #34495e, #2c3e50);
+}
+
+.btn-whatsapp {
+    background: linear-gradient(135deg, #25D366, #128C7E);
+}
+
+/* Efectos hover */
+.btn-icon:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    opacity: 0.95;
+}
+
+.btn-icon:active {
+    transform: translateY(0);
+}
+
+/* Tooltips para los botones */
+.btn-icon::after {
+    content: attr(title);
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.btn-icon:hover::after {
+    opacity: 1;
+    visibility: visible;
+    bottom: -35px;
+}
+
+/* Contenedor para grupos de botones */
+.control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 15px 0;
+    width: 100%;
+}
+
+.control-group-label {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    padding: 5px 15px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    width: fit-content;
+}
+
+/* Separador visual */
+.control-separator {
+    width: 90%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    margin: 20px auto;
+}
+
+/* Responsive para botones */
+@media (max-width: 768px) {
+    .btn-icon {
+        min-width: 80px;
+        height: 80px;
+        font-size: 0.75rem;
+    }
+    
+    .btn-icon i {
+        font-size: 1.6rem;
+    }
+    
+    .match-controls, .export-controls {
+        gap: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn-icon {
+        min-width: 70px;
+        height: 70px;
+        font-size: 0.7rem;
+    }
+    
+    .btn-icon i {
+        font-size: 1.4rem;
+    }
+    
+    .control-group-label {
+        font-size: 0.9rem;
+    }
+}
+
+/* Modo landscape para móviles */
+@media (orientation: landscape) and (max-height: 500px) {
+    .btn-icon {
+        min-width: 70px;
+        height: 70px;
+        font-size: 0.7rem;
+        padding: 5px;
+    }
+    
+    .btn-icon i {
+        font-size: 1.4rem;
     }
 }

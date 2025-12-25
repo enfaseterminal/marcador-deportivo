@@ -114,18 +114,86 @@ function renderSets(container, setsWon, maxSets) {
     }
 }
 
-// Funciones para compartir (comunes)
-function openShareModal() {
+// Función para abrir modal de compartir historial
+function openShareHistoryModal() {
     const shareModal = document.getElementById('share-modal');
     const shareTextEl = document.getElementById('share-text');
+    const shareHistoryBtn = document.getElementById('share-history-btn');
+    const modalTitle = document.getElementById('share-modal-title');
+    const previewTitle = document.getElementById('share-preview-title');
     
-    if (!shareModal || !shareTextEl) return;
+    if (!shareModal || !shareTextEl || !modalTitle || !previewTitle) return;
+    
+    // Cambiar título del modal
+    modalTitle.textContent = 'Compartir Historial (Voleibol)';
+    previewTitle.textContent = 'Vista previa del historial:';
+    
+    // Generar texto del historial
+    let text = `🏐 HISTORIAL DE PARTIDOS DE VOLEIBOL 🏐\n`;
+    text += `📅 ${new Date().toLocaleDateString()} 🕒 ${new Date().toLocaleTimeString()}\n\n`;
+    
+    if (window.matchHistory.length === 0) {
+        text += `No hay partidos guardados.\n\n`;
+    } else {
+        text += `=== PARTIDOS GUARDADOS ===\n\n`;
+        
+        window.matchHistory.forEach((match, index) => {
+            const matchDate = new Date(match.timestamp).toLocaleDateString();
+            text += `PARTIDO ${index + 1}\n`;
+            text += `Fecha: ${matchDate}\n`;
+            text += `${match.team1.name} ${match.team1.sets} - ${match.team2.sets} ${match.team2.name}\n`;
+            if (match.location && match.location !== "No especificada") {
+                text += `📍 ${match.location}\n`;
+            }
+            if (match.duration) {
+                text += `⏱️ ${match.duration} minutos\n`;
+            }
+            text += `\n---\n\n`;
+        });
+    }
+    
+    text += `📱 Generado con Marcador de Voleibol - Liga Escolar\n`;
+    text += `🔗 ${window.sportUrl || "https://www.ligaescolar.es/voleibol/"}`;
+    
+    shareTextEl.textContent = text;
+    shareModal.style.display = 'flex';
+    
+    // Ocultar botón de compartir historial dentro del modal
+    if (shareHistoryBtn) {
+        shareHistoryBtn.style.display = 'none';
+    }
+}
+
+// Función para abrir modal de compartir partido actual
+function openShareCurrentModal() {
+    const shareModal = document.getElementById('share-modal');
+    const shareTextEl = document.getElementById('share-text');
+    const shareHistoryBtn = document.getElementById('share-history-btn');
+    const modalTitle = document.getElementById('share-modal-title');
+    const previewTitle = document.getElementById('share-preview-title');
+    
+    if (!shareModal || !shareTextEl || !modalTitle || !previewTitle) return;
+    
+    // Cambiar título del modal
+    modalTitle.textContent = 'Compartir Resultados (Voleibol)';
+    previewTitle.textContent = 'Vista previa del resultado:';
     
     // Generar texto usando la función específica del deporte
     if (typeof window.generateShareText === 'function') {
         shareTextEl.textContent = window.generateShareText();
     }
     shareModal.style.display = 'flex';
+    
+    // Mostrar botón de compartir historial dentro del modal
+    if (shareHistoryBtn) {
+        shareHistoryBtn.style.display = 'inline-block';
+    }
+}
+
+// Funciones para compartir (comunes)
+function openShareModal() {
+    // Esta función ahora se usa para abrir el modal de compartir partido actual
+    openShareCurrentModal();
 }
 
 function closeShareModal() {
@@ -134,9 +202,10 @@ function closeShareModal() {
 }
 
 function copyShareText() {
-    if (typeof window.generateShareText !== 'function') return;
+    const shareTextEl = document.getElementById('share-text');
+    if (!shareTextEl) return;
     
-    const text = window.generateShareText();
+    const text = shareTextEl.textContent;
     navigator.clipboard.writeText(text).then(() => {
         showNotification("Texto copiado al portapapeles. Puedes pegarlo en cualquier aplicación.");
     }).catch(err => {
@@ -146,9 +215,10 @@ function copyShareText() {
 }
 
 function shareViaNative() {
-    if (typeof window.generateShareText !== 'function') return;
+    const shareTextEl = document.getElementById('share-text');
+    if (!shareTextEl) return;
     
-    const text = window.generateShareText();
+    const text = shareTextEl.textContent;
     const sportName = window.sportName || "Deporte";
     const sportUrl = window.sportUrl || "https://www.ligaescolar.es/";
     
@@ -169,13 +239,66 @@ function shareViaNative() {
 }
 
 function shareToWhatsapp() {
-    if (typeof window.generateShareText !== 'function') return;
+    let text;
     
-    const text = window.generateShareText();
+    // Verificar si estamos en el modal de historial
+    const modalTitle = document.getElementById('share-modal-title');
+    const shareTextEl = document.getElementById('share-text');
+    
+    if (modalTitle && modalTitle.textContent.includes('Historial')) {
+        // Usar el texto del modal de historial
+        if (shareTextEl) {
+            text = shareTextEl.textContent;
+        } else {
+            // Generar texto del historial si no hay elemento de texto
+            text = `🏐 HISTORIAL DE PARTIDOS DE VOLEIBOL 🏐\n`;
+            text += `📅 ${new Date().toLocaleDateString()} 🕒 ${new Date().toLocaleTimeString()}\n\n`;
+            
+            if (window.matchHistory.length === 0) {
+                text += `No hay partidos guardados.\n\n`;
+            } else {
+                text += `=== PARTIDOS GUARDADOS ===\n\n`;
+                
+                window.matchHistory.forEach((match, index) => {
+                    const matchDate = new Date(match.timestamp).toLocaleDateString();
+                    text += `PARTIDO ${index + 1}\n`;
+                    text += `Fecha: ${matchDate}\n`;
+                    text += `${match.team1.name} ${match.team1.sets} - ${match.team2.sets} ${match.team2.name}\n`;
+                    if (match.location && match.location !== "No especificada") {
+                        text += `📍 ${match.location}\n`;
+                    }
+                    if (match.duration) {
+                        text += `⏱️ ${match.duration} minutos\n`;
+                    }
+                    text += `\n---\n\n`;
+                });
+            }
+            
+            text += `📱 Generado con Marcador de Voleibol - Liga Escolar\n`;
+            text += `🔗 ${window.sportUrl || "https://www.ligaescolar.es/voleibol/"}`;
+        }
+    } else {
+        // Compartir partido actual
+        if (typeof window.generateShareText !== 'function') return;
+        text = window.generateShareText();
+    }
+    
     const encodedText = encodeURIComponent(text);
     const whatsappUrl = `https://wa.me/?text=${encodedText}`;
     
     window.open(whatsappUrl, '_blank');
+}
+
+// Función para alternar entre compartir partido actual e historial dentro del modal
+function toggleShareContent() {
+    const modalTitle = document.getElementById('share-modal-title');
+    if (!modalTitle) return;
+    
+    if (modalTitle.textContent.includes('Historial')) {
+        openShareCurrentModal();
+    } else {
+        openShareHistoryModal();
+    }
 }
 
 // Inicializar event listeners comunes
@@ -200,17 +323,21 @@ function initCommonEventListeners() {
     if (saveNameBtn) saveNameBtn.addEventListener('click', saveTeamName);
     
     // Compartir
-    const shareResultsBtn = document.getElementById('share-results');
+    const shareCurrentBtn = document.getElementById('share-results');
+    const shareHistoryBtn = document.getElementById('share-history');
     const shareWhatsappBtn = document.getElementById('share-whatsapp');
     const copyTextBtn = document.getElementById('copy-text');
     const shareNativeBtn = document.getElementById('share-native');
     const closeShareBtn = document.getElementById('close-share');
+    const shareHistoryModalBtn = document.getElementById('share-history-btn');
     
-    if (shareResultsBtn) shareResultsBtn.addEventListener('click', openShareModal);
+    if (shareCurrentBtn) shareCurrentBtn.addEventListener('click', openShareCurrentModal);
+    if (shareHistoryBtn) shareHistoryBtn.addEventListener('click', openShareHistoryModal);
     if (shareWhatsappBtn) shareWhatsappBtn.addEventListener('click', shareToWhatsapp);
     if (copyTextBtn) copyTextBtn.addEventListener('click', copyShareText);
     if (shareNativeBtn) shareNativeBtn.addEventListener('click', shareViaNative);
     if (closeShareBtn) closeShareBtn.addEventListener('click', closeShareModal);
+    if (shareHistoryModalBtn) shareHistoryModalBtn.addEventListener('click', toggleShareContent);
     
     // Ubicación
     const saveLocationBtn = document.getElementById('save-location');
@@ -246,6 +373,9 @@ window.common = {
     copyShareText,
     shareViaNative,
     shareToWhatsapp,
+    openShareCurrentModal,
+    openShareHistoryModal,
+    toggleShareContent,
     initCommonEventListeners,
     initialized: false // Bandera para evitar inicialización duplicada
 };

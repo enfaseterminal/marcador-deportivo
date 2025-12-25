@@ -131,25 +131,55 @@
             </div>
         </div>
 
-        <div class="match-controls">
-            <button class="btn btn-success" id="new-set">
-                <i class="fas fa-flag"></i> Nuevo Set
-            </button>
-            <button class="btn btn-warning" id="reset-match">
-                <i class="fas fa-redo"></i> Reiniciar Partido
-            </button>
-            <button class="btn btn-primary" id="save-match">
-                <i class="fas fa-save"></i> Guardar Partido
-            </button>
+        <!-- CONTROLES DEL PARTIDO -->
+        <div class="control-group">
+            <div class="control-group-label">Controles del Partido</div>
+            <div class="match-controls">
+                <!-- Botón Nuevo Set -->
+                <button class="btn-icon btn-new-set" id="new-set" title="Nuevo Set">
+                    <i class="fas fa-flag-checkered"></i>
+                    <span>Nuevo Set</span>
+                </button>
+                
+                <!-- Botón Reiniciar Partido -->
+                <button class="btn-icon btn-reset" id="reset-match" title="Reiniciar Partido">
+                    <i class="fas fa-redo-alt"></i>
+                    <span>Reiniciar</span>
+                </button>
+                
+                <!-- Botón Guardar Partido -->
+                <button class="btn-icon btn-save" id="save-match" title="Guardar Partido">
+                    <i class="fas fa-save"></i>
+                    <span>Guardar</span>
+                </button>
+            </div>
         </div>
 
-        <div class="export-controls">
-            <button class="btn btn-success" id="share-whatsapp">
-                <i class="fab fa-whatsapp"></i> Compartir por WhatsApp
-            </button>
-            <button class="btn btn-primary" id="share-results">
-                <i class="fas fa-share-alt"></i> Compartir Resultados
-            </button>
+        <!-- SEPARADOR VISUAL -->
+        <div class="control-separator"></div>
+
+        <!-- COMPARTIR RESULTADOS -->
+        <div class="control-group">
+            <div class="control-group-label">Compartir Resultados</div>
+            <div class="export-controls">
+                <!-- Botón Compartir por WhatsApp -->
+                <button class="btn-icon btn-whatsapp" id="share-whatsapp" title="Compartir por WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                    <span>WhatsApp</span>
+                </button>
+                
+                <!-- Botón Compartir Partido Actual -->
+                <button class="btn-icon btn-share-current" id="share-results" title="Compartir Partido Actual">
+                    <i class="fas fa-share-square"></i>
+                    <span>Partido</span>
+                </button>
+                
+                <!-- Botón Compartir Historial (NUEVO) -->
+                <button class="btn-icon btn-share-history" id="share-history" title="Compartir Historial">
+                    <i class="fas fa-history"></i>
+                    <span>Historial</span>
+                </button>
+            </div>
         </div>
 
         <div class="history">
@@ -214,9 +244,9 @@
 
     <div class="modal" id="share-modal">
         <div class="modal-content">
-            <h2>Compartir Resultados (Voleibol)</h2>
+            <h2 id="share-modal-title">Compartir Resultados (Voleibol)</h2>
             <div class="share-preview">
-                <h3>Vista previa del resultado:</h3>
+                <h3 id="share-preview-title">Vista previa del resultado:</h3>
                 <div id="share-text">
                     <!-- Texto generado dinámicamente -->
                 </div>
@@ -226,6 +256,9 @@
                     </button>
                     <button class="btn btn-success" id="share-native">
                         <i class="fas fa-share"></i> Compartir
+                    </button>
+                    <button class="btn btn-info" id="share-history-btn" style="display: none;">
+                        <i class="fas fa-history"></i> Historial
                     </button>
                     <button class="btn btn-secondary" id="close-share">Cerrar</button>
                 </div>
