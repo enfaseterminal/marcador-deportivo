@@ -39,41 +39,7 @@ body {
 
 /* ===== TIPOGRAFÍA ===== */
 h1, h2, h3, h4, h5, h6 {
-    margin-bottom: 0.5em;
-    line-height: 1.2;
-}
-
-p {
-    line-height: 1.6;
-    margin-bottom: 1em;
-}
-
-a {
-    color: inherit;
-    text-decoration: none;
-}
-
-/* ===== ANIMACIONES ===== */
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slideOut {
-    from {
-        transform: translateX(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateX(100%);
-        opacity: 0;
-    }
+    margin-bottom: 15px;
 }
 
 @keyframes fadeIn {
@@ -81,7 +47,7 @@ a {
     to { opacity: 1; }
 }
 
-/* ===== UTILIDADES ===== */
+/* ===== CLASES DE UTILIDAD ===== */
 .text-center { text-align: center; }
 .text-left { text-align: left; }
 .text-right { text-align: right; }
@@ -93,6 +59,7 @@ a {
     align-items: center;
     justify-content: center;
 }
+
 /* Banner de Cookies Estilo Liga Escolar */
 #cookie-banner {
     position: fixed;
@@ -105,7 +72,7 @@ a {
     box-shadow: 0 -5px 25px rgba(0,0,0,0.3);
     z-index: 10000;
     border-radius: 12px;
-    border-left: 5px solid #1a2a6c; /* Azul principal */
+    border-left: 5px solid #1a2a6c;
     display: flex;
     justify-content: center;
 }
@@ -127,7 +94,7 @@ a {
 }
 
 .btn-accept {
-    background: #1a2a6c; /* Azul */
+    background: #1a2a6c;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -138,7 +105,7 @@ a {
 }
 
 .btn-accept:hover {
-    background: #b21f1f; /* Rojo al pasar el ratón */
+    background: #b21f1f;
 }
 
 .btn-reject {
@@ -153,7 +120,48 @@ a {
 @media (max-width: 600px) {
     .cookie-buttons { flex-direction: column; }
 }
+
 #cookie-settings-btn:hover {
     transform: scale(1.1);
-    background-color: #b21f1f !important; /* Rojo al pasar el ratón */
+    background-color: #b21f1f !important;
+}
+
+/* =========================================================
+   NUEVO: BOTÓN FLOTANTE DE INICIO (Optimizado PWA)
+   ========================================================= */
+.floating-home-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    width: 46px;
+    height: 46px;
+    background-color: var(--primary-color);
+    color: white !important;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    z-index: 9999;
+    border: 2px solid rgba(255,255,255,0.3);
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.floating-home-btn i {
+    font-size: 1.2rem;
+}
+
+.floating-home-btn:hover {
+    transform: scale(1.1);
+    background-color: var(--secondary-color);
+}
+
+/* LÓGICA DE VISIBILIDAD: 
+   Solo se muestra cuando el móvil está en horizontal (Landscape)
+   En vertical (Portrait) usamos el diseño normal sin botón flotante */
+@media (orientation: portrait) {
+    .floating-home-btn {
+        display: none !important;
+    }
 }

@@ -1,833 +1,152 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-     <!-- Google Analiticas y Publicidad con consentimiento -->
      <script src="../js/ads-analytics.js"></script>     
-     <!-- End Google Analiticas y Publicidad con consentimiento -->
-    <meta charset="UTF-8">
+     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-     <title>Marcador de Dominó Online | Contador de Puntos Liga Escolar</title>
-     <meta name="description" content="Anota los puntos de tus partidas de dominó fácilmente. Marcador digital optimizado para móviles y torneos escolares.">
-     <link rel="canonical" href="https://www.ligaescolar.es/domino/">
-     <meta property="og:title" content="Contador de Puntos Dominó | Liga Escolar">
-     <meta property="og:url" content="https://www.ligaescolar.es/domino/">
+     <title>Marcador de Voleibol Online (5 Sets) | Liga Escolar</title>
+     <meta name="description" content="Marcador digital para partidos de voleibol a 5 sets. Control de puntos, sets y tiempos de forma gratuita y online.">
+     <link rel="canonical" href="https://www.ligaescolar.es/voleibol/">
+     <meta property="og:title" content="Marcador de Voleibol (5 Sets) | Liga Escolar">
+     <meta property="og:url" content="https://www.ligaescolar.es/voleibol/">
+
      <meta name="apple-mobile-web-app-capable" content="yes">
      <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
      <meta name="apple-mobile-web-app-title" content="Liga Escolar">
-     <link rel="apple-touch-icon" href="/imagenes/apple-touch-icon-180x180.png">
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+     <link rel="apple-touch-icon" href="/imagenes/apple-touch-icon-180x180.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- ESTILOS BASE (mismos que la página principal) -->
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/themes.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
-    <!-- HEADER CON IMAGEN DE FONDO (nuevo) -->
     <link rel="stylesheet" href="../css/header-with-bg.css">
-    <!-- Estilo específico de dominó -->
-    <link rel="stylesheet" href="../css/sport-specific/domino.css">
-     <!-- Favicon clásico -->
-     <link rel="icon" href="/imagenes/favicon.ico" type="image/x-icon">
-
-     <!-- Favicons PNG -->
-     <link rel="icon" type="image/png" sizes="32x32" href="/imagenes/favicon-32x32.png">
-     <link rel="icon" type="image/png" sizes="16x16" href="/imagenes/favicon-16x16.png">
-
-     <!-- iOS -->
-     <link rel="apple-touch-icon" sizes="180x180" href="/imagenes/apple-touch-icon-180x180.png">
-
-     <!-- PWA / Android -->
-     <link rel="manifest" href="/site.webmanifest">
-
-    <style>
-        /* Estilos críticos para evitar FOUC */
-        body {
-            background: linear-gradient(135deg, #1a5276, #27ae60, #f39c12);
-            color: #ecf0f1;
-            min-height: 100vh;
-            margin: 0;
-            padding: 15px;
-            font-size: 14px;
-        }
-        
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 10px;
-        }
-        
-        /* Configuración compacta en una línea */
-        .config-line {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin: 15px 0 20px;
-            align-items: center;
-            justify-content: center;
-            background: rgba(44, 62, 80, 0.85);
-            padding: 12px 15px;
-            border-radius: 12px;
-            backdrop-filter: blur(5px);
-        }
-        
-        .config-item-compact {
-            flex: 1;
-            min-width: 200px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .config-item-compact label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: white;
-            font-weight: bold;
-            font-size: 0.9rem;
-            white-space: nowrap;
-        }
-        
-        .config-control-compact {
-            display: flex;
-            gap: 5px;
-            flex: 1;
-        }
-        
-        .config-control-compact input,
-        .config-control-compact select {
-            flex: 1;
-            padding: 8px 10px;
-            border-radius: 8px;
-            border: none;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 0.9rem;
-            min-width: 0;
-        }
-        
-        /* Scoreboard optimizado para móvil */
-        .scoreboard-mobile {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        
-        .team-mobile {
-            background: rgba(44, 62, 80, 0.9);
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .team-header-mobile {
-            margin-bottom: 15px;
-        }
-        
-        .team-name-mobile {
-            font-size: 1.1rem;
-            margin-bottom: 3px;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 6px;
-            transition: background 0.2s;
-        }
-        
-        .team-name-mobile:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-        
-        .players-info-mobile {
-            font-size: 0.8rem;
-            opacity: 0.8;
-            margin-bottom: 5px;
-        }
-        
-        /* Puntuaciones en línea */
-        .score-row {
-            display: flex;
-            justify-content: space-around;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .score-item {
-            text-align: center;
-            flex: 1;
-            min-width: 70px;
-        }
-        
-        .score-label-mobile {
-            font-size: 0.75rem;
-            opacity: 0.8;
-            margin-bottom: 3px;
-            white-space: nowrap;
-        }
-        
-        .score-value-mobile {
-            font-size: 1.8rem;
-            font-weight: bold;
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .games-won-mobile {
-            margin: 10px 0;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-        }
-        
-        .games-value-mobile {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--accent-color);
-        }
-        
-        /* Controles de puntos simplificados */
-        .points-controls-mobile {
-            display: flex;
-            gap: 8px;
-            margin: 12px 0;
-        }
-        
-        .points-input-mobile {
-            flex: 1;
-            padding: 10px 12px;
-            border-radius: 8px;
-            border: none;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 1rem;
-            text-align: center;
-        }
-        
-        .btn-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 1.2rem;
-        }
-        
-        .btn-add {
-            background: var(--primary-color);
-            color: white;
-        }
-        
-        .btn-remove {
-            background: var(--secondary-color);
-            color: white;
-        }
-        
-        .btn-icon:hover {
-            transform: scale(1.1);
-            opacity: 0.9;
-        }
-        
-        .btn-icon:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        /* Sumas recientes compactas */
-        .recent-sums-mobile {
-            margin-top: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            padding: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .recent-sums-title-mobile {
-            font-size: 0.8rem;
-            margin-bottom: 8px;
-            color: rgba(255, 255, 255, 0.8);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            justify-content: center;
-        }
-        
-        .recent-sums-list-mobile {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            justify-content: center;
-            max-height: 60px;
-            overflow-y: auto;
-        }
-        
-        .recent-sum-item-mobile {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 4px;
-            padding: 3px 6px;
-            font-size: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        
-        .sum-points-mobile {
-            font-weight: bold;
-            color: #2ecc71;
-        }
-        
-        /* Controles de partido */
-        .game-controls-mobile {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin: 20px 0;
-            justify-content: center;
-        }
-        
-        .btn-control {
-            flex: 1;
-            min-width: 120px;
-            padding: 12px;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 0.9rem;
-        }
-        
-        .btn-end {
-            background: #2ecc71;
-            color: white;
-        }
-        
-        .btn-reset {
-            background: #f39c12;
-            color: white;
-        }
-        
-        .btn-save {
-            background: #3498db;
-            color: white;
-        }
-        
-        .btn-full-reset {
-            background: #e74c3c;
-            color: white;
-        }
-        
-        /* Información de partida actual */
-        .current-game-mobile {
-            display: flex;
-            justify-content: space-around;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 12px;
-            border-radius: 10px;
-            margin: 15px 0;
-            flex-wrap: wrap;
-        }
-        
-        .game-info-item {
-            text-align: center;
-            padding: 5px 10px;
-        }
-        
-        /* Historial compacto */
-        .history-compact {
-            background: rgba(44, 62, 80, 0.9);
-            border-radius: 12px;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .history-header h3 {
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 1.1rem;
-        }
-        
-        /* Compartir al final */
-        .share-section {
-            background: rgba(44, 62, 80, 0.9);
-            border-radius: 12px;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        
-        .share-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-        
-        .btn-share {
-            flex: 1;
-            min-width: 140px;
-            padding: 12px;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 0.9rem;
-        }
-        
-        .btn-share-match {
-            background: #9b59b6;
-            color: white;
-        }
-        
-        .btn-share-history {
-            background: #1abc9c;
-            color: white;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .config-line {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .config-item-compact {
-                min-width: 100%;
-            }
-            
-            .scoreboard-mobile {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-            
-            .score-row {
-                justify-content: space-between;
-            }
-            
-            .score-item {
-                min-width: 45%;
-            }
-            
-            .btn-control, .btn-share {
-                min-width: 100%;
-            }
-            
-            .points-controls-mobile {
-                flex-direction: column;
-            }
-            
-            .btn-icon {
-                width: 100%;
-                border-radius: 8px;
-                height: 45px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            body {
-                padding: 10px;
-                font-size: 13px;
-            }
-            
-            .container {
-                padding: 5px;
-            }
-            
-            .score-value-mobile {
-                font-size: 1.6rem;
-            }
-            
-            .games-value-mobile {
-                font-size: 1.3rem;
-            }
-            
-            .current-game-mobile {
-                flex-direction: column;
-                gap: 8px;
-            }
-            
-            .game-info-item {
-                width: 100%;
-                padding: 8px 0;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            }
-            
-            .game-info-item:last-child {
-                border-bottom: none;
-            }
-        }
-        
-        /* Estados visuales */
-        .winning {
-            box-shadow: 0 0 0 3px var(--primary-color);
-        }
-        
-        .disabled-input {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: rgba(255, 255, 255, 0.05) !important;
-        }
-        
-        .empty-message {
-            text-align: center;
-            padding: 20px;
-            opacity: 0.6;
-            font-style: italic;
-        }
-    </style>
+    <link rel="stylesheet" href="../css/voleibol.css">
+    <link rel="manifest" href="/site.webmanifest">
 </head>
-<body class="theme-domino">
+<body class="theme-voleibol">
+
+    <a href="/" class="floating-home-btn" title="Volver al inicio">
+        <i class="fas fa-home"></i>
+    </a>
+
     <div class="container">
         <header class="app-header">
-            <!-- Imagen de fondo -->
             <div class="header-bg">
-                <img src="/imagenes/pizarra.png" alt="Fondo pizarra deportiva" class="header-bg-image">
+                <img src="../imagenes/pizarra.png" alt="Fondo Voleibol" class="header-bg-image">
             </div>
-            
-            <!-- Contenido sobre la imagen -->
             <div class="header-content">
                 <div class="header-left">
-                    <h1><i class="fas fa-th-large"></i> Marcador de Dominó</h1>
-                    <p class="subtitle">Liga Escolar - <span id="current-location">No especificada</span></p>
-                    <div class="input-group" style="margin-top: 10px;">
-                        <input type="text" id="match-location-input" placeholder="📍 Ingresa ubicación">
-                        <button class="btn btn-small" id="save-location" style="padding: 8px 12px;">
-                            <i class="fas fa-check"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="header-right">
-                    <div class="clock-container clock-container-domino">
-                        <div id="clock">00:00:00</div>
-                        <div id="date">--/--/----</div>
-                    </div>
-                    <a href="../index.html" class="btn btn-home btn-home-domino" style="margin-top: 10px; padding: 8px 12px;">
-                        <i class="fas fa-home"></i>
-                    </a>
+                    <h1>Voleibol</h1>
+                    <p class="subtitle">Liga Escolar</p>
                 </div>
             </div>
         </header>
 
-        <!-- Configuración en una línea -->
-        <div class="config-line">
-            <div class="config-item-compact">
-                <label><i class="fas fa-bullseye"></i> Puntos:</label>
-                <div class="config-control-compact">
-                    <input type="number" id="max-points" min="50" max="500" step="10" value="200" class="config-input">
-                    <button class="btn btn-small" id="apply-max-points" style="padding: 8px 10px;">
-                        <i class="fas fa-check"></i>
-                    </button>
+        <main class="main-content">
+            <div class="match-info-bar">
+                <div class="clock-container-voleibol">
+                    <i class="far fa-clock"></i> <span id="clock">00:00:00</span>
                 </div>
-            </div>
-            
-            <div class="config-item-compact">
-                <label><i class="fas fa-trophy"></i> Mejor de:</label>
-                <div class="config-control-compact">
-                    <select id="best-of" class="config-input">
-                        <option value="1">1</option>
-                        <option value="3" selected>3</option>
-                        <option value="5">5</option>
-                        <option value="7">7</option>
-                    </select>
-                    <button class="btn btn-small" id="apply-best-of" style="padding: 8px 10px;">
-                        <i class="fas fa-check"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Marcador optimizado para móvil -->
-        <div class="scoreboard-mobile">
-            <!-- Equipo 1 -->
-            <div class="team-mobile" id="team1-mobile">
-                <div class="team-header-mobile">
-                    <div class="team-name-mobile editable" data-team="1" id="team1-name">Pareja 1</div>
-                    <div class="players-info-mobile" id="team1-players">Jugador 1 & Jugador 2</div>
-                </div>
-                
-                <!-- Puntuaciones en línea -->
-                <div class="score-row">
-                    <div class="score-item">
-                        <div class="score-label-mobile">Actual</div>
-                        <div class="score-value-mobile" id="team1-current-score">0</div>
-                    </div>
-                    <div class="score-item">
-                        <div class="score-label-mobile">Total</div>
-                        <div class="score-value-mobile" id="team1-total-score">0</div>
-                    </div>
-                </div>
-                
-                <!-- Partidas ganadas -->
-                <div class="games-won-mobile">
-                    <div class="score-label-mobile">Partidas Ganadas</div>
-                    <div class="games-value-mobile" id="team1-games">0</div>
-                </div>
-                
-                <!-- Controles de puntos -->
-                <div class="points-controls-mobile">
-                    <input type="number" id="team1-custom-points" class="points-input-mobile" 
-                           min="1" max="100" placeholder="Puntos" required>
-                    <button class="btn-icon btn-add" id="team1-add-custom" title="Añadir puntos">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                    <button class="btn-icon btn-remove" id="team1-remove-point" title="Deshacer última suma">
-                        <i class="fas fa-undo"></i>
-                    </button>
-                </div>
-                
-                <!-- Sumas recientes -->
-                <div class="recent-sums-mobile">
-                    <div class="recent-sums-title-mobile">
-                        <i class="fas fa-history"></i> Últimas sumas
-                    </div>
-                    <div class="recent-sums-list-mobile" id="team1-recent-sums">
-                        <!-- Las sumas se mostrarán aquí dinámicamente -->
-                    </div>
+                <div class="game-rules-voleibol">
+                    <i class="fas fa-info-circle"></i> Partidos a 5 sets
                 </div>
             </div>
 
-            <!-- Equipo 2 -->
-            <div class="team-mobile" id="team2-mobile">
-                <div class="team-header-mobile">
-                    <div class="team-name-mobile editable" data-team="2" id="team2-name">Pareja 2</div>
-                    <div class="players-info-mobile" id="team2-players">Jugador 3 & Jugador 4</div>
-                </div>
-                
-                <!-- Puntuaciones en línea -->
-                <div class="score-row">
-                    <div class="score-item">
-                        <div class="score-label-mobile">Actual</div>
-                        <div class="score-value-mobile" id="team2-current-score">0</div>
-                    </div>
-                    <div class="score-item">
-                        <div class="score-label-mobile">Total</div>
-                        <div class="score-value-mobile" id="team2-total-score">0</div>
-                    </div>
-                </div>
-                
-                <!-- Partidas ganadas -->
-                <div class="games-won-mobile">
-                    <div class="score-label-mobile">Partidas Ganadas</div>
-                    <div class="games-value-mobile" id="team2-games">0</div>
-                </div>
-                
-                <!-- Controles de puntos -->
-                <div class="points-controls-mobile">
-                    <input type="number" id="team2-custom-points" class="points-input-mobile" 
-                           min="1" max="100" placeholder="Puntos" required>
-                    <button class="btn-icon btn-add" id="team2-add-custom" title="Añadir puntos">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                    <button class="btn-icon btn-remove" id="team2-remove-point" title="Deshacer última suma">
-                        <i class="fas fa-undo"></i>
-                    </button>
-                </div>
-                
-                <!-- Sumas recientes -->
-                <div class="recent-sums-mobile">
-                    <div class="recent-sums-title-mobile">
-                        <i class="fas fa-history"></i> Últimas sumas
-                    </div>
-                    <div class="recent-sums-list-mobile" id="team2-recent-sums">
-                        <!-- Las sumas se mostrarán aquí dinámicamente -->
-                    </div>
-                </div>
+            <div class="current-set-info-voleibol" id="current-set-display">
+                Set 1 en juego
             </div>
-        </div>
 
-        <!-- Información de partida actual -->
-        <div class="current-game-mobile">
-            <div class="game-info-item">
-                <strong><i class="fas fa-gamepad"></i> Partida:</strong> <span id="current-game">1</span>/<span id="max-games">3</span>
-            </div>
-            <div class="game-info-item">
-                <strong><i class="fas fa-bullseye"></i> Objetivo:</strong> <span id="target-points">200</span>
-            </div>
-            <div class="game-info-item">
-                <strong><i class="fas fa-exchange-alt"></i> Diferencia:</strong> <span id="points-difference">0</span>
-            </div>
-        </div>
+            <div class="scoreboard-voleibol">
+                <div class="team-card-voleibol" id="team-local-card">
+                    <h2 class="team-name-voleibol" id="team-local-name" onclick="editTeamName('local')">Local</h2>
+                    <div class="score-voleibol" id="score-local">0</div>
+                    <div class="sets-container-voleibol" id="sets-local">
+                        </div>
+                </div>
 
-        <!-- Controles de partido -->
-        <div class="game-controls-mobile">
-            <button class="btn-control btn-end" id="end-game" title="Finalizar partida actual">
-                <i class="fas fa-flag-checkered"></i> Finalizar
-            </button>
-            <button class="btn-control btn-reset" id="reset-game" title="Reiniciar partida actual">
-                <i class="fas fa-redo"></i> Reiniciar
-            </button>
-            <button class="btn-control btn-save" id="save-match" title="Guardar encuentro">
-                <i class="fas fa-save"></i> Guardar
-            </button>
-            <button class="btn-control btn-full-reset" id="reset-match" title="Reiniciar encuentro completo">
-                <i class="fas fa-redo-alt"></i> Reiniciar Todo
-            </button>
-        </div>
+                <div class="team-card-voleibol" id="team-visitor-card">
+                    <h2 class="team-name-voleibol" id="team-visitor-name" onclick="editTeamName('visitor')">Visitante</h2>
+                    <div class="score-voleibol" id="score-visitor">0</div>
+                    <div class="sets-container-voleibol" id="sets-visitor">
+                        </div>
+                </div>
+            </div>
 
-        <!-- Historial de partidas -->
-        <div class="history-compact">
-            <div class="history-header">
-                <h3><i class="fas fa-list-ol"></i> Historial de Partidas</h3>
-                <button class="btn btn-small" id="clear-rounds" style="padding: 6px 10px;" title="Limpiar historial">
-                    <i class="fas fa-trash"></i>
+            <div class="controls">
+                <button class="btn btn-primary btn-score" onclick="addPoint('local')">
+                    <i class="fas fa-plus"></i> Local
+                </button>
+                <button class="btn btn-secondary btn-score" onclick="addPoint('visitor')">
+                    <i class="fas fa-plus"></i> Visitante
                 </button>
             </div>
-            <div class="rounds-list" id="rounds-list" style="max-height: 150px; overflow-y: auto;">
-                <!-- Las partidas se mostrarán aquí -->
-            </div>
-        </div>
 
-        <!-- Historial de encuentros -->
-        <div class="history-compact">
-            <div class="history-header">
-                <h3><i class="fas fa-history"></i> Historial de Encuentros</h3>
-                <button class="btn btn-small" id="clear-history" style="padding: 6px 10px;" title="Borrar historial">
-                    <i class="fas fa-trash"></i>
+            <div class="action-buttons">
+                <button class="btn btn-warning" onclick="undoLastAction()">
+                    <i class="fas fa-undo"></i> Corregir
+                </button>
+                <button class="btn btn-info" id="btn-share">
+                    <i class="fas fa-share-alt"></i> Compartir
+                </button>
+                <button class="btn btn-danger" onclick="resetMatch()">
+                    <i class="fas fa-redo"></i> Reiniciar
                 </button>
             </div>
-            <div class="history-list" id="history-list" style="max-height: 150px; overflow-y: auto;">
-                <!-- Los encuentros guardados se mostrarán aquí -->
-            </div>
-        </div>
+        </main>
 
-        <!-- Sección para compartir -->
-        <div class="share-section">
-            <h3 style="text-align: center; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                <i class="fas fa-share-alt"></i> Compartir Resultados
-            </h3>
-            <div class="share-buttons">
-                <button class="btn-share btn-share-match" id="share-current-match" title="Compartir partida actual">
-                    <i class="fas fa-share-square"></i> Partida
-                </button>
-                <button class="btn-share btn-share-history" id="share-match-history" title="Compartir historial">
-                    <i class="fas fa-history"></i> Historial
-                </button>
-                <button class="btn-share btn-share-whatsapp" id="share-whatsapp" title="Compartir por WhatsApp" style="background: #25D366; color: white;">
-                    <i class="fab fa-whatsapp"></i> WhatsApp
-                </button>
-            </div>
-        </div>
+        <section class="history-section">
+            <h3><i class="fas fa-history"></i> Historial de Sets</h3>
+            <div class="history-list" id="match-history">
+                </div>
+        </section>
 
-        <!-- FOOTER -->
-        <footer style="margin-top: 20px; padding: 15px; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.8rem;">
-            <p>© 2025 Liga Escolar - Marcador de Dominó</p>
-            <p class="footer-links" style="margin-top: 8px;">
-                <a href="https://www.ligaescolar.es/privacidad.html" style="color: rgba(255, 255, 255, 0.7);">Privacidad</a> |
-                <a href="#" style="color: rgba(255, 255, 255, 0.7);">Términos</a> |
-                <a href="https://www.enfaseterminal.com/" style="color: rgba(255, 255, 255, 0.7);">Blog</a>
+        <footer>
+            <p>© 2025 Liga Escolar - Marcadores de Voleibol</p>
+            <p class="footer-links">
+                <a href="https://www.ligaescolar.es/privacidad.html">Privacidad</a> | 
+                <a href="https://www.enfaseterminal.com/">EnFaseTerminal</a>
             </p>
         </footer>
     </div>
 
-    <!-- Modal para editar nombre de pareja y jugadores -->
-    <div class="modal" id="team-name-modal">
-        <div class="modal-content" style="max-width: 90%; padding: 20px;">
-            <h2 style="font-size: 1.3rem; margin-bottom: 15px;">Editar Pareja</h2>
-            <div class="form-group">
-                <label for="team-name-input" style="font-size: 0.9rem;">Nombre de la pareja:</label>
-                <input type="text" id="team-name-input" placeholder="Ej: Los Domingueros" style="padding: 10px;">
-            </div>
-            <div class="form-group">
-                <label for="player1-input" style="font-size: 0.9rem;">Jugador 1:</label>
-                <input type="text" id="player1-input" placeholder="Nombre del jugador 1" style="padding: 10px;">
-            </div>
-            <div class="form-group">
-                <label for="player2-input" style="font-size: 0.9rem;">Jugador 2:</label>
-                <input type="text" id="player2-input" placeholder="Nombre del jugador 2" style="padding: 10px;">
-            </div>
-            <div class="modal-buttons" style="margin-top: 20px;">
-                <button class="btn btn-secondary" id="cancel-edit" style="padding: 10px 15px;">Cancelar</button>
-                <button class="btn btn-primary" id="save-name" style="padding: 10px 15px;">Guardar</button>
+    <div class="modal" id="name-modal">
+        <div class="modal-content">
+            <h2>Editar nombre del equipo</h2>
+            <input type="text" id="new-team-name" placeholder="Nombre del equipo">
+            <div class="modal-buttons">
+                <button class="btn btn-primary" id="save-name">Guardar</button>
+                <button class="btn btn-secondary" id="close-modal">Cancelar</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal para guardar encuentro -->
-    <div class="modal" id="save-match-modal">
-        <div class="modal-content" style="max-width: 90%; padding: 20px;">
-            <h2 style="font-size: 1.3rem; margin-bottom: 15px;">Guardar Encuentro</h2>
-            <div class="form-group">
-                <label style="font-size: 0.9rem;">Resultado:</label>
-                <div class="card" style="padding: 12px; margin: 5px 0;">
-                    <p id="save-match-result" style="text-align: center; font-weight: bold;"></p>
-                </div>
-            </div>
-            <div class="form-group">
-                <label style="font-size: 0.9rem;">Duración:</label>
-                <div class="card" style="padding: 12px; margin: 5px 0;">
-                    <p id="save-match-duration" style="text-align: center;"></p>
-                </div>
-            </div>
-            <div class="form-group">
-                <label style="font-size: 0.9rem;">Ubicación:</label>
-                <div class="card" style="padding: 12px; margin: 5px 0;">
-                    <p id="save-match-location" style="text-align: center;"></p>
-                </div>
-            </div>
-            <div class="modal-buttons" style="margin-top: 20px;">
-                <button class="btn btn-secondary" id="cancel-save" style="padding: 10px 15px;">Cancelar</button>
-                <button class="btn btn-primary" id="confirm-save" style="padding: 10px 15px;">Guardar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para compartir resultados -->
     <div class="modal" id="share-modal">
-        <div class="modal-content" style="max-width: 90%; padding: 20px;">
-            <h2 style="font-size: 1.3rem; margin-bottom: 15px;">Compartir Resultados</h2>
+        <div class="modal-content">
+            <h2>Compartir Resultados (Voleibol)</h2>
             <div class="share-preview">
-                <h3 style="font-size: 1rem; margin-bottom: 10px;">Vista previa:</h3>
-                <div id="share-text" style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 8px; max-height: 200px; overflow-y: auto; font-size: 0.85rem; white-space: pre-wrap; margin-bottom: 15px;">
-                    <!-- Texto generado dinámicamente -->
-                </div>
-                <div class="modal-buttons" style="display: flex; flex-wrap: wrap; gap: 10px;">
-                    <button class="btn btn-secondary" id="copy-text" style="flex: 1; padding: 10px;">
-                        <i class="fas fa-copy"></i> Copiar
+                <h3>Vista previa del resultado:</h3>
+                <div id="share-text"></div>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" id="copy-text">
+                        <i class="fas fa-copy"></i> Copiar Texto
                     </button>
-                    <button class="btn btn-success" id="share-native" style="flex: 1; padding: 10px;">
+                    <button class="btn btn-success" id="share-native">
                         <i class="fas fa-share"></i> Compartir
                     </button>
-                    <button class="btn btn-secondary" id="close-share" style="flex: 1; padding: 10px;">Cerrar</button>
+                    <button class="btn btn-secondary" id="close-share">Cerrar</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Notificación -->
-    <div class="notification" id="notification" style="top: 10px; right: 10px; left: 10px; max-width: 100%; padding: 12px;">
+    <div class="notification" id="notification">
         <i class="fas fa-check-circle"></i>
-        <span id="notification-text" style="font-size: 0.9rem;">Operación realizada</span>
+        <span id="notification-text">Operación realizada con éxito</span>
     </div>
 
-    <!-- Scripts -->
     <script src="../js/clock.js"></script>
     <script src="../js/celebrate.js"></script>
     <script src="../js/common.js"></script>
@@ -835,9 +154,8 @@
     <script src="../js/match-core.js"></script>
     <script src="../js/modal-manager.js"></script>
     <script src="../js/score-manager.js"></script>
-    <script src="../js/domino.js"></script>
-    
-    <!-- Scripts Service Worker para poder trabajar off line desde el movil -->    
+    <script src="../js/voleibol.js"></script>
+
     <script>
        if ('serviceWorker' in navigator) {
          window.addEventListener('load', () => {
@@ -846,36 +164,6 @@
              .catch(err => console.error('Error al registrar SW', err));
          });
        }
-       
-       // Inicialización rápida para móvil
-       document.addEventListener('DOMContentLoaded', function() {
-           // Añadir tooltips a los botones con iconos
-           const tooltipButtons = document.querySelectorAll('[title]');
-           tooltipButtons.forEach(btn => {
-               btn.addEventListener('touchstart', function() {
-                   // Para móviles, mostrar feedback táctil
-                   this.style.transform = 'scale(0.95)';
-               });
-               btn.addEventListener('touchend', function() {
-                   this.style.transform = '';
-               });
-           });
-           
-           // Mejorar entrada en móviles
-           const numberInputs = document.querySelectorAll('input[type="number"]');
-           numberInputs.forEach(input => {
-               input.addEventListener('focus', function() {
-                   if (window.innerWidth < 768) {
-                       // En móviles, asegurar que el teclado numérico se abra
-                       this.type = 'number';
-                       this.setAttribute('pattern', '[0-9]*');
-                   }
-               });
-           });
-           
-           console.log('Marcador de Dominó optimizado para móvil cargado');
-       });
     </script>
-
 </body>
 </html>

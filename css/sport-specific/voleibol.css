@@ -249,3 +249,80 @@ body.theme-voleibol {
         margin: 10px 0;
     }
 }
+
+    .container {
+        padding: 5px;
+    }
+
+    /* Ajustamos el marcador para que use todo el ancho */
+    .scoreboard, .scoreboard-voleibol {
+        margin-bottom: 10px;
+        gap: 15px;
+    }
+
+    .team-card, .team-card-voleibol {
+        padding: 10px;
+        flex: 1;
+    }
+
+    /* El número del marcador ahora es el protagonista */
+    .score, .score-voleibol {
+        font-size: 6rem !important; /* Número mucho más grande */
+        margin: 5px 0 !important;
+        line-height: 1;
+    }
+
+    .team-name, .team-name-voleibol {
+        font-size: 1.2rem !important;
+        margin-bottom: 2px !important;
+    }
+
+    /* Botones de control en una sola línea o más compactos */
+    .controls {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .btn-score {
+        padding: 10px 30px !important;
+        font-size: 1.2rem !important;
+    }
+}
+/* Modo Marcador Gigante para PWA */
+@media (orientation: landscape) and (max-height: 500px) {
+    /* 1. Escondemos el header para ganar espacio vertical */
+    .app-header {
+        display: none !important;
+    }
+
+    /* 2. Reducimos rellenos para que todo quepa en una pantalla corta */
+    .container {
+        padding: 5px !important;
+    }
+
+    .scoreboard-voleibol {
+        margin-top: 10px;
+        margin-bottom: 5px;
+    }
+
+    /* 3. El número se vuelve gigante */
+    .score-voleibol {
+        font-size: 7rem !important;
+        margin: 0 !important;
+        line-height: 1;
+    }
+
+    .team-name-voleibol {
+        font-size: 1.2rem !important;
+    }
+
+    /* 4. Ajustamos controles para que no haya que hacer scroll */
+    .controls {
+        gap: 10px;
+    }
+
+    .btn-score {
+        padding: 10px 25px !important;
+    }
+}

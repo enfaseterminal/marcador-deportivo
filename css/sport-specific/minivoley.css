@@ -133,3 +133,25 @@ body.theme-minivoley {
         font-size: 0.9rem;
     }
 }
+/* Optimización para modo horizontal (landscape) */
+@media (orientation: landscape) and (max-height: 500px) {
+    .app-header { display: none; }
+    
+    .scoreboard-minivoley {
+        margin-bottom: 10px;
+        gap: 10px;
+    }
+
+    .team-card-minivoley {
+        padding: 8px;
+    }
+
+    .score-minivoley {
+        font-size: 5.5rem !important;
+        margin: 5px 0 !important;
+    }
+
+    .team-name-minivoley {
+        font-size: 1.1rem !important;
+    }
+}
