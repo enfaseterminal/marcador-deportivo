@@ -43,6 +43,14 @@
     --accent-color: #34495e;
 }
 
+/* ===== TEMA FÚTBOL SALA ===== */
+.theme-futbol-sala {
+    --primary-color: #2ecc71;
+    --secondary-color: #e74c3c;
+    --gradient: linear-gradient(135deg, #1a5276, #27ae60, #f39c12);
+    --accent-color: #3498db;
+}
+
 /* ===== TEMA PRINCIPAL ===== */
 .theme-main {
     --primary-color: #3498db;
@@ -55,4 +63,5 @@
 body.theme-voleibol { background: var(--gradient); }
 body.theme-minivoley { background: var(--gradient); }
 body.theme-domino { background: var(--gradient); }
+body.theme-futbol-sala { background: var(--gradient); }
 body.theme-main { background: var(--gradient); }

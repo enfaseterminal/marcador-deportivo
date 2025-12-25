@@ -307,3 +307,78 @@ window.modalManager = {
     initModalEventListeners,
     initialized: false // AÑADIR ESTA PROPIEDAD
 };
+// Función específica para guardar partido de fútbol sala
+function saveFutbolSalaMatch() {
+    if (!window.currentMatch || !window.matchHistory) return;
+    
+    // Deshabilitar el botón para evitar múltiples clics
+    const confirmSaveBtn = document.getElementById('confirm-save');
+    if (confirmSaveBtn) {
+        confirmSaveBtn.disabled = true;
+        confirmSaveBtn.textContent = 'Guardando...';
+    }
+    
+    const now = new Date();
+    const duration = Math.round((now - window.currentMatch.startTime) / 1000 / 60);
+    
+    const matchData = {
+        team1: {...window.currentMatch.team1},
+        team2: {...window.currentMatch.team2},
+        currentPeriod: window.currentMatch.currentPeriod,
+        isOvertime: window.currentMatch.isOvertime,
+        matchStatus: window.currentMatch.matchStatus,
+        winner: window.currentMatch.winner,
+        location: window.currentMatch.location,
+        date: now.toLocaleString(),
+        timestamp: now.getTime(),
+        duration: duration,
+        events: window.currentMatch.events ? [...window.currentMatch.events] : []
+    };
+    
+    // Añadir información del deporte
+    if (typeof window.sportName !== 'undefined') {
+        matchData.sport = window.sportName;
+    }
+    
+    window.matchHistory.unshift(matchData);
+    
+    // Mantener solo los últimos 20 partidos
+    if (window.matchHistory.length > 20) {
+        window.matchHistory = window.matchHistory.slice(0, 20);
+    }
+    
+    // Renderizar historial usando matchCore
+    if (typeof window.matchCore?.renderMatchHistory === 'function') {
+        window.matchCore.renderMatchHistory();
+    }
+    
+    if (typeof window.saveToCookies === 'function') {
+        window.saveToCookies();
+    }
+    
+    // Cerrar el modal
+    closeSaveMatchModal();
+    
+    // Restaurar el botón
+    if (confirmSaveBtn) {
+        setTimeout(() => {
+            confirmSaveBtn.disabled = false;
+            confirmSaveBtn.textContent = 'Guardar Partido';
+        }, 1000);
+    }
+    
+    // Mostrar notificación
+    if (typeof window.showNotification === 'function') {
+        window.showNotification("Partido guardado correctamente en el historial");
+    }
+    
+    // Si se estaba guardando después de completar el partido, reiniciar
+    if (typeof window.savingMatchAfterWin !== 'undefined' && window.savingMatchAfterWin) {
+        setTimeout(() => {
+            if (typeof window.resetMatch === 'function') {
+                window.resetMatch();
+            }
+            window.savingMatchAfterWin = false;
+        }, 1000);
+    }
+}

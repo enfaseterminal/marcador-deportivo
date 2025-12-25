@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Google Analytics y Publicidad con consentimiento -->
+    <script src="../js/ads-analytics.js"></script>     
+    <!-- End Google Analytics y Publicidad con consentimiento -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <title>Marcador de Fútbol Sala con Cronómetro | Liga Escolar</title>
+    <meta name="description" content="Marcador digital para fútbol sala con cronómetro, tiempos, prórroga y control de goles. Ideal para torneos escolares.">
+    <link rel="canonical" href="https://www.ligaescolar.es/futbol-sala/">
+    <meta property="og:title" content="Marcador de Fútbol Sala con Cronómetro | Liga Escolar">
+    <meta property="og:url" content="https://www.ligaescolar.es/futbol-sala/">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Liga Escolar">
+    <link rel="apple-touch-icon" href="/imagenes/apple-touch-icon-180x180.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ESTILOS BASE (mismos que la página principal) -->
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/themes.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <!-- HEADER CON IMAGEN DE FONDO (nuevo) -->
+    <link rel="stylesheet" href="../css/header-with-bg.css">
+    <!-- Estilo específico de fútbol sala -->
+    <link rel="stylesheet" href="../css/sport-specific/futbol-sala.css">
+    <!-- Favicon clásico -->
+    <link rel="icon" href="/imagenes/favicon.ico" type="image/x-icon">
+
+    <!-- Favicons PNG -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/imagenes/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/imagenes/favicon-16x16.png">
+
+    <!-- iOS -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/imagenes/apple-touch-icon-180x180.png">
+
+    <!-- PWA / Android -->
+    <link rel="manifest" href="/site.webmanifest">
+
+    <style>
+        /* Estilos críticos para evitar FOUC */
+        body {
+            background: linear-gradient(135deg, #1a5276, #27ae60);
+            color: #ecf0f1;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body class="theme-futbol-sala">
+    <a href="/" class="floating-home-btn" title="Volver al inicio">
+        <i class="fas fa-home"></i>
+    </a>
+    
+    <div class="container">
+        <header class="app-header">
+            <!-- Imagen de fondo -->
+            <div class="header-bg">
+                <img src="/imagenes/pizarra.png" alt="Fondo pizarra deportiva" class="header-bg-image">
+            </div>
+            
+            <!-- Contenido sobre la imagen -->
+            <div class="header-content">
+                <div class="header-left">
+                    <h1><i class="fas fa-futbol"></i> Marcador de Fútbol Sala</h1>
+                    <p class="subtitle">Liga Escolar - <span id="current-location">No especificada</span></p>
+                    <p class="game-rules-futbol-sala">
+                        <i class="fas fa-info-circle"></i> 
+                        2 tiempos de 20 min | Prórroga 2x5 min | Timeouts: 1 por equipo
+                    </p>
+                    <div class="input-group">
+                        <input type="text" id="match-location-input" placeholder="Ingresa la ubicación del partido">
+                        <button class="btn btn-small" id="save-location">
+                            <i class="fas fa-check"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="clock-container clock-container-futbol-sala">
+                        <div id="clock">00:00:00</div>
+                        <div id="date">--/--/----</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- INFORMACIÓN DEL PARTIDO -->
+        <div class="match-info-futbol-sala">
+            <div class="match-info-item">
+                <span class="info-label">Periodo:</span>
+                <span class="info-value" id="current-period">1° Tiempo</span>
+            </div>
+            <div class="match-info-item">
+                <span class="info-label">Tiempo:</span>
+                <span class="info-value" id="match-timer">20:00</span>
+            </div>
+            <div class="match-info-item">
+                <span class="info-label">Estado:</span>
+                <span class="info-value" id="match-status">No iniciado</span>
+            </div>
+            <div class="match-info-item">
+                <span class="info-label">Prórroga:</span>
+                <span class="info-value" id="overtime-status">No</span>
+            </div>
+        </div>
+
+        <!-- CRONOMETRO PRINCIPAL -->
+        <div class="timer-container">
+            <div class="main-timer" id="main-timer">
+                20:00
+            </div>
+            <div class="period-info" id="period-info">
+                1° Tiempo
+            </div>
+        </div>
+
+        <!-- CONTROLES DE TIEMPO -->
+        <div class="control-group">
+            <div class="control-group-label">Controles de Tiempo</div>
+            <div class="time-controls">
+                <button class="btn-icon btn-timer-start" id="start-timer" title="Iniciar Tiempo">
+                    <i class="fas fa-play"></i>
+                    <span>Iniciar</span>
+                </button>
+                
+                <button class="btn-icon btn-timer-pause" id="pause-timer" title="Pausar Tiempo">
+                    <i class="fas fa-pause"></i>
+                    <span>Pausar</span>
+                </button>
+                
+                <button class="btn-icon btn-timer-reset" id="reset-timer" title="Reiniciar Tiempo">
+                    <i class="fas fa-redo-alt"></i>
+                    <span>Reiniciar</span>
+                </button>
+                
+                <button class="btn-icon btn-next-period" id="next-period" title="Siguiente Periodo">
+                    <i class="fas fa-forward"></i>
+                    <span>Siguiente</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- SCOREBOARD -->
+        <div class="scoreboard-futbol-sala">
+            <div class="team-futbol-sala" id="team1">
+                <div class="team-name-futbol-sala editable" data-team="1" id="team1-name">Equipo Local</div>
+                <div class="score-futbol-sala" id="team1-score">0</div>
+                <div class="team-info">
+                    <div class="timeouts-info">
+                        <span class="timeouts-label">Timeouts:</span>
+                        <span class="timeouts-value" id="team1-timeouts">1</span>
+                    </div>
+                    <div class="fouls-info">
+                        <span class="fouls-label">Faltas:</span>
+                        <span class="fouls-value" id="team1-fouls">0</span>
+                    </div>
+                </div>
+                <div class="score-controls">
+                    <button class="btn btn-primary" id="team1-add-goal">
+                        <i class="fas fa-plus"></i> Gol
+                    </button>
+                    <button class="btn btn-secondary" id="team1-remove-goal">
+                        <i class="fas fa-minus"></i> Gol
+                    </button>
+                </div>
+                <div class="additional-controls">
+                    <button class="btn btn-small btn-timeout" id="team1-timeout" title="Usar Timeout">
+                        <i class="fas fa-clock"></i> Timeout
+                    </button>
+                    <button class="btn btn-small btn-foul" id="team1-foul" title="Añadir Falta">
+                        <i class="fas fa-exclamation-triangle"></i> Falta
+                    </button>
+                </div>
+            </div>
+
+            <div class="vs-separator">VS</div>
+
+            <div class="team-futbol-sala" id="team2">
+                <div class="team-name-futbol-sala editable" data-team="2" id="team2-name">Equipo Visitante</div>
+                <div class="score-futbol-sala" id="team2-score">0</div>
+                <div class="team-info">
+                    <div class="timeouts-info">
+                        <span class="timeouts-label">Timeouts:</span>
+                        <span class="timeouts-value" id="team2-timeouts">1</span>
+                    </div>
+                    <div class="fouls-info">
+                        <span class="fouls-label">Faltas:</span>
+                        <span class="fouls-value" id="team2-fouls">0</span>
+                    </div>
+                </div>
+                <div class="score-controls">
+                    <button class="btn btn-primary" id="team2-add-goal">
+                        <i class="fas fa-plus"></i> Gol
+                    </button>
+                    <button class="btn btn-secondary" id="team2-remove-goal">
+                        <i class="fas fa-minus"></i> Gol
+                    </button>
+                </div>
+                <div class="additional-controls">
+                    <button class="btn btn-small btn-timeout" id="team2-timeout" title="Usar Timeout">
+                        <i class="fas fa-clock"></i> Timeout
+                    </button>
+                    <button class="btn btn-small btn-foul" id="team2-foul" title="Añadir Falta">
+                        <i class="fas fa-exclamation-triangle"></i> Falta
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEPARADOR VISUAL -->
+        <div class="control-separator"></div>
+
+        <!-- CONTROLES DEL PARTIDO -->
+        <div class="control-group">
+            <div class="control-group-label">Controles del Partido</div>
+            <div class="match-controls">
+                <!-- Botón Activar Prórroga -->
+                <button class="btn-icon btn-overtime" id="activate-overtime" title="Activar Prórroga">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Prórroga</span>
+                </button>
+                
+                <!-- Botón Reiniciar Partido -->
+                <button class="btn-icon btn-reset" id="reset-match" title="Reiniciar Partido">
+                    <i class="fas fa-redo-alt"></i>
+                    <span>Reiniciar</span>
+                </button>
+                
+                <!-- Botón Guardar Partido -->
+                <button class="btn-icon btn-save" id="save-match" title="Guardar Partido">
+                    <i class="fas fa-save"></i>
+                    <span>Guardar</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- COMPARTIR RESULTADOS -->
+        <div class="control-group">
+            <div class="control-group-label">Compartir Resultados</div>
+            <div class="export-controls">
+                <!-- Botón Compartir por WhatsApp -->
+                <button class="btn-icon btn-whatsapp" id="share-whatsapp" title="Compartir por WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                    <span>WhatsApp</span>
+                </button>
+                
+                <!-- Botón Compartir Partido Actual -->
+                <button class="btn-icon btn-share-current" id="share-results" title="Compartir Partido Actual">
+                    <i class="fas fa-share-square"></i>
+                    <span>Partido</span>
+                </button>
+                
+                <!-- Botón Compartir Historial -->
+                <button class="btn-icon btn-share-history" id="share-history" title="Compartir Historial">
+                    <i class="fas fa-history"></i>
+                    <span>Historial</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- HISTORIAL DE EVENTOS -->
+        <div class="events-history">
+            <h2><i class="fas fa-list-alt"></i> Historial de Eventos</h2>
+            <div class="events-list" id="events-list">
+                <!-- Los eventos se mostrarán aquí -->
+            </div>
+        </div>
+
+        <!-- HISTORIAL DE PARTIDOS -->
+        <div class="history">
+            <h2><i class="fas fa-history"></i> Historial de Partidos (Fútbol Sala)</h2>
+            <div class="history-list" id="history-list">
+                <!-- Los partidos guardados se mostrarán aquí -->
+            </div>
+            <div class="match-controls">
+                <button class="btn btn-secondary" id="clear-history">
+                    <i class="fas fa-trash"></i> Borrar Historial
+                </button>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer>
+            <p>© 2025 Liga Escolar - Todos los derechos reservados</p>
+            <p class="footer-links">
+                <a href="https://www.ligaescolar.es/privacidad.html">Política de privacidad</a> |
+                <a href="#">Términos de uso</a> |
+                <a href="https://www.enfaseterminal.com/">Blog EnFaseTerminal</a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Modales -->
+    <div class="modal" id="team-name-modal">
+        <div class="modal-content">
+            <h2>Editar Nombre del Equipo</h2>
+            <div class="form-group">
+                <label for="team-name-input">Nombre del equipo:</label>
+                <input type="text" id="team-name-input" placeholder="Ingresa el nombre del equipo">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" id="cancel-edit">Cancelar</button>
+                <button class="btn btn-primary" id="save-name">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="save-match-modal">
+        <div class="modal-content">
+            <h2>Guardar Partido (Fútbol Sala)</h2>
+            <div class="form-group">
+                <label>Resultado:</label>
+                <div class="card">
+                    <p id="save-match-result"></p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Ubicación:</label>
+                <div class="card">
+                    <p id="save-match-location"></p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Duración:</label>
+                <div class="card">
+                    <p id="save-match-duration"></p>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" id="cancel-save">Cancelar</button>
+                <button class="btn btn-primary" id="confirm-save">Guardar Partido</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="share-modal">
+        <div class="modal-content">
+            <h2 id="share-modal-title">Compartir Resultados (Fútbol Sala)</h2>
+            <div class="share-preview">
+                <h3 id="share-preview-title">Vista previa del resultado:</h3>
+                <div id="share-text">
+                    <!-- Texto generado dinámicamente -->
+                </div>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" id="copy-text">
+                        <i class="fas fa-copy"></i> Copiar Texto
+                    </button>
+                    <button class="btn btn-success" id="share-native">
+                        <i class="fas fa-share"></i> Compartir
+                    </button>
+                    <button class="btn btn-info" id="share-history-btn" style="display: none;">
+                        <i class="fas fa-history"></i> Historial
+                    </button>
+                    <button class="btn btn-secondary" id="close-share">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificación -->
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-text">Operación realizada con éxito</span>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/clock.js"></script>
+    <script src="../js/celebrate.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/storage.js"></script>
+    <script src="../js/match-core.js"></script>
+    <script src="../js/modal-manager.js"></script>
+    <script src="../js/futbol-sala.js"></script>
+    
+    <!-- Scripts Service Worker para poder trabajar off line desde el movil -->    
+    <script>
+       if ('serviceWorker' in navigator) {
+         window.addEventListener('load', () => {
+           navigator.serviceWorker.register('/sw.js')
+             .then(reg => console.log('Service Worker registrado', reg))
+             .catch(err => console.error('Error al registrar SW', err));
+         });
+       }
+     </script>
+</body>
+</html>
