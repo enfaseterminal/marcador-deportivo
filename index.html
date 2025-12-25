@@ -7,13 +7,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-    <title>Liga Escolar - Marcadores Deportivos</title>
+     <title>Liga Escolar | Marcadores Deportivos y Resultados en Directo</title>
+     <meta name="description" content="Sigue todos los resultados de la Liga Escolar en tiempo real. Marcadores actualizados de voleibol, minivoley, dominó y más deportes escolares de forma gratuita.">
+     <link rel="canonical" href="https://www.ligaescolar.es/">
+
+     <meta property="og:title" content="Liga Escolar - Resultados y Marcadores en Vivo">
+     <meta property="og:description" content="La plataforma para seguir el deporte escolar: marcadores de voleibol, dominó y más en tiempo real.">
+     <meta property="og:url" content="https://www.ligaescolar.es/">
+     <meta property="og:image" content="https://www.ligaescolar.es/imagenes/og-main.png">
+     <meta property="og:type" content="website">
+
+     <meta name="twitter:card" content="summary_large_image">
+     <meta name="twitter:title" content="Marcadores Liga Escolar">
+     <meta name="twitter:description" content="Resultados deportivos escolares actualizados al instante.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- ESTILOS BASE (comunes a todas las páginas) -->
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/themes.css">
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/components.css">
+    <!-- HEADER CON IMAGEN DE FONDO (nuevo) -->
+    <link rel="stylesheet" href="css/header-with-bg.css">
     <!-- Solo lo específico de la página principal -->
     <link rel="stylesheet" href="css/sport-specific/main.css">
 
@@ -48,26 +62,27 @@
 </head>
 <body class="theme-main">
     <div class="container">
-<header class="app-header">
-    <!-- Imagen de fondo -->
-    <div class="header-bg">
-        <img src="/imagenes/pizarra.png" alt="Fondo pizarra deportiva" class="header-bg-image">
-    </div>
-    
-    <!-- Contenido sobre la imagen -->
-    <div class="header-content">
-        <div class="header-left">
-            <h1><i class="fas fa-trophy"></i> Liga Escolar</h1>
-            <p class="subtitle">Marcadores deportivos para competiciones escolares</p>
-        </div>
-        <div class="header-right">
-            <div class="clock-container">
-                <div id="clock">00:00:00</div>
-                <div id="date">--/--/----</div>
+        <header class="app-header">
+            <!-- Imagen de fondo -->
+            <div class="header-bg">
+                <img src="/imagenes/pizarra.png" alt="Fondo pizarra deportiva" class="header-bg-image">
             </div>
-        </div>
-    </div>
-</header>
+            
+            <!-- Contenido sobre la imagen -->
+            <div class="header-content">
+                <div class="header-left">
+                    <h1><i class="fas fa-trophy"></i> Liga Escolar</h1>
+                    <p class="subtitle">Marcadores deportivos para competiciones escolares</p>
+                </div>
+                <div class="header-right">
+                    <div class="clock-container">
+                        <div id="clock">00:00:00</div>
+                        <div id="date">--/--/----</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
         <div class="main-content">
             <div class="welcome-section">
                 <h2><i class="fas fa-home"></i> Bienvenido a la Liga Escolar</h2>
@@ -82,7 +97,7 @@
                 
                 <div class="sports-container">
                     <!-- Voleibol (5 sets) -->
-                    <a href="voleibol/index.html" class="sport-card">
+                    <a href="voleibol/" class="sport-card">
                         <div class="sport-icon" style="background-color: #3498db;">
                             <i class="fas fa-volleyball-ball"></i>
                         </div>
@@ -93,19 +108,19 @@
                     </a>
 
                     <!-- Minivoleibol (3 sets) -->
-                    <a href="minivoley/index.html" class="sport-card">
+                    <a href="minivoley/" class="sport-card">
                         <div class="sport-icon" style="background-color: #9b59b6;">
                             <i class="fas fa-volleyball-ball"></i>
                         </div>
                         <div class="sport-info">
                             <h4>Minivoleibol</h4>
                             <p>3 sets obligatorios a 25 puntos (diferencia 2)</p>
-                            <p class="sport-tag">Nuevo</p>
+                            <p class="sport-tag"></p>
                         </div>
                     </a>
 
                     <!-- Dominó -->
-                    <a href="domino/index.html" class="sport-card">
+                    <a href="domino/" class="sport-card">
                         <div class="sport-icon" style="background-color: #2ecc71;">
                             <i class="fas fa-th-large"></i>
                         </div>

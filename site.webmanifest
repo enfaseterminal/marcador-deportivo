@@ -2,7 +2,7 @@
   "name": "Liga Escolar",
   "short_name": "Liga Escolar",
   "description": "Plataforma de competiciones y resultados de la Liga Escolar",
-  "start_url": "/index.html",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0f3b2e",

@@ -7,13 +7,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-    <title>Marcador de Dominó - Liga Escolar</title>
+     <title>Marcador de Dominó Online | Contador de Puntos Liga Escolar</title>
+     <meta name="description" content="Anota los puntos de tus partidas de dominó fácilmente. Marcador digital optimizado para móviles y torneos escolares.">
+     <link rel="canonical" href="https://www.ligaescolar.es/domino/">
+     <meta property="og:title" content="Contador de Puntos Dominó | Liga Escolar">
+     <meta property="og:url" content="https://www.ligaescolar.es/domino/">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Módulos CSS -->
+    <!-- ESTILOS BASE (mismos que la página principal) -->
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/themes.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
+    <!-- HEADER CON IMAGEN DE FONDO (nuevo) -->
+    <link rel="stylesheet" href="../css/header-with-bg.css">
     <!-- Estilo específico de dominó -->
     <link rel="stylesheet" href="../css/sport-specific/domino.css">
      <!-- Favicon clásico -->
@@ -48,25 +54,33 @@
 <body class="theme-domino">
     <div class="container">
         <header class="app-header">
-            <div class="header-left">
-                <h1><i class="fas fa-th-large"></i> Marcador de Dominó</h1>
-                <p class="subtitle">Liga Escolar - <span id="current-location">No especificada</span></p>
-                <p class="game-rules-domino"><i class="fas fa-info-circle"></i> Parejas | Puntos: <span id="max-points-display">200</span> | Mejor de <span id="best-of-display">3</span> partidas</p>
-                <div class="input-group">
-                    <input type="text" id="match-location-input" placeholder="Ingresa la ubicación del partido">
-                    <button class="btn btn-small" id="save-location">
-                        <i class="fas fa-check"></i> Guardar
-                    </button>
-                </div>
+            <!-- Imagen de fondo -->
+            <div class="header-bg">
+                <img src="/imagenes/pizarra.png" alt="Fondo pizarra deportiva" class="header-bg-image">
             </div>
-            <div class="header-right">
-                <div class="clock-container clock-container-domino">
-                    <div id="clock">00:00:00</div>
-                    <div id="date">--/--/----</div>
+            
+            <!-- Contenido sobre la imagen -->
+            <div class="header-content">
+                <div class="header-left">
+                    <h1><i class="fas fa-th-large"></i> Marcador de Dominó</h1>
+                    <p class="subtitle">Liga Escolar - <span id="current-location">No especificada</span></p>
+                    <p class="game-rules-domino"><i class="fas fa-info-circle"></i> Parejas | Puntos: <span id="max-points-display">200</span> | Mejor de <span id="best-of-display">3</span> partidas</p>
+                    <div class="input-group">
+                        <input type="text" id="match-location-input" placeholder="Ingresa la ubicación del partido">
+                        <button class="btn btn-small" id="save-location">
+                            <i class="fas fa-check"></i> Guardar
+                        </button>
+                    </div>
                 </div>
-                <a href="../index.html" class="btn btn-home-domino">
-                    <i class="fas fa-home"></i> Liga Escolar
-                </a>
+                <div class="header-right">
+                    <div class="clock-container clock-container-domino">
+                        <div id="clock">00:00:00</div>
+                        <div id="date">--/--/----</div>
+                    </div>
+                    <a href="../index.html" class="btn btn-home btn-home-domino">
+                        <i class="fas fa-home"></i> Liga Escolar
+                    </a>
+                </div>
             </div>
         </header>
 
