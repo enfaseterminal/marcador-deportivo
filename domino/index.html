@@ -107,7 +107,7 @@
             min-width: 0;
         }
         
-        /* Scoreboard optimizado para móvil */
+        /* Scoreboard optimizado para móvil - SIMPLIFICADO */
         .scoreboard-mobile {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -147,40 +147,41 @@
             margin-bottom: 5px;
         }
         
-        /* Puntuaciones en línea */
+        /* Puntuación actual única - SIMPLIFICADO */
         .score-row {
             display: flex;
-            justify-content: space-around;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
         }
         
         .score-item {
             text-align: center;
             flex: 1;
-            min-width: 70px;
+            min-width: 100% !important;
         }
         
         .score-label-mobile {
-            font-size: 0.75rem;
-            opacity: 0.8;
-            margin-bottom: 3px;
-            white-space: nowrap;
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+            color: rgba(255, 255, 255, 0.9);
         }
         
         .score-value-mobile {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: bold;
-            min-height: 40px;
+            min-height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         
+        /* Partidas ganadas */
         .games-won-mobile {
-            margin: 10px 0;
-            padding: 8px;
+            margin: 10px 0 15px;
+            padding: 10px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 8px;
         }
@@ -428,11 +429,7 @@
             }
             
             .score-row {
-                justify-content: space-between;
-            }
-            
-            .score-item {
-                min-width: 45%;
+                justify-content: center;
             }
             
             .btn-control, .btn-share {
@@ -461,7 +458,7 @@
             }
             
             .score-value-mobile {
-                font-size: 1.6rem;
+                font-size: 1.8rem;
             }
             
             .games-value-mobile {
@@ -563,7 +560,7 @@
             </div>
         </div>
 
-        <!-- Marcador optimizado para móvil -->
+        <!-- Marcador optimizado para móvil - SIMPLIFICADO -->
         <div class="scoreboard-mobile">
             <!-- Equipo 1 -->
             <div class="team-mobile" id="team1-mobile">
@@ -572,15 +569,11 @@
                     <div class="players-info-mobile" id="team1-players">Jugador 1 & Jugador 2</div>
                 </div>
                 
-                <!-- Puntuaciones en línea -->
+                <!-- Puntuación actual única -->
                 <div class="score-row">
-                    <div class="score-item">
-                        <div class="score-label-mobile">Actual</div>
+                    <div class="score-item" style="flex: 1; min-width: 100%; text-align: center;">
+                        <div class="score-label-mobile">Puntos Actuales</div>
                         <div class="score-value-mobile" id="team1-current-score">0</div>
-                    </div>
-                    <div class="score-item">
-                        <div class="score-label-mobile">Total</div>
-                        <div class="score-value-mobile" id="team1-total-score">0</div>
                     </div>
                 </div>
                 
@@ -620,15 +613,11 @@
                     <div class="players-info-mobile" id="team2-players">Jugador 3 & Jugador 4</div>
                 </div>
                 
-                <!-- Puntuaciones en línea -->
+                <!-- Puntuación actual única -->
                 <div class="score-row">
-                    <div class="score-item">
-                        <div class="score-label-mobile">Actual</div>
+                    <div class="score-item" style="flex: 1; min-width: 100%; text-align: center;">
+                        <div class="score-label-mobile">Puntos Actuales</div>
                         <div class="score-value-mobile" id="team2-current-score">0</div>
-                    </div>
-                    <div class="score-item">
-                        <div class="score-label-mobile">Total</div>
-                        <div class="score-value-mobile" id="team2-total-score">0</div>
                     </div>
                 </div>
                 

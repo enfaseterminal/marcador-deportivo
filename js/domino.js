@@ -60,8 +60,6 @@ function updateDisplay() {
     // Actualizar puntuaciones
     document.getElementById('team1-current-score').textContent = window.currentMatch.team1.currentScore;
     document.getElementById('team2-current-score').textContent = window.currentMatch.team2.currentScore;
-    document.getElementById('team1-total-score').textContent = window.currentMatch.team1.totalScore;
-    document.getElementById('team2-total-score').textContent = window.currentMatch.team2.totalScore;
     
     // Actualizar partidas ganadas
     document.getElementById('team1-games').textContent = window.currentMatch.team1.gamesWon;
