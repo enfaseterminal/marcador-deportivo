@@ -1,5 +1,5 @@
 // /js/domino.js
-// Configuración específica de dominó (versión modular)
+// Configuración específica de dominó (versión modular) - MODIFICADO
 
 // Variables globales específicas de dominó
 window.currentMatch = {
@@ -9,7 +9,8 @@ window.currentMatch = {
         currentScore: 0,
         totalScore: 0,
         gamesWon: 0,
-        scoreHistory: [] // Historial de puntos por partida
+        scoreHistory: [], // Historial de puntos por partida
+        recentSums: [] // Nuevo: para mostrar sumas recientes
     },
     team2: { 
         name: "Pareja 2", 
@@ -17,7 +18,8 @@ window.currentMatch = {
         currentScore: 0,
         totalScore: 0,
         gamesWon: 0,
-        scoreHistory: []
+        scoreHistory: [],
+        recentSums: [] // Nuevo: para mostrar sumas recientes
     },
     currentGame: 1,
     maxPoints: 200,
@@ -26,7 +28,8 @@ window.currentMatch = {
     gameHistory: [], // Historial de partidas individuales
     winner: null,
     location: "No especificada",
-    matchCompleted: false
+    matchCompleted: false,
+    matchStarted: false // Nuevo: indica si la partida ha comenzado
 };
 
 window.matchHistory = [];
@@ -85,21 +88,152 @@ function updateDisplay() {
     // Actualizar historial de partidas
     renderGameHistory();
     
+    // Actualizar historial de sumas de puntos
+    renderRecentSums();
+    
+    // Bloquear controles de configuración si la partida ha comenzado
+    updateConfigControls();
+    
     // Verificar si se ha ganado la partida actual
     checkGameWin();
+}
+
+// Función para actualizar controles de configuración
+function updateConfigControls() {
+    const maxPointsInput = document.getElementById('max-points');
+    const bestOfSelect = document.getElementById('best-of');
+    const applyMaxPointsBtn = document.getElementById('apply-max-points');
+    const applyBestOfBtn = document.getElementById('apply-best-of');
+    
+    // Determinar si la partida ha comenzado
+    const hasStarted = window.currentMatch.matchStarted || 
+                      window.currentMatch.team1.currentScore > 0 || 
+                      window.currentMatch.team2.currentScore > 0 ||
+                      window.currentMatch.gameHistory.length > 0;
+    
+    // Bloquear o desbloquear controles
+    const isDisabled = hasStarted || window.currentMatch.matchCompleted;
+    
+    if (maxPointsInput) maxPointsInput.disabled = isDisabled;
+    if (bestOfSelect) bestOfSelect.disabled = isDisabled;
+    if (applyMaxPointsBtn) applyMaxPointsBtn.disabled = isDisabled;
+    if (applyBestOfBtn) applyBestOfBtn.disabled = isDisabled;
+    
+    // Añadir estilos visuales cuando están deshabilitados
+    if (maxPointsInput) {
+        if (isDisabled) {
+            maxPointsInput.classList.add('disabled-input');
+            maxPointsInput.style.opacity = '0.6';
+            maxPointsInput.style.cursor = 'not-allowed';
+        } else {
+            maxPointsInput.classList.remove('disabled-input');
+            maxPointsInput.style.opacity = '1';
+            maxPointsInput.style.cursor = 'text';
+        }
+    }
+    
+    if (bestOfSelect) {
+        if (isDisabled) {
+            bestOfSelect.classList.add('disabled-input');
+            bestOfSelect.style.opacity = '0.6';
+            bestOfSelect.style.cursor = 'not-allowed';
+        } else {
+            bestOfSelect.classList.remove('disabled-input');
+            bestOfSelect.style.opacity = '1';
+            bestOfSelect.style.cursor = 'pointer';
+        }
+    }
+    
+    if (applyMaxPointsBtn) {
+        if (isDisabled) {
+            applyMaxPointsBtn.classList.add('disabled');
+        } else {
+            applyMaxPointsBtn.classList.remove('disabled');
+        }
+    }
+    
+    if (applyBestOfBtn) {
+        if (isDisabled) {
+            applyBestOfBtn.classList.add('disabled');
+        } else {
+            applyBestOfBtn.classList.remove('disabled');
+        }
+    }
+}
+
+// Función para renderizar sumas recientes de puntos
+function renderRecentSums() {
+    const team1SumsEl = document.getElementById('team1-recent-sums');
+    const team2SumsEl = document.getElementById('team2-recent-sums');
+    
+    if (team1SumsEl) {
+        team1SumsEl.innerHTML = '';
+        const recentSums = window.currentMatch.team1.recentSums.slice(-5); // Mostrar últimas 5 sumas
+        if (recentSums.length === 0) {
+            team1SumsEl.innerHTML = '<div class="empty-sums">No hay sumas recientes</div>';
+        } else {
+            recentSums.forEach(sum => {
+                const sumEl = document.createElement('div');
+                sumEl.className = 'recent-sum-item';
+                sumEl.innerHTML = `
+                    <span class="sum-points">+${sum.points}</span>
+                    <span class="sum-time">${sum.time}</span>
+                `;
+                team1SumsEl.appendChild(sumEl);
+            });
+        }
+    }
+    
+    if (team2SumsEl) {
+        team2SumsEl.innerHTML = '';
+        const recentSums = window.currentMatch.team2.recentSums.slice(-5); // Mostrar últimas 5 sumas
+        if (recentSums.length === 0) {
+            team2SumsEl.innerHTML = '<div class="empty-sums">No hay sumas recientes</div>';
+        } else {
+            recentSums.forEach(sum => {
+                const sumEl = document.createElement('div');
+                sumEl.className = 'recent-sum-item';
+                sumEl.innerHTML = `
+                    <span class="sum-points">+${sum.points}</span>
+                    <span class="sum-time">${sum.time}</span>
+                `;
+                team2SumsEl.appendChild(sumEl);
+            });
+        }
+    }
 }
 
 // Función para añadir puntos a un equipo
 function addPoints(team, points) {
     if (!window.currentMatch || !window.gameInProgress || window.currentMatch.matchCompleted) return;
     
+    // Marcar que la partida ha comenzado
+    if (!window.currentMatch.matchStarted) {
+        window.currentMatch.matchStarted = true;
+        updateConfigControls();
+    }
+    
     const teamObj = window.currentMatch[team];
     teamObj.currentScore += points;
+    
+    // Registrar en historial de puntuaciones
     teamObj.scoreHistory.push({
         points: points,
         timestamp: new Date().toLocaleTimeString(),
         game: window.currentMatch.currentGame
     });
+    
+    // Registrar en sumas recientes
+    teamObj.recentSums.push({
+        points: points,
+        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        game: window.currentMatch.currentGame
+    });
+    
+    // Mantener solo las últimas 10 sumas
+    if (teamObj.recentSums.length > 10) {
+        teamObj.recentSums = teamObj.recentSums.slice(-10);
+    }
     
     // Actualizar total acumulado
     teamObj.totalScore += points;
@@ -126,6 +260,11 @@ function removeLastPoints(team) {
         const lastPoints = teamObj.scoreHistory.pop();
         teamObj.currentScore -= lastPoints.points;
         teamObj.totalScore -= lastPoints.points;
+        
+        // También remover de las sumas recientes si existe
+        if (teamObj.recentSums.length > 0) {
+            teamObj.recentSums.pop();
+        }
         
         updateDisplay();
         
@@ -222,7 +361,7 @@ function checkMatchWin() {
         }
         
         // Bloquear botones de puntuación
-        document.querySelectorAll('.btn-point, .btn-secondary').forEach(btn => {
+        document.querySelectorAll('.btn-point, .btn-secondary, .custom-points-btn').forEach(btn => {
             btn.disabled = true;
             btn.classList.add('disabled');
         });
@@ -272,10 +411,15 @@ function startNewGame() {
         window.currentMatch.currentGame++;
         window.currentMatch.team1.currentScore = 0;
         window.currentMatch.team2.currentScore = 0;
+        
+        // Limpiar sumas recientes para nueva partida
+        window.currentMatch.team1.recentSums = [];
+        window.currentMatch.team2.recentSums = [];
+        
         window.gameInProgress = true;
         
         // Reactivar botones
-        document.querySelectorAll('.btn-point, .btn-secondary').forEach(btn => {
+        document.querySelectorAll('.btn-point, .btn-secondary, .custom-points-btn').forEach(btn => {
             btn.disabled = false;
             btn.classList.remove('disabled');
         });
@@ -371,6 +515,8 @@ function resetCurrentGame() {
         window.currentMatch.team2.currentScore = 0;
         window.currentMatch.team1.scoreHistory = [];
         window.currentMatch.team2.scoreHistory = [];
+        window.currentMatch.team1.recentSums = [];
+        window.currentMatch.team2.recentSums = [];
         
         updateDisplay();
         
@@ -417,8 +563,21 @@ function renderGameHistory() {
     });
 }
 
-// Función para actualizar configuración
+// Función para actualizar configuración (solo permitida si no ha comenzado)
 function updateConfig() {
+    // Verificar si la partida ha comenzado
+    const hasStarted = window.currentMatch.matchStarted || 
+                      window.currentMatch.team1.currentScore > 0 || 
+                      window.currentMatch.team2.currentScore > 0 ||
+                      window.currentMatch.gameHistory.length > 0;
+    
+    if (hasStarted && !window.currentMatch.matchCompleted) {
+        if (window.common && window.common.showNotification) {
+            window.common.showNotification("La configuración no se puede cambiar durante la partida", "warning");
+        }
+        return;
+    }
+    
     const maxPointsInput = document.getElementById('max-points');
     const bestOfSelect = document.getElementById('best-of');
     
@@ -527,6 +686,18 @@ function loadFromCookies() {
             window.currentMatch = data.currentMatch || window.currentMatch;
             window.matchHistory = data.matchHistory || window.matchHistory;
             
+            // Inicializar arrays si no existen
+            if (!window.currentMatch.team1.recentSums) window.currentMatch.team1.recentSums = [];
+            if (!window.currentMatch.team2.recentSums) window.currentMatch.team2.recentSums = [];
+            if (!window.currentMatch.matchStarted) window.currentMatch.matchStarted = false;
+            
+            // Determinar si la partida ha comenzado
+            if (window.currentMatch.team1.currentScore > 0 || 
+                window.currentMatch.team2.currentScore > 0 ||
+                window.currentMatch.gameHistory.length > 0) {
+                window.currentMatch.matchStarted = true;
+            }
+            
             // Restaurar estado del juego
             if (window.currentMatch.matchCompleted) {
                 window.gameInProgress = false;
@@ -617,17 +788,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inicializar display
     updateDisplay();
     
-    // Configurar event listeners para botones de puntos
-    document.querySelectorAll('.btn-point').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const team = this.getAttribute('data-team');
-            const points = parseInt(this.getAttribute('data-points'));
-            if (team && points) {
-                addPoints(`team${team}`, points);
-            }
-        });
-    });
-    
     // Configurar botones de puntos personalizados
     const team1CustomBtn = document.getElementById('team1-add-custom');
     const team2CustomBtn = document.getElementById('team2-add-custom');
@@ -708,7 +868,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Configurar edición de nombres de pareja
-    document.querySelectorAll('.team-name').forEach((el, index) => {
+    document.querySelectorAll('.team-name-domino').forEach((el, index) => {
         el.addEventListener('click', function() {
             openTeamEditModal(index === 0 ? 'team1' : 'team2');
         });
@@ -753,7 +913,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     currentScore: 0,
                     totalScore: 0,
                     gamesWon: 0,
-                    scoreHistory: []
+                    scoreHistory: [],
+                    recentSums: []
                 },
                 team2: { 
                     name: "Pareja 2", 
@@ -761,7 +922,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     currentScore: 0,
                     totalScore: 0,
                     gamesWon: 0,
-                    scoreHistory: []
+                    scoreHistory: [],
+                    recentSums: []
                 },
                 currentGame: 1,
                 maxPoints: parseInt(document.getElementById('max-points').value) || 200,
@@ -770,13 +932,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 gameHistory: [],
                 winner: null,
                 location: window.currentMatch.location,
-                matchCompleted: false
+                matchCompleted: false,
+                matchStarted: false
             };
             
             window.gameInProgress = true;
             
             // Reactivar botones
-            document.querySelectorAll('.btn-point, .btn-secondary').forEach(btn => {
+            document.querySelectorAll('.btn-point, .btn-secondary, .custom-points-btn').forEach(btn => {
                 btn.disabled = false;
                 btn.classList.remove('disabled');
             });

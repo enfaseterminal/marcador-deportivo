@@ -11,6 +11,12 @@
      <meta name="description" content="Sigue todos los resultados de la Liga Escolar en tiempo real. Marcadores actualizados de voleibol, minivoley, dominó y más deportes escolares de forma gratuita.">
      <link rel="canonical" href="https://www.ligaescolar.es/">
 
+     <meta name="apple-mobile-web-app-capable" content="yes">
+     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+     <meta name="apple-mobile-web-app-title" content="Liga Escolar">
+     <link rel="apple-touch-icon" href="/imagenes/apple-touch-icon-180x180.png">
+
+
      <meta property="og:title" content="Liga Escolar - Resultados y Marcadores en Vivo">
      <meta property="og:description" content="La plataforma para seguir el deporte escolar: marcadores de voleibol, dominó y más en tiempo real.">
      <meta property="og:url" content="https://www.ligaescolar.es/">
@@ -231,5 +237,16 @@
     <!-- Scripts al final del body para mejor rendimiento -->
     <script src="js/clock.js"></script>
     <script src="js/main.js"></script>
+ <!-- Scripts Service Worker para poder trabajar off line desde el movil -->    
+    <script>
+       if ('serviceWorker' in navigator) {
+         window.addEventListener('load', () => {
+           navigator.serviceWorker.register('/sw.js')
+             .then(reg => console.log('Service Worker registrado', reg))
+             .catch(err => console.error('Error al registrar SW', err));
+         });
+       }
+     </script>
+
 </body>
 </html>

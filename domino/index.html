@@ -12,6 +12,11 @@
      <link rel="canonical" href="https://www.ligaescolar.es/domino/">
      <meta property="og:title" content="Contador de Puntos Dominó | Liga Escolar">
      <meta property="og:url" content="https://www.ligaescolar.es/domino/">
+     <meta name="apple-mobile-web-app-capable" content="yes">
+     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+     <meta name="apple-mobile-web-app-title" content="Liga Escolar">
+     <link rel="apple-touch-icon" href="/imagenes/apple-touch-icon-180x180.png">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- ESTILOS BASE (mismos que la página principal) -->
     <link rel="stylesheet" href="../css/base.css">
@@ -48,6 +53,13 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
+        }
+        
+        /* Estilos adicionales para mejor visualización */
+        .disabled-input {
+            opacity: 0.6 !important;
+            cursor: not-allowed !important;
+            background-color: rgba(255, 255, 255, 0.05) !important;
         }
     </style>
 </head>
@@ -88,14 +100,14 @@
             <div class="config-item">
                 <label for="max-points"><i class="fas fa-bullseye"></i> Puntos para ganar:</label>
                 <div class="config-control">
-                    <input type="number" id="max-points" min="50" max="500" step="10" value="200">
+                    <input type="number" id="max-points" min="50" max="500" step="10" value="200" class="config-input">
                     <button class="btn btn-small" id="apply-max-points">Aplicar</button>
                 </div>
             </div>
             <div class="config-item">
                 <label for="best-of"><i class="fas fa-trophy"></i> Mejor de:</label>
                 <div class="config-control">
-                    <select id="best-of">
+                    <select id="best-of" class="config-input">
                         <option value="1">1 partida</option>
                         <option value="3" selected>3 partidas</option>
                         <option value="5">5 partidas</option>
@@ -128,29 +140,29 @@
                     <div class="games-value" id="team1-games">0</div>
                 </div>
                 <div class="score-controls">
-                    <div class="point-controls">
-                        <button class="btn btn-point-domino" data-team="1" data-points="5">
-                            +5
-                        </button>
-                        <button class="btn btn-point-domino" data-team="1" data-points="10">
-                            +10
-                        </button>
-                        <button class="btn btn-point-domino" data-team="1" data-points="15">
-                            +15
-                        </button>
-                        <button class="btn btn-point-domino" data-team="1" data-points="20">
-                            +20
+                    <!-- Controles de puntos personalizados -->
+                    <div class="custom-points-control">
+                        <input type="number" id="team1-custom-points" class="custom-points-input" 
+                               min="1" max="100" placeholder="Puntos a sumar" required>
+                        <button class="btn custom-points-btn" id="team1-add-custom">
+                            <i class="fas fa-plus"></i> Sumar
                         </button>
                     </div>
-                    <div class="custom-points">
-                        <input type="number" id="team1-custom-points" min="1" max="100" placeholder="Otros">
-                        <button class="btn btn-small" id="team1-add-custom">
-                            <i class="fas fa-plus"></i> Añadir
-                        </button>
-                    </div>
+                    
+                    <!-- Botón para restar puntos -->
                     <button class="btn btn-secondary" id="team1-remove-point">
-                        <i class="fas fa-minus"></i> Restar Último
+                        <i class="fas fa-undo"></i> Deshacer Última Suma
                     </button>
+                    
+                    <!-- Sección de sumas recientes -->
+                    <div class="recent-sums-section">
+                        <div class="recent-sums-title">
+                            <i class="fas fa-history"></i> Sumas Recientes:
+                        </div>
+                        <div class="recent-sums-list" id="team1-recent-sums">
+                            <!-- Las sumas se mostrarán aquí dinámicamente -->
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -174,29 +186,29 @@
                     <div class="games-value" id="team2-games">0</div>
                 </div>
                 <div class="score-controls">
-                    <div class="point-controls">
-                        <button class="btn btn-point-domino" data-team="2" data-points="5">
-                            +5
-                        </button>
-                        <button class="btn btn-point-domino" data-team="2" data-points="10">
-                            +10
-                        </button>
-                        <button class="btn btn-point-domino" data-team="2" data-points="15">
-                            +15
-                        </button>
-                        <button class="btn btn-point-domino" data-team="2" data-points="20">
-                            +20
+                    <!-- Controles de puntos personalizados -->
+                    <div class="custom-points-control">
+                        <input type="number" id="team2-custom-points" class="custom-points-input" 
+                               min="1" max="100" placeholder="Puntos a sumar" required>
+                        <button class="btn custom-points-btn" id="team2-add-custom">
+                            <i class="fas fa-plus"></i> Sumar
                         </button>
                     </div>
-                    <div class="custom-points">
-                        <input type="number" id="team2-custom-points" min="1" max="100" placeholder="Otros">
-                        <button class="btn btn-small" id="team2-add-custom">
-                            <i class="fas fa-plus"></i> Añadir
-                        </button>
-                    </div>
+                    
+                    <!-- Botón para restar puntos -->
                     <button class="btn btn-secondary" id="team2-remove-point">
-                        <i class="fas fa-minus"></i> Restar Último
+                        <i class="fas fa-undo"></i> Deshacer Última Suma
                     </button>
+                    
+                    <!-- Sección de sumas recientes -->
+                    <div class="recent-sums-section">
+                        <div class="recent-sums-title">
+                            <i class="fas fa-history"></i> Sumas Recientes:
+                        </div>
+                        <div class="recent-sums-list" id="team2-recent-sums">
+                            <!-- Las sumas se mostrarán aquí dinámicamente -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -222,6 +234,9 @@
             </button>
             <button class="btn btn-primary" id="save-match">
                 <i class="fas fa-save"></i> Guardar Encuentro
+            </button>
+            <button class="btn btn-secondary" id="reset-match">
+                <i class="fas fa-redo-alt"></i> Reiniciar Encuentro
             </button>
         </div>
 
@@ -353,5 +368,16 @@
     <script src="../js/modal-manager.js"></script>
     <script src="../js/score-manager.js"></script>
     <script src="../js/domino.js"></script>
+ <!-- Scripts Service Worker para poder trabajar off line desde el movil -->    
+    <script>
+       if ('serviceWorker' in navigator) {
+         window.addEventListener('load', () => {
+           navigator.serviceWorker.register('/sw.js')
+             .then(reg => console.log('Service Worker registrado', reg))
+             .catch(err => console.error('Error al registrar SW', err));
+         });
+       }
+     </script>
+
 </body>
 </html>

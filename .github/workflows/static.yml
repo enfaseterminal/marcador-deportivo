@@ -1,4 +1,3 @@
-# Workflow para desplegar contenido estático en GitHub Pages con generación de Sitemap
 name: Deploy static content to Pages
 
 on:
@@ -31,7 +30,7 @@ jobs:
           python-version: '3.x'
 
       - name: Generate Sitemap
-        # Ejecuta el script desde la carpeta designada
+        # Ejecuta el script de Python antes de subir los archivos
         run: python script/generate_sitemap.py
 
       - name: Setup Pages
