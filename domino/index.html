@@ -1,134 +1,345 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-     <script src="../js/ads-analytics.js"></script>     
-     <meta charset="UTF-8">
+     <!-- Google Analiticas y Publicidad con consentimiento -->
+          <script src="../js/ads-analytics.js"></script>     
+     <!-- End Google Analiticas y Publicidad con consentimiento -->
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-     <title>Marcador de Voleibol Online (5 Sets) | Liga Escolar</title>
-     <meta name="description" content="Marcador digital para partidos de voleibol a 5 sets. Control de puntos, sets y tiempos de forma gratuita y online.">
-     <link rel="canonical" href="https://www.ligaescolar.es/voleibol/">
-     <meta property="og:title" content="Marcador de Voleibol (5 Sets) | Liga Escolar">
-     <meta property="og:url" content="https://www.ligaescolar.es/voleibol/">
-
+     <title>Marcador de Dominó Online | Contador de Puntos Liga Escolar</title>
+     <meta name="description" content="Anota los puntos de tus partidas de dominó fácilmente. Marcador digital optimizado para móviles y torneos escolares.">
+     <link rel="canonical" href="https://www.ligaescolar.es/domino/">
+     <meta property="og:title" content="Contador de Puntos Dominó | Liga Escolar">
+     <meta property="og:url" content="https://www.ligaescolar.es/domino/">
      <meta name="apple-mobile-web-app-capable" content="yes">
      <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
      <meta name="apple-mobile-web-app-title" content="Liga Escolar">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
      <link rel="apple-touch-icon" href="/imagenes/apple-touch-icon-180x180.png">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ESTILOS BASE (mismos que la página principal) -->
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/themes.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
+    <!-- HEADER CON IMAGEN DE FONDO (nuevo) -->
     <link rel="stylesheet" href="../css/header-with-bg.css">
-    <link rel="stylesheet" href="../css/voleibol.css">
-    <link rel="manifest" href="/site.webmanifest">
+    <!-- Estilo específico de dominó -->
+    <link rel="stylesheet" href="../css/sport-specific/domino.css">
+     <!-- Favicon clásico -->
+     <link rel="icon" href="/imagenes/favicon.ico" type="image/x-icon">
+
+     <!-- Favicons PNG -->
+     <link rel="icon" type="image/png" sizes="32x32" href="/imagenes/favicon-32x32.png">
+     <link rel="icon" type="image/png" sizes="16x16" href="/imagenes/favicon-16x16.png">
+
+     <!-- iOS -->
+     <link rel="apple-touch-icon" sizes="180x180" href="/imagenes/apple-touch-icon-180x180.png">
+
+     <!-- PWA / Android -->
+     <link rel="manifest" href="/site.webmanifest">
+
+    <style>
+        /* Estilos críticos para evitar FOUC */
+        body {
+            background: linear-gradient(135deg, #1a5276, #27ae60, #f39c12);
+            color: #ecf0f1;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Estilos adicionales para mejor visualización */
+        .disabled-input {
+            opacity: 0.6 !important;
+            cursor: not-allowed !important;
+            background-color: rgba(255, 255, 255, 0.05) !important;
+        }
+    </style>
 </head>
-<body class="theme-voleibol">
-
-    <a href="/" class="floating-home-btn" title="Volver al inicio">
-        <i class="fas fa-home"></i>
-    </a>
-
+<body class="theme-domino">
     <div class="container">
         <header class="app-header">
+            <!-- Imagen de fondo -->
             <div class="header-bg">
-                <img src="../imagenes/pizarra.png" alt="Fondo Voleibol" class="header-bg-image">
+                <img src="/imagenes/pizarra.png" alt="Fondo pizarra deportiva" class="header-bg-image">
             </div>
+            
+            <!-- Contenido sobre la imagen -->
             <div class="header-content">
                 <div class="header-left">
-                    <h1>Voleibol</h1>
-                    <p class="subtitle">Liga Escolar</p>
+                    <h1><i class="fas fa-th-large"></i> Marcador de Dominó</h1>
+                    <p class="subtitle">Liga Escolar - <span id="current-location">No especificada</span></p>
+                    <p class="game-rules-domino"><i class="fas fa-info-circle"></i> Parejas | Puntos: <span id="max-points-display">200</span> | Mejor de <span id="best-of-display">3</span> partidas</p>
+                    <div class="input-group">
+                        <input type="text" id="match-location-input" placeholder="Ingresa la ubicación del partido">
+                        <button class="btn btn-small" id="save-location">
+                            <i class="fas fa-check"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="clock-container clock-container-domino">
+                        <div id="clock">00:00:00</div>
+                        <div id="date">--/--/----</div>
+                    </div>
+                    <a href="../index.html" class="btn btn-home btn-home-domino">
+                        <i class="fas fa-home"></i> Liga Escolar
+                    </a>
                 </div>
             </div>
         </header>
 
-        <main class="main-content">
-            <div class="match-info-bar">
-                <div class="clock-container-voleibol">
-                    <i class="far fa-clock"></i> <span id="clock">00:00:00</span>
-                </div>
-                <div class="game-rules-voleibol">
-                    <i class="fas fa-info-circle"></i> Partidos a 5 sets
+        <div class="config-panel-domino">
+            <div class="config-item">
+                <label for="max-points"><i class="fas fa-bullseye"></i> Puntos para ganar:</label>
+                <div class="config-control">
+                    <input type="number" id="max-points" min="50" max="500" step="10" value="200" class="config-input">
+                    <button class="btn btn-small" id="apply-max-points">Aplicar</button>
                 </div>
             </div>
-
-            <div class="current-set-info-voleibol" id="current-set-display">
-                Set 1 en juego
+            <div class="config-item">
+                <label for="best-of"><i class="fas fa-trophy"></i> Mejor de:</label>
+                <div class="config-control">
+                    <select id="best-of" class="config-input">
+                        <option value="1">1 partida</option>
+                        <option value="3" selected>3 partidas</option>
+                        <option value="5">5 partidas</option>
+                        <option value="7">7 partidas</option>
+                        <option value="9">9 partidas</option>
+                    </select>
+                    <button class="btn btn-small" id="apply-best-of">Aplicar</button>
+                </div>
             </div>
+        </div>
 
-            <div class="scoreboard-voleibol">
-                <div class="team-card-voleibol" id="team-local-card">
-                    <h2 class="team-name-voleibol" id="team-local-name" onclick="editTeamName('local')">Local</h2>
-                    <div class="score-voleibol" id="score-local">0</div>
-                    <div class="sets-container-voleibol" id="sets-local">
+        <div class="scoreboard-domino">
+            <div class="team-domino" id="team1">
+                <div class="team-header-domino">
+                    <div class="team-name-domino editable" data-team="1" id="team1-name">Pareja 1</div>
+                    <div class="players-info-domino" id="team1-players">Jugador 1 & Jugador 2</div>
+                </div>
+                <div class="domino-score">
+                    <div class="current-score">
+                        <div class="score-label">Puntos Partida Actual:</div>
+                        <div class="score-value" id="team1-current-score">0</div>
+                    </div>
+                    <div class="total-score">
+                        <div class="score-label">Puntos Totales:</div>
+                        <div class="score-value" id="team1-total-score">0</div>
+                    </div>
+                </div>
+                <div class="games-won">
+                    <div class="games-label">Partidas Ganadas:</div>
+                    <div class="games-value" id="team1-games">0</div>
+                </div>
+                <div class="score-controls">
+                    <!-- Controles de puntos personalizados -->
+                    <div class="custom-points-control">
+                        <input type="number" id="team1-custom-points" class="custom-points-input" 
+                               min="1" max="100" placeholder="Puntos a sumar" required>
+                        <button class="btn custom-points-btn" id="team1-add-custom">
+                            <i class="fas fa-plus"></i> Sumar
+                        </button>
+                    </div>
+                    
+                    <!-- Botón para restar puntos -->
+                    <button class="btn btn-secondary" id="team1-remove-point">
+                        <i class="fas fa-undo"></i> Deshacer Última Suma
+                    </button>
+                    
+                    <!-- Sección de sumas recientes -->
+                    <div class="recent-sums-section">
+                        <div class="recent-sums-title">
+                            <i class="fas fa-history"></i> Sumas Recientes:
                         </div>
-                </div>
-
-                <div class="team-card-voleibol" id="team-visitor-card">
-                    <h2 class="team-name-voleibol" id="team-visitor-name" onclick="editTeamName('visitor')">Visitante</h2>
-                    <div class="score-voleibol" id="score-visitor">0</div>
-                    <div class="sets-container-voleibol" id="sets-visitor">
+                        <div class="recent-sums-list" id="team1-recent-sums">
+                            <!-- Las sumas se mostrarán aquí dinámicamente -->
                         </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="controls">
-                <button class="btn btn-primary btn-score" onclick="addPoint('local')">
-                    <i class="fas fa-plus"></i> Local
-                </button>
-                <button class="btn btn-secondary btn-score" onclick="addPoint('visitor')">
-                    <i class="fas fa-plus"></i> Visitante
-                </button>
-            </div>
-
-            <div class="action-buttons">
-                <button class="btn btn-warning" onclick="undoLastAction()">
-                    <i class="fas fa-undo"></i> Corregir
-                </button>
-                <button class="btn btn-info" id="btn-share">
-                    <i class="fas fa-share-alt"></i> Compartir
-                </button>
-                <button class="btn btn-danger" onclick="resetMatch()">
-                    <i class="fas fa-redo"></i> Reiniciar
-                </button>
-            </div>
-        </main>
-
-        <section class="history-section">
-            <h3><i class="fas fa-history"></i> Historial de Sets</h3>
-            <div class="history-list" id="match-history">
+            <div class="team-domino" id="team2">
+                <div class="team-header-domino">
+                    <div class="team-name-domino editable" data-team="2" id="team2-name">Pareja 2</div>
+                    <div class="players-info-domino" id="team2-players">Jugador 3 & Jugador 4</div>
                 </div>
-        </section>
+                <div class="domino-score">
+                    <div class="current-score">
+                        <div class="score-label">Puntos Partida Actual:</div>
+                        <div class="score-value" id="team2-current-score">0</div>
+                    </div>
+                    <div class="total-score">
+                        <div class="score-label">Puntos Totales:</div>
+                        <div class="score-value" id="team2-total-score">0</div>
+                    </div>
+                </div>
+                <div class="games-won">
+                    <div class="games-label">Partidas Ganadas:</div>
+                    <div class="games-value" id="team2-games">0</div>
+                </div>
+                <div class="score-controls">
+                    <!-- Controles de puntos personalizados -->
+                    <div class="custom-points-control">
+                        <input type="number" id="team2-custom-points" class="custom-points-input" 
+                               min="1" max="100" placeholder="Puntos a sumar" required>
+                        <button class="btn custom-points-btn" id="team2-add-custom">
+                            <i class="fas fa-plus"></i> Sumar
+                        </button>
+                    </div>
+                    
+                    <!-- Botón para restar puntos -->
+                    <button class="btn btn-secondary" id="team2-remove-point">
+                        <i class="fas fa-undo"></i> Deshacer Última Suma
+                    </button>
+                    
+                    <!-- Sección de sumas recientes -->
+                    <div class="recent-sums-section">
+                        <div class="recent-sums-title">
+                            <i class="fas fa-history"></i> Sumas Recientes:
+                        </div>
+                        <div class="recent-sums-list" id="team2-recent-sums">
+                            <!-- Las sumas se mostrarán aquí dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <div class="current-game-info-domino">
+            <div class="info-item">
+                <strong>Partida Actual:</strong> <span id="current-game">1</span> de <span id="max-games">3</span>
+            </div>
+            <div class="info-item">
+                <strong>Puntos para ganar:</strong> <span id="target-points">200</span>
+            </div>
+            <div class="info-item">
+                <strong>Diferencia:</strong> <span id="points-difference">0</span>
+            </div>
+        </div>
+
+        <div class="match-controls">
+            <button class="btn btn-success" id="end-game">
+                <i class="fas fa-flag-checkered"></i> Finalizar Partida
+            </button>
+            <button class="btn btn-warning" id="reset-game">
+                <i class="fas fa-redo"></i> Reiniciar Partida Actual
+            </button>
+            <button class="btn btn-primary" id="save-match">
+                <i class="fas fa-save"></i> Guardar Encuentro
+            </button>
+            <button class="btn btn-secondary" id="reset-match">
+                <i class="fas fa-redo-alt"></i> Reiniciar Encuentro
+            </button>
+        </div>
+
+        <div class="round-history-domino">
+            <h3><i class="fas fa-list-ol"></i> Historial de Partidas</h3>
+            <div class="rounds-list" id="rounds-list">
+                <!-- Las partidas se mostrarán aquí -->
+            </div>
+        </div>
+
+        <div class="export-controls">
+            <button class="btn btn-success" id="share-whatsapp">
+                <i class="fab fa-whatsapp"></i> Compartir por WhatsApp
+            </button>
+            <button class="btn btn-primary" id="share-results">
+                <i class="fas fa-share-alt"></i> Compartir Resultados
+            </button>
+        </div>
+
+        <div class="history">
+            <h2><i class="fas fa-history"></i> Historial de Encuentros</h2>
+            <div class="history-list" id="history-list">
+                <!-- Los encuentros guardados se mostrarán aquí -->
+            </div>
+            <div class="match-controls">
+                <button class="btn btn-secondary" id="clear-history">
+                    <i class="fas fa-trash"></i> Borrar Historial
+                </button>
+            </div>
+        </div>
+
+        <!-- FOOTER AÑADIDO -->
         <footer>
-            <p>© 2025 Liga Escolar - Marcadores de Voleibol</p>
+            <p>© 2025 Liga Escolar - Todos los derechos reservados</p>
             <p class="footer-links">
-                <a href="https://www.ligaescolar.es/privacidad.html">Privacidad</a> | 
-                <a href="https://www.enfaseterminal.com/">EnFaseTerminal</a>
+                <a href="https://www.ligaescolar.es/privacidad.html">Política de privacidad</a> |
+                <a href="#">Términos de uso</a> |
+                <a href="https://www.enfaseterminal.com/">Blog EnFaseTerminal</a>
             </p>
         </footer>
     </div>
 
-    <div class="modal" id="name-modal">
+    <!-- Modal para editar nombre de pareja y jugadores -->
+    <div class="modal" id="team-name-modal">
         <div class="modal-content">
-            <h2>Editar nombre del equipo</h2>
-            <input type="text" id="new-team-name" placeholder="Nombre del equipo">
+            <h2>Editar Pareja</h2>
+            <div class="form-group">
+                <label for="team-name-input">Nombre de la pareja:</label>
+                <input type="text" id="team-name-input" placeholder="Ej: Los Domingueros">
+            </div>
+            <div class="form-group">
+                <label for="player1-input">Jugador 1:</label>
+                <input type="text" id="player1-input" placeholder="Nombre del jugador 1">
+            </div>
+            <div class="form-group">
+                <label for="player2-input">Jugador 2:</label>
+                <input type="text" id="player2-input" placeholder="Nombre del jugador 2">
+            </div>
             <div class="modal-buttons">
+                <button class="btn btn-secondary" id="cancel-edit">Cancelar</button>
                 <button class="btn btn-primary" id="save-name">Guardar</button>
-                <button class="btn btn-secondary" id="close-modal">Cancelar</button>
             </div>
         </div>
     </div>
 
+    <!-- Modal para guardar encuentro -->
+    <div class="modal" id="save-match-modal">
+        <div class="modal-content">
+            <h2>Guardar Encuentro de Dominó</h2>
+            <div class="form-group">
+                <label>Resultado:</label>
+                <div class="card">
+                    <p id="save-match-result"></p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Duración:</label>
+                <div class="card">
+                    <p id="save-match-duration"></p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Ubicación:</label>
+                <div class="card">
+                    <p id="save-match-location"></p>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" id="cancel-save">Cancelar</button>
+                <button class="btn btn-primary" id="confirm-save">Guardar Encuentro</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para compartir resultados -->
     <div class="modal" id="share-modal">
         <div class="modal-content">
-            <h2>Compartir Resultados (Voleibol)</h2>
+            <h2>Compartir Resultados (Dominó)</h2>
             <div class="share-preview">
                 <h3>Vista previa del resultado:</h3>
-                <div id="share-text"></div>
+                <div id="share-text">
+                    <!-- Texto generado dinámicamente -->
+                </div>
                 <div class="modal-buttons">
                     <button class="btn btn-secondary" id="copy-text">
                         <i class="fas fa-copy"></i> Copiar Texto
@@ -142,11 +353,13 @@
         </div>
     </div>
 
+    <!-- Notificación -->
     <div class="notification" id="notification">
         <i class="fas fa-check-circle"></i>
         <span id="notification-text">Operación realizada con éxito</span>
     </div>
 
+    <!-- Scripts -->
     <script src="../js/clock.js"></script>
     <script src="../js/celebrate.js"></script>
     <script src="../js/common.js"></script>
@@ -154,8 +367,8 @@
     <script src="../js/match-core.js"></script>
     <script src="../js/modal-manager.js"></script>
     <script src="../js/score-manager.js"></script>
-    <script src="../js/voleibol.js"></script>
-
+    <script src="../js/domino.js"></script>
+ <!-- Scripts Service Worker para poder trabajar off line desde el movil -->    
     <script>
        if ('serviceWorker' in navigator) {
          window.addEventListener('load', () => {
@@ -164,6 +377,7 @@
              .catch(err => console.error('Error al registrar SW', err));
          });
        }
-    </script>
+     </script>
+
 </body>
 </html>
