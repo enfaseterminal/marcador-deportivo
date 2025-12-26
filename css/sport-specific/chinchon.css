@@ -1,201 +1,79 @@
-/* Chinchon - Estilos específicos */
+/* Estilos para configuración bloqueada */
 
-.theme-chinchon {
-    --primary-color: #8B4513;
-    --secondary-color: #D2691E;
-    --accent-color: #A0522D;
-    --success-color: #27ae60;
-    --danger-color: #e74c3c;
-    --warning-color: #f39c12;
-    --info-color: #3498db;
-}
-
-/* Header específico para Chinchón */
-.clock-container-chinchon {
-    background: rgba(139, 69, 19, 0.8);
-    border: 2px solid #A0522D;
-}
-
-.btn-home-chinchon {
-    background: #8B4513;
-    border: 2px solid #A0522D;
-}
-
-.btn-home-chinchon:hover {
-    background: #A0522D;
-    transform: scale(1.05);
-}
-
-/* Jugadores - colores por posición */
-.player-position-1 {
-    background: linear-gradient(135deg, #FFD700, #FFA500);
-    color: #333;
-}
-
-.player-position-2 {
-    background: linear-gradient(135deg, #C0C0C0, #A9A9A9);
-    color: white;
-}
-
-.player-position-3 {
-    background: linear-gradient(135deg, #CD7F32, #8B4513);
-    color: white;
-}
-
-.player-position-4 {
-    background: linear-gradient(135deg, #8B4513, #654321);
-    color: white;
-}
-
-/* Cartas de jugador - colores según puntuación */
-.player-card.low-score {
-    border-left: 5px solid #27ae60;
-}
-
-.player-card.medium-score {
-    border-left: 5px solid #f39c12;
-}
-
-.player-card.high-score {
-    border-left: 5px solid #e74c3c;
-}
-
-/* Efectos especiales para Chinchón */
-.chinchon-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: linear-gradient(135deg, #9b59b6, #8e44ad);
-    color: white;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.7rem;
-    font-weight: bold;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-/* Tabla de rondas */
-.rounds-table .winner-cell {
-    background: rgba(39, 174, 96, 0.2);
-    font-weight: bold;
-}
-
-.rounds-table .loser-cell {
-    background: rgba(231, 76, 60, 0.1);
-}
-
-.rounds-table .chinchon-cell {
-    background: rgba(155, 89, 182, 0.2);
-    font-weight: bold;
-}
-
-/* Botones específicos */
-.btn-chinchon {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad);
-    color: white;
-    border: none;
-}
-
-.btn-chinchon:hover {
-    background: linear-gradient(135deg, #8e44ad, #9b59b6);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(155, 89, 182, 0.4);
-}
-
-/* Responsive específico para Chinchón */
-@media (max-width: 768px) {
-    .player-card {
-        padding: 12px;
-    }
-    
-    .player-stats {
-        grid-template-columns: 1fr;
-    }
-    
-    .game-info {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 480px) {
-    .game-info {
-        grid-template-columns: 1fr;
-    }
-    
-    .player-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-    
-    .player-position {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-    }
-}
-/* Estilos adicionales para chinchón */
-
-.chinchon-value {
-    color: #9b59b6 !important;
-    font-weight: bold;
-    text-shadow: 0 0 5px rgba(155, 89, 182, 0.5);
-}
-
-.btn-chinchon-special {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad) !important;
-    color: white !important;
-}
-
-.btn-chinchon-special:hover:not(:disabled) {
-    background: linear-gradient(135deg, #8e44ad, #9b59b6) !important;
-    transform: scale(1.1);
-}
-
-.player-card .points-input:disabled {
-    background: rgba(155, 89, 182, 0.2) !important;
-    color: #9b59b6 !important;
-    font-weight: bold;
-}
-
-.saved-match-item {
-    transition: all 0.3s;
-    cursor: pointer;
-}
-
-.saved-match-item:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-    transform: translateY(-2px);
-}
-
-/* Estilos para la tabla de rondas */
-.rounds-table .chinchon-cell {
-    background: linear-gradient(135deg, rgba(155, 89, 182, 0.3), rgba(155, 89, 182, 0.5)) !important;
-    color: white !important;
-    font-weight: bold;
+.chinchon-config.locked {
     position: relative;
 }
 
-.rounds-table .chinchon-cell::after {
-    content: "★";
+.chinchon-config.locked::after {
+    content: '';
     position: absolute;
-    top: 2px;
-    right: 2px;
-    font-size: 0.7rem;
-    color: #ffd700;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(44, 62, 80, 0.7);
+    border-radius: 12px;
+    pointer-events: none;
 }
 
-/* Indicador de falta de puntos */
-.points-input:invalid {
-    border: 2px solid #e74c3c !important;
+.config-lock-indicator {
+    animation: fadeIn 0.5s ease;
 }
 
-.points-input:valid {
-    border: 2px solid #27ae60 !important;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Estilos para controles deshabilitados */
+select:disabled, 
+button:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
+
+.config-control select:disabled,
+.config-control button:disabled {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Indicador visual en el título de configuración */
+.config-section-title {
+    position: relative;
+}
+
+.config-section-title.locked::before {
+    content: '🔒';
+    position: absolute;
+    left: -30px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+}
+
+/* Botón de reinicio más prominente cuando hay partida en curso */
+.btn-reset-game.game-active {
+    background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+    animation: pulse-reset 2s infinite;
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+}
+
+@keyframes pulse-reset {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+}
+
+/* Mensaje informativo */
+.info-message {
+    background: rgba(52, 152, 219, 0.1);
+    border-left: 4px solid #3498db;
+    padding: 10px 15px;
+    margin: 10px 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.8);
 }

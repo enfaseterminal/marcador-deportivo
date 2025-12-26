@@ -1,141 +1,375 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- Google Analytics y Publicidad con consentimiento -->
+    <script src="../js/ads-analytics.js"></script>
+    
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baloncesto - Liga Escolar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    
+    <!-- SEO -->
+    <title>Marcador de Baloncesto Online | Liga Escolar</title>
+    <meta name="description" content="Marcador digital para partidos de baloncesto. Control de cuartos, puntos, faltas y tiempos con expulsiones por 5 faltas. Gratis y optimizado para móvil.">
+    <meta name="keywords" content="baloncesto, marcador, cancha, cuartos, faltas, expulsión, tiempo, deporte escolar, liga escolar">
+    <link rel="canonical" href="https://www.ligaescolar.es/baloncesto/">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Marcador de Baloncesto | Liga Escolar">
+    <meta property="og:description" content="Controla partidos de baloncesto con marcador digital. Cuartos, faltas por dorsal, tiempos y más.">
+    <meta property="og:url" content="https://www.ligaescolar.es/baloncesto/">
+    <meta property="og:image" content="https://www.ligaescolar.es/imagenes/baloncesto-og.png">
+    <meta property="og:type" content="website">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Marcador de Baloncesto Online">
+    <meta name="twitter:description" content="Herramienta digital para arbitrar partidos de baloncesto escolar.">
+    
+    <!-- PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Baloncesto LE">
+    <link rel="apple-touch-icon" href="../imagenes/apple-touch-icon-180x180.png">
+    <link rel="manifest" href="../site.webmanifest">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="../imagenes/favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="32x32" href="../imagenes/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../imagenes/favicon-16x16.png">
+    
+    <!-- Estilos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Estilos base -->
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/themes.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
-    <!-- Estilos específicos del marcador -->
-    <link rel="stylesheet" href="../css/sport-specific/baloncesto.css">
+    <link rel="stylesheet" href="../css/header-with-bg.css">
+    <link rel="stylesheet" href="../sport-specific/baloncesto.css">
+    
     <style>
+        /* Estilos críticos para PWA */
         body {
             background: linear-gradient(135deg, #e74c3c, #c0392b, #96281b);
+            color: white;
             min-height: 100vh;
             margin: 0;
             padding: 20px;
-            color: #fff;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
         }
+        
         .container {
             max-width: 1000px;
             margin: 0 auto;
+            padding: 10px;
+        }
+        
+        /* Asegurar que los botones sean táctiles en móvil */
+        button, .btn {
+            min-height: 44px;
+            min-width: 44px;
+        }
+        
+        /* Optimización para orientación horizontal */
+        @media (orientation: landscape) {
+            .teams-container {
+                flex-direction: row !important;
+            }
+            .quarter-controls {
+                flex-direction: row !important;
+            }
+        }
+        
+        /* Optimización para orientación vertical */
+        @media (orientation: portrait) {
+            .teams-container {
+                flex-direction: column;
+            }
+            .game-info {
+                flex-direction: row;
+                justify-content: space-around;
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body class="theme-baloncesto">
+    <!-- Botón flotante de inicio (solo visible en landscape) -->
+    <a href="../" class="floating-home-btn" title="Volver al inicio">
+        <i class="fas fa-home"></i>
+    </a>
+    
     <div class="container">
         <header class="app-header">
+            <div class="header-bg">
+                <img src="../imagenes/pizarra.png" alt="Fondo pizarra deportiva" class="header-bg-image">
+            </div>
+            
             <div class="header-content">
                 <div class="header-left">
-                    <h1><i class="fas fa-basketball-ball"></i> Marcador de Baloncesto</h1>
-                    <p class="subtitle">Liga Escolar - Control de cuartos, puntos y faltas</p>
+                    <h1><i class="fas fa-basketball-ball"></i> Baloncesto</h1>
+                    <p class="subtitle">Liga Escolar - 4 cuartos de 10 min | 5 faltas = expulsión</p>
+                    <div class="game-rules">
+                        <p><i class="fas fa-clock"></i> Cuartos: 4 × 10 min | <i class="fas fa-user-alt-slash"></i> 5 faltas = expulsión</p>
+                    </div>
                 </div>
                 <div class="header-right">
-                    <a href="../" class="btn-back">
-                        <i class="fas fa-arrow-left"></i> Volver al inicio
+                    <a href="../" class="btn btn-small btn-home">
+                        <i class="fas fa-arrow-left"></i> Inicio
                     </a>
+                    <div class="clock-container">
+                        <div id="clock">00:00:00</div>
+                        <div id="date">--/--/----</div>
+                    </div>
                 </div>
             </div>
         </header>
 
-        <!-- Aquí irá el marcador de baloncesto -->
-        <div class="baloncesto-marcador">
-            <!-- Contenido del marcador -->
-            <div class="teams-container">
-                <div class="team team-local">
-                    <h3>Equipo Local</h3>
-                    <div class="score">0</div>
-                    <div class="team-controls">
-                        <button class="btn-points" data-points="1">+1</button>
-                        <button class="btn-points" data-points="2">+2</button>
-                        <button class="btn-points" data-points="3">+3</button>
-                    </div>
-                </div>
-                
-                <div class="game-info">
-                    <div class="quarter">
-                        <h4>Cuarto</h4>
-                        <div class="quarter-number">1</div>
-                        <div class="quarter-controls">
-                            <button id="prev-quarter"><i class="fas fa-chevron-left"></i></button>
-                            <button id="next-quarter"><i class="fas fa-chevron-right"></i></button>
-                        </div>
-                    </div>
-                    
-                    <div class="timer">
-                        <h4>Tiempo</h4>
-                        <div id="game-clock">10:00</div>
-                        <div class="timer-controls">
-                            <button id="start-timer"><i class="fas fa-play"></i></button>
-                            <button id="pause-timer"><i class="fas fa-pause"></i></button>
-                            <button id="reset-timer"><i class="fas fa-redo"></i></button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="team team-visitor">
-                    <h3>Equipo Visitante</h3>
-                    <div class="score">0</div>
-                    <div class="team-controls">
-                        <button class="btn-points" data-points="1">+1</button>
-                        <button class="btn-points" data-points="2">+2</button>
-                        <button class="btn-points" data-points="3">+3</button>
-                    </div>
+        <!-- CONTADOR DE CUARTOS Y TIEMPO -->
+        <div class="game-info-container">
+            <div class="quarter-display">
+                <h3><i class="fas fa-basketball-ball"></i> CUARTO</h3>
+                <div class="quarter-number" id="current-quarter">1</div>
+                <div class="quarter-controls">
+                    <button id="prev-quarter" class="btn-icon" disabled>
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button id="next-quarter" class="btn-icon" disabled>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
                 </div>
             </div>
             
-            <!-- Controles de faltas -->
-            <div class="fouls-section">
-                <h3><i class="fas fa-exclamation-triangle"></i> Faltas</h3>
-                <div class="fouls-container">
-                    <div class="team-fouls">
-                        <h4>Local</h4>
-                        <div class="fouls-count">0</div>
-                        <div class="fouls-buttons">
-                            <button class="btn-foul">+ Falta</button>
-                            <button class="btn-foul-remove">- Falta</button>
-                        </div>
-                    </div>
-                    
-                    <div class="team-fouls">
-                        <h4>Visitante</h4>
-                        <div class="fouls-count">0</div>
-                        <div class="fouls-buttons">
-                            <button class="btn-foul">+ Falta</button>
-                            <button class="btn-foul-remove">- Falta</button>
-                        </div>
-                    </div>
+            <div class="timer-display">
+                <h3><i class="fas fa-stopwatch"></i> TIEMPO</h3>
+                <div class="timer-count" id="game-clock">10:00</div>
+                <div class="timer-controls">
+                    <button id="start-timer" class="btn-icon btn-success">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button id="pause-timer" class="btn-icon btn-warning">
+                        <i class="fas fa-pause"></i>
+                    </button>
+                    <button id="reset-timer" class="btn-icon btn-secondary">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+                <div class="timer-mode">
+                    <span id="timer-status">Detenido</span>
                 </div>
             </div>
             
-            <!-- Historial del partido -->
-            <div class="game-history">
-                <h3><i class="fas fa-history"></i> Historial del Partido</h3>
-                <div id="history-log">
-                    <p>Partido iniciado</p>
-                </div>
-                <div class="history-controls">
-                    <button id="reset-game"><i class="fas fa-trash-alt"></i> Reiniciar Partido</button>
-                    <button id="save-game"><i class="fas fa-save"></i> Guardar</button>
+            <div class="period-info">
+                <h3><i class="fas fa-info-circle"></i> REGLAS</h3>
+                <div class="rules-info">
+                    <p><i class="fas fa-exclamation-triangle"></i> 5 faltas = expulsión</p>
+                    <p><i class="fas fa-clock"></i> Cuarto: 10:00 min</p>
                 </div>
             </div>
         </div>
-        
+
+        <!-- MARCADOR PRINCIPAL -->
+        <div class="scoreboard-container">
+            <!-- EQUIPO LOCAL -->
+            <div class="team-scoreboard team-local">
+                <div class="team-header">
+                    <h3 class="team-name editable" id="team1-name">LOCAL</h3>
+                    <button class="btn-edit-name" data-team="1">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+                
+                <div class="team-score" id="team1-score">0</div>
+                
+                <!-- Botones de puntos -->
+                <div class="points-controls">
+                    <button class="btn-point" data-points="1" data-team="1">
+                        <span class="point-value">+1</span>
+                        <span class="point-label">Tiro Libre</span>
+                    </button>
+                    <button class="btn-point" data-points="2" data-team="1">
+                        <span class="point-value">+2</span>
+                        <span class="point-label">Dentro Área</span>
+                    </button>
+                    <button class="btn-point" data-points="3" data-team="1">
+                        <span class="point-value">+3</span>
+                        <span class="point-label">Triple</span>
+                    </button>
+                </div>
+                
+                <!-- Contador de faltas del equipo -->
+                <div class="team-fouls-display">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Faltas Equipo</h4>
+                    <div class="fouls-count" id="team1-fouls">0</div>
+                </div>
+            </div>
+
+            <!-- VS CENTRAL -->
+            <div class="vs-container">
+                <div class="vs-text">VS</div>
+                <div class="game-status" id="game-status">
+                    Cuarto 1
+                </div>
+                <div class="possession-indicator" id="possession-indicator">
+                    <i class="fas fa-basketball-ball"></i> Posesión
+                </div>
+            </div>
+
+            <!-- EQUIPO VISITANTE -->
+            <div class="team-scoreboard team-visitor">
+                <div class="team-header">
+                    <h3 class="team-name editable" id="team2-name">VISITANTE</h3>
+                    <button class="btn-edit-name" data-team="2">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+                
+                <div class="team-score" id="team2-score">0</div>
+                
+                <!-- Botones de puntos -->
+                <div class="points-controls">
+                    <button class="btn-point" data-points="1" data-team="2">
+                        <span class="point-value">+1</span>
+                        <span class="point-label">Tiro Libre</span>
+                    </button>
+                    <button class="btn-point" data-points="2" data-team="2">
+                        <span class="point-value">+2</span>
+                        <span class="point-label">Dentro Área</span>
+                    </button>
+                    <button class="btn-point" data-points="3" data-team="2">
+                        <span class="point-value">+3</span>
+                        <span class="point-label">Triple</span>
+                    </button>
+                </div>
+                
+                <!-- Contador de faltas del equipo -->
+                <div class="team-fouls-display">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Faltas Equipo</h4>
+                    <div class="fouls-count" id="team2-fouls">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SISTEMA DE FALTAS POR DORSAL -->
+        <div class="fouls-management">
+            <h3><i class="fas fa-clipboard-list"></i> CONTROL DE FALTAS POR JUGADOR</h3>
+            
+            <div class="fouls-input-section">
+                <div class="input-group">
+                    <input type="number" id="player-number" min="0" max="99" placeholder="Dorsal (ej: 5)" class="input-dorsal">
+                    <select id="player-team" class="select-team">
+                        <option value="team1">Local</option>
+                        <option value="team2">Visitante</option>
+                    </select>
+                    <button id="add-foul" class="btn-foul-add">
+                        <i class="fas fa-plus-circle"></i> Añadir Falta
+                    </button>
+                </div>
+                <p class="help-text"><i class="fas fa-info-circle"></i> 5 faltas = expulsión automática</p>
+            </div>
+            
+            <!-- Lista de jugadores con faltas -->
+            <div class="players-fouls-container">
+                <div class="players-team">
+                    <h4><i class="fas fa-users"></i> Jugadores Local</h4>
+                    <div id="team1-players" class="players-list">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                </div>
+                
+                <div class="players-team">
+                    <h4><i class="fas fa-users"></i> Jugadores Visitante</h4>
+                    <div id="team2-players" class="players-list">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Expulsados -->
+            <div class="expelled-container" id="expelled-container">
+                <h4><i class="fas fa-user-slash"></i> Jugadores Expulsados</h4>
+                <div id="expelled-players">
+                    <!-- Jugadores expulsados aparecerán aquí -->
+                </div>
+            </div>
+        </div>
+
+        <!-- HISTORIAL DEL PARTIDO -->
+        <div class="game-history">
+            <h3><i class="fas fa-history"></i> HISTORIAL DE ACCIONES</h3>
+            <div class="history-log" id="history-log">
+                <div class="history-entry">
+                    <span class="history-time">[00:00]</span>
+                    <span class="history-text">Partido iniciado - Cuarto 1</span>
+                </div>
+            </div>
+            
+            <div class="history-controls">
+                <button id="reset-game" class="btn-reset-game">
+                    <i class="fas fa-trash-alt"></i> Reiniciar Partido
+                </button>
+                <button id="save-game" class="btn-save-game">
+                    <i class="fas fa-save"></i> Guardar Partido
+                </button>
+                <button id="share-game" class="btn-share-game">
+                    <i class="fas fa-share-alt"></i> Compartir
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal para editar nombres -->
+        <div class="modal" id="team-name-modal">
+            <div class="modal-content">
+                <h2><i class="fas fa-edit"></i> Editar Nombre del Equipo</h2>
+                <div class="form-group">
+                    <label for="team-name-input">Nuevo nombre:</label>
+                    <input type="text" id="team-name-input" placeholder="Ej: Los Leones" maxlength="20">
+                </div>
+                <div class="modal-buttons">
+                    <button id="cancel-edit" class="btn btn-secondary">Cancelar</button>
+                    <button id="save-name" class="btn btn-primary">Guardar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de expulsión -->
+        <div class="modal" id="expulsion-modal">
+            <div class="modal-content">
+                <h2><i class="fas fa-user-slash"></i> ¡JUGADOR EXPULSADO!</h2>
+                <div class="expulsion-details">
+                    <p id="expulsion-text">El jugador ha alcanzado 5 faltas.</p>
+                </div>
+                <div class="modal-buttons">
+                    <button id="close-expulsion" class="btn btn-primary">Entendido</button>
+                </div>
+            </div>
+        </div>
+
         <footer>
             <p>© 2025 Liga Escolar - Marcador de Baloncesto</p>
             <p class="footer-links">
-                <a href="../">Inicio</a> |
-                <a href="../privacidad.html">Privacidad</a>
+                <a href="../">Inicio</a> | 
+                <a href="../privacidad.html">Privacidad</a> | 
+                <a href="#" id="show-help">Ayuda</a>
             </p>
         </footer>
     </div>
 
     <!-- Scripts -->
     <script src="../js/clock.js"></script>
-    <script src="../js/baloncesto.js"></script>
+    <script src="../js/celebrate.js"></script>
+    <script src="js/baloncesto.js"></script>
+    
+    <!-- Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('../sw.js')
+                    .then(reg => console.log('SW registrado para baloncesto'))
+                    .catch(err => console.error('Error SW:', err));
+            });
+        }
+    </script>
 </body>
 </html>
