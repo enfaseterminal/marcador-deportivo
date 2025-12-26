@@ -140,3 +140,62 @@
         right: 10px;
     }
 }
+/* Estilos adicionales para chinchón */
+
+.chinchon-value {
+    color: #9b59b6 !important;
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(155, 89, 182, 0.5);
+}
+
+.btn-chinchon-special {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad) !important;
+    color: white !important;
+}
+
+.btn-chinchon-special:hover:not(:disabled) {
+    background: linear-gradient(135deg, #8e44ad, #9b59b6) !important;
+    transform: scale(1.1);
+}
+
+.player-card .points-input:disabled {
+    background: rgba(155, 89, 182, 0.2) !important;
+    color: #9b59b6 !important;
+    font-weight: bold;
+}
+
+.saved-match-item {
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.saved-match-item:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    transform: translateY(-2px);
+}
+
+/* Estilos para la tabla de rondas */
+.rounds-table .chinchon-cell {
+    background: linear-gradient(135deg, rgba(155, 89, 182, 0.3), rgba(155, 89, 182, 0.5)) !important;
+    color: white !important;
+    font-weight: bold;
+    position: relative;
+}
+
+.rounds-table .chinchon-cell::after {
+    content: "★";
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 0.7rem;
+    color: #ffd700;
+}
+
+/* Indicador de falta de puntos */
+.points-input:invalid {
+    border: 2px solid #e74c3c !important;
+}
+
+.points-input:valid {
+    border: 2px solid #27ae60 !important;
+}

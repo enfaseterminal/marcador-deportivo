@@ -1,4 +1,4 @@
-// Chinchón - Lógica del juego
+// Chinchón - Lógica del juego CORREGIDA
 
 class ChinchonGame {
     constructor() {
@@ -69,10 +69,11 @@ class ChinchonGame {
                 id: i + 1,
                 name: defaultNames[i] || `Jugador ${i + 1}`,
                 totalScore: 0,
-                roundScore: 0,
+                roundScore: 0, // Iniciar en 0, no null
                 roundsWon: 0,
                 chinchons: 0,
-                scores: []
+                scores: [],
+                hasChinchonCurrentRound: false // Nuevo campo para chinchón actual
             });
         }
     }
@@ -98,14 +99,24 @@ class ChinchonGame {
         card.dataset.playerId = player.id;
         
         // Determinar si el jugador hizo Chinchón en la ronda actual
-        const hasChinchon = player.roundScore === 0;
+        const hasChinchon = player.hasChinchonCurrentRound;
         
         if (hasChinchon) {
             card.classList.add('chinchon-achieved');
         }
         
+        // Determinar color del badge de chinchón
+        const chinchonBadge = hasChinchon ? 
+            '<div class="chinchon-badge">CHINCHÓN!</div>' : '';
+        
+        // Mostrar puntos de ronda actual
+        let roundDisplay = player.roundScore;
+        if (hasChinchon) {
+            roundDisplay = '0 (Chinchón!)';
+        }
+        
         card.innerHTML = `
-            ${hasChinchon ? '<div class="chinchon-badge">CHINCHÓN!</div>' : ''}
+            ${chinchonBadge}
             <div class="player-header">
                 <div class="player-name editable" data-player-id="${player.id}">
                     ${player.name}
@@ -122,7 +133,9 @@ class ChinchonGame {
                 </div>
                 <div class="stat-item">
                     <div class="stat-label">Ronda Actual</div>
-                    <div class="stat-value round">${player.roundScore}</div>
+                    <div class="stat-value round ${hasChinchon ? 'chinchon-value' : ''}">
+                        ${roundDisplay}
+                    </div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-label">Rondas Ganadas</div>
@@ -141,21 +154,27 @@ class ChinchonGame {
                        placeholder="Puntos ronda" 
                        min="0" 
                        max="100"
-                       value="${player.roundScore || ''}">
-                <button class="btn-points btn-add" data-action="add" data-player-id="${player.id}">
+                       value="${player.roundScore !== 0 || !player.hasChinchonCurrentRound ? player.roundScore : ''}"
+                       ${player.hasChinchonCurrentRound ? 'disabled' : ''}>
+                <button class="btn-points btn-add" data-action="add" data-player-id="${player.id}" 
+                        ${player.hasChinchonCurrentRound ? 'disabled' : ''}>
                     <i class="fas fa-plus"></i>
                 </button>
-                <button class="btn-points btn-subtract" data-action="subtract" data-player-id="${player.id}">
+                <button class="btn-points btn-subtract" data-action="subtract" data-player-id="${player.id}"
+                        ${player.hasChinchonCurrentRound ? 'disabled' : ''}>
                     <i class="fas fa-minus"></i>
                 </button>
-                <button class="btn-points" style="background: #3498db;" data-action="chinchon" data-player-id="${player.id}" title="Marcar Chinchón">
+                <button class="btn-points btn-chinchon-special" data-action="chinchon" data-player-id="${player.id}" 
+                        title="Marcar Chinchón" ${player.hasChinchonCurrentRound ? 'disabled style="opacity:0.5"' : ''}>
                     <i class="fas fa-crown"></i>
                 </button>
             </div>
             
             <div style="margin-top: 10px; font-size: 0.8rem; color: rgba(255, 255, 255, 0.7);">
                 <i class="fas fa-history"></i> Últimas rondas: 
-                ${player.scores.slice(-3).map(score => `<span style="margin: 0 2px;">${score}</span>`).join(', ')}
+                ${player.scores.slice(-3).map(score => 
+                    `<span style="margin: 0 2px; ${score === 0 ? 'color: #9b59b6; font-weight: bold;' : ''}">${score === 0 ? 'Chinchón' : score}</span>`
+                ).join(', ')}
             </div>
         `;
         
@@ -181,64 +200,123 @@ class ChinchonGame {
         });
     }
 
-    addPoints(playerId, points) {
+    addPoints(playerId, points, isChinchon = false) {
         const player = this.players.find(p => p.id === playerId);
         if (!player) return;
         
-        if (points === 0) {
-            // Chinchón
+        if (isChinchon) {
+            // Es un chinchón
             player.roundScore = 0;
+            player.hasChinchonCurrentRound = true;
             player.chinchons++;
-            this.showNotification(`${player.name} hizo Chinchón!`, 'success');
+            this.showNotification(`🎉 ${player.name} hizo CHINCHÓN!`, 'success');
         } else {
-            player.roundScore = points;
+            // Son puntos normales
+            if (points === undefined || points === null || points === '') {
+                this.showNotification('Ingresa una cantidad de puntos válida', 'error');
+                return;
+            }
+            
+            const parsedPoints = parseInt(points);
+            if (isNaN(parsedPoints) || parsedPoints < 0) {
+                this.showNotification('Los puntos deben ser un número positivo', 'error');
+                return;
+            }
+            
+            player.roundScore = parsedPoints;
+            player.hasChinchonCurrentRound = false;
+            
+            if (parsedPoints === 0) {
+                this.showNotification(`${player.name} tiene 0 puntos en esta ronda`, 'info');
+            }
         }
         
+        // Actualizar interfaz inmediatamente
+        this.renderPlayers();
         this.updateUI();
         this.saveToStorage();
+        
+        // Verificar si todos tienen puntuación
+        this.checkRoundCompletion();
+    }
+
+    checkRoundCompletion() {
+        const allPlayersHaveScore = this.players.every(p => 
+            p.roundScore !== null && p.roundScore !== undefined
+        );
+        
+        if (allPlayersHaveScore) {
+            this.newRoundBtn.disabled = false;
+            this.newRoundBtn.style.opacity = '1';
+            this.newRoundBtn.title = 'Comenzar nueva ronda';
+        } else {
+            this.newRoundBtn.disabled = true;
+            this.newRoundBtn.style.opacity = '0.5';
+            this.newRoundBtn.title = 'Faltan puntuaciones por añadir';
+        }
     }
 
     newRound() {
         // Validar que todos los jugadores tengan puntuación de ronda
-        const incompletePlayers = this.players.filter(p => p.roundScore === null || p.roundScore === undefined);
+        const incompletePlayers = this.players.filter(p => 
+            p.roundScore === null || p.roundScore === undefined
+        );
+        
         if (incompletePlayers.length > 0) {
-            this.showNotification('Todos los jugadores deben tener puntuación de ronda', 'error');
+            const playerNames = incompletePlayers.map(p => p.name).join(', ');
+            this.showNotification(`Faltan puntuaciones: ${playerNames}`, 'error');
             return;
         }
 
-        // Guardar puntuaciones de ronda
+        // Guardar puntuaciones de ronda en el historial de cada jugador
         this.players.forEach(player => {
             player.totalScore += player.roundScore;
             player.scores.push(player.roundScore);
             
-            // Reiniciar puntuación de ronda
+            // Reiniciar para la siguiente ronda
             player.roundScore = 0;
+            player.hasChinchonCurrentRound = false;
         });
 
         // Determinar ganador de la ronda (menor puntuación)
         const roundScores = this.players.map(p => ({
             id: p.id,
             name: p.name,
-            score: p.scores[p.scores.length - 1]
+            score: p.scores[p.scores.length - 1],
+            isChinchon: p.scores[p.scores.length - 1] === 0 && p.hasChinchonCurrentRound
         }));
         
         const minScore = Math.min(...roundScores.map(r => r.score));
         const roundWinners = roundScores.filter(r => r.score === minScore);
         
-        // Si hay empate, nadie gana la ronda
-        if (roundWinners.length === 1) {
+        // Si hay empate, nadie gana la ronda, excepto si hay chinchón
+        const chinchonWinners = roundScores.filter(r => r.isChinchon);
+        let roundWinnerName = 'Empate';
+        
+        if (chinchonWinners.length > 0) {
+            // Chinchón gana automáticamente
+            roundWinnerName = chinchonWinners.map(w => w.name).join(' y ');
+            chinchonWinners.forEach(winner => {
+                const player = this.players.find(p => p.id === winner.id);
+                if (player) player.roundsWon++;
+            });
+        } else if (roundWinners.length === 1) {
             const winner = this.players.find(p => p.id === roundWinners[0].id);
             winner.roundsWon++;
+            roundWinnerName = winner.name;
         }
 
         // Guardar ronda en historial
         const roundData = {
             round: this.currentRound,
             scores: roundScores.reduce((acc, curr) => {
-                acc[curr.id] = curr.score;
+                acc[curr.id] = {
+                    points: curr.score,
+                    isChinchon: curr.isChinchon
+                };
                 return acc;
             }, {}),
-            winner: roundWinners.length === 1 ? roundWinners[0].name : 'Empate'
+            winner: roundWinnerName
         };
         
         this.roundHistory.push(roundData);
@@ -252,19 +330,34 @@ class ChinchonGame {
         
         // Verificar si algún jugador alcanzó el objetivo
         this.checkGameEnd();
+        
+        // Notificar ganador de la ronda
+        if (chinchonWinners.length > 0) {
+            this.showNotification(`🎉 ${roundWinnerName} gana la ronda con CHINCHÓN!`, 'success');
+        } else if (roundWinners.length === 1) {
+            this.showNotification(`🏆 ${roundWinnerName} gana la ronda con ${minScore} puntos`, 'success');
+        } else {
+            this.showNotification(`🤝 Empate en la ronda con ${minScore} puntos`, 'info');
+        }
     }
 
     checkGameEnd() {
         const playersOverTarget = this.players.filter(p => p.totalScore >= this.targetScore);
         if (playersOverTarget.length > 0) {
-            // El ganador es el jugador con menor puntuación total
-            const sortedPlayers = [...this.players].sort((a, b) => a.totalScore - b.totalScore);
-            const winner = sortedPlayers[0];
+            // El ganador es el jugador con menor puntuación total (que no haya superado el objetivo)
+            const playersUnderTarget = this.players.filter(p => p.totalScore < this.targetScore);
             
-            this.showNotification(`¡${winner.name} gana la partida!`, 'success');
-            
-            // Opcional: guardar partida automáticamente
-            // this.saveMatch(`Partida ${new Date().toLocaleDateString()}`, winner.name);
+            if (playersUnderTarget.length > 0) {
+                const winner = [...playersUnderTarget].sort((a, b) => a.totalScore - b.totalScore)[0];
+                this.showNotification(`🏆 ¡${winner.name} gana la partida con ${winner.totalScore} puntos!`, 'success');
+                
+                // Opción para guardar partida automáticamente
+                setTimeout(() => {
+                    if (confirm('¿Quieres guardar esta partida?')) {
+                        this.showSaveModal();
+                    }
+                }, 2000);
+            }
         }
     }
 
@@ -279,19 +372,29 @@ class ChinchonGame {
         this.roundHistory.forEach(roundData => {
             const row = document.createElement('tr');
             
-            // Determinar clases para celdas
-            const minScore = Math.min(...Object.values(roundData.scores));
-            const maxScore = Math.max(...Object.values(roundData.scores));
+            // Determinar puntuaciones mínimas y máximas
+            const scores = Object.values(roundData.scores).map(s => s.points);
+            const minScore = Math.min(...scores);
+            const maxScore = Math.max(...scores);
             
             const cells = this.players.map(player => {
-                const score = roundData.scores[player.id];
+                const scoreData = roundData.scores[player.id];
+                const score = scoreData.points;
+                const isChinchon = scoreData.isChinchon;
+                
                 let cellClass = '';
+                let cellContent = score;
                 
-                if (score === minScore) cellClass = 'winner-cell';
-                if (score === maxScore && score !== minScore) cellClass = 'loser-cell';
-                if (score === 0) cellClass = 'chinchon-cell';
+                if (isChinchon) {
+                    cellClass = 'chinchon-cell';
+                    cellContent = '0★';
+                } else if (score === minScore) {
+                    cellClass = 'winner-cell';
+                } else if (score === maxScore && score !== minScore) {
+                    cellClass = 'loser-cell';
+                }
                 
-                return `<td class="${cellClass}">${score}</td>`;
+                return `<td class="${cellClass}" title="${isChinchon ? 'Chinchón' : score + ' puntos'}">${cellContent}</td>`;
             }).join('');
             
             row.innerHTML = `
@@ -311,13 +414,21 @@ class ChinchonGame {
         
         // Actualizar líder
         const sortedPlayers = [...this.players].sort((a, b) => a.totalScore - b.totalScore);
-        this.currentLeaderSpan.textContent = sortedPlayers.length > 0 ? sortedPlayers[0].name : 'Ninguno';
+        if (sortedPlayers.length > 0) {
+            const leader = sortedPlayers[0];
+            this.currentLeaderSpan.textContent = `${leader.name} (${leader.totalScore} pts)`;
+        } else {
+            this.currentLeaderSpan.textContent = 'Ninguno';
+        }
         
         // Actualizar duración
         const duration = Math.floor((Date.now() - this.gameStartTime) / 1000);
         const minutes = Math.floor(duration / 60);
         const seconds = duration % 60;
         this.gameDurationSpan.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        // Actualizar estado del botón de nueva ronda
+        this.checkRoundCompletion();
     }
 
     setupEventListeners() {
@@ -366,29 +477,38 @@ class ChinchonGame {
                 const playerId = parseInt(button.dataset.playerId);
                 const action = button.dataset.action;
                 
-                const input = document.getElementById(`points-${playerId}`);
-                
                 if (action === 'add') {
-                    const points = parseInt(input.value) || 0;
-                    this.addPoints(playerId, points);
+                    const input = document.getElementById(`points-${playerId}`);
+                    const points = input.value;
+                    this.addPoints(playerId, points, false);
                 } else if (action === 'subtract') {
-                    const points = parseInt(input.value) || 0;
-                    if (points > 0) {
-                        input.value = points - 1;
-                        this.addPoints(playerId, points - 1);
+                    const input = document.getElementById(`points-${playerId}`);
+                    const currentPoints = parseInt(input.value) || 0;
+                    if (currentPoints > 0) {
+                        input.value = currentPoints - 1;
+                        this.addPoints(playerId, currentPoints - 1, false);
                     }
                 } else if (action === 'chinchon') {
-                    this.addPoints(playerId, 0);
+                    this.addPoints(playerId, 0, true);
                 }
             }
         });
 
-        // Entrada de puntos
+        // Entrada de puntos por teclado
         this.playersContainer.addEventListener('change', (e) => {
             if (e.target.classList.contains('points-input')) {
                 const playerId = parseInt(e.target.id.split('-')[1]);
-                const points = parseInt(e.target.value) || 0;
-                this.addPoints(playerId, points);
+                const points = e.target.value;
+                this.addPoints(playerId, points, false);
+            }
+        });
+
+        // Entrada de puntos por Enter
+        this.playersContainer.addEventListener('keypress', (e) => {
+            if (e.target.classList.contains('points-input') && e.key === 'Enter') {
+                const playerId = parseInt(e.target.id.split('-')[1]);
+                const points = e.target.value;
+                this.addPoints(playerId, points, false);
             }
         });
 
@@ -402,6 +522,11 @@ class ChinchonGame {
         document.getElementById('save-player')?.addEventListener('click', () => this.savePlayerName());
         document.getElementById('cancel-save')?.addEventListener('click', () => this.hideSaveModal());
         document.getElementById('confirm-save')?.addEventListener('click', () => this.saveMatch());
+        
+        // Compartir modal
+        document.getElementById('copy-text')?.addEventListener('click', () => this.copyShareText());
+        document.getElementById('share-native')?.addEventListener('click', () => this.shareNative());
+        document.getElementById('close-share')?.addEventListener('click', () => this.hideShareModal());
     }
 
     showEditModal(playerId) {
@@ -436,7 +561,7 @@ class ChinchonGame {
     showSaveModal() {
         const winner = [...this.players].sort((a, b) => a.totalScore - b.totalScore)[0];
         document.getElementById('save-game-result').textContent = 
-            `Ganador: ${winner.name} con ${winner.totalScore} puntos`;
+            `🏆 Ganador: ${winner.name} con ${winner.totalScore} puntos`;
         
         const now = new Date();
         const defaultName = `Chinchón ${now.toLocaleDateString()} ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
@@ -467,12 +592,13 @@ class ChinchonGame {
                 chinchons: p.chinchons
             })),
             rounds: this.roundHistory.length,
-            targetScore: this.targetScore
+            targetScore: this.targetScore,
+            duration: this.gameDurationSpan.textContent
         };
 
         this.savedMatches.push(matchData);
         this.saveToStorage();
-        this.showNotification('Partida guardada', 'success');
+        this.showNotification('Partida guardada correctamente', 'success');
         this.updateSavedMatches();
         this.hideSaveModal();
     }
@@ -481,28 +607,42 @@ class ChinchonGame {
         this.savedMatchesContainer.innerHTML = '';
         
         if (this.savedMatches.length === 0) {
-            this.savedMatchesContainer.innerHTML = '<div class="empty-message">No hay partidas guardadas</div>';
+            this.savedMatchesContainer.innerHTML = '<div class="empty-message" style="text-align: center; padding: 20px; color: rgba(255,255,255,0.5);">No hay partidas guardadas</div>';
             return;
         }
 
         this.savedMatches.forEach(match => {
             const matchElement = document.createElement('div');
-            matchElement.className = 'card';
-            matchElement.style.margin = '5px 0';
-            matchElement.style.padding = '10px';
+            matchElement.className = 'saved-match-item';
+            matchElement.style.margin = '8px 0';
+            matchElement.style.padding = '12px';
+            matchElement.style.background = 'rgba(255, 255, 255, 0.05)';
+            matchElement.style.borderRadius = '8px';
+            matchElement.style.border = '1px solid rgba(255, 255, 255, 0.1)';
             
             const winner = match.players.sort((a, b) => a.totalScore - b.totalScore)[0];
-            const date = new Date(match.date).toLocaleDateString();
+            const date = new Date(match.date).toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
             
             matchElement.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <strong style="font-size: 0.95rem;">${match.name}</strong>
+                    <small style="opacity: 0.7; font-size: 0.8rem;">${date}</small>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
                     <div>
-                        <strong>${match.name}</strong><br>
-                        <small>${date} - ${match.rounds} rondas</small>
+                        <span style="color: #f39c12;">${match.rounds} rondas</span>
+                        <span style="margin: 0 5px;">•</span>
+                        <span style="color: #3498db;">${match.duration}</span>
                     </div>
                     <div style="text-align: right;">
-                        <strong>Ganador: ${winner.name}</strong><br>
-                        <small>${winner.totalScore} puntos</small>
+                        <div style="color: #2ecc71; font-weight: bold;">${winner.name}</div>
+                        <small style="opacity: 0.7;">${winner.totalScore} pts</small>
                     </div>
                 </div>
             `;
@@ -516,10 +656,12 @@ class ChinchonGame {
         
         this.players.forEach(player => {
             player.roundScore = 0;
+            player.hasChinchonCurrentRound = false;
         });
         
         this.renderPlayers();
-        this.showNotification('Ronda reiniciada', 'success');
+        this.showNotification('Ronda actual reiniciada', 'success');
+        this.saveToStorage();
     }
 
     resetGame() {
@@ -528,12 +670,14 @@ class ChinchonGame {
         this.createDefaultPlayers(this.players.length);
         this.currentRound = 1;
         this.roundHistory = [];
+        this.savedMatches = [];
         this.gameStartTime = Date.now();
         
         this.renderPlayers();
         this.updateRoundHistory();
+        this.updateSavedMatches();
         this.updateUI();
-        this.showNotification('Partida reiniciada', 'success');
+        this.showNotification('Partida reiniciada completamente', 'success');
         this.saveToStorage();
     }
 
@@ -542,7 +686,10 @@ class ChinchonGame {
         const winner = sortedPlayers[0];
         
         let shareText = `🏆 CHINCHÓN - Partida Actual\n`;
-        shareText += `Ronda: ${this.currentRound} | Objetivo: ${this.targetScore}\n\n`;
+        shareText += `══════════════════════════════\n`;
+        shareText += `Ronda: ${this.currentRound} | Objetivo: ${this.targetScore}\n`;
+        shareText += `Duración: ${this.gameDurationSpan.textContent}\n\n`;
+        shareText += `CLASIFICACIÓN:\n`;
         
         sortedPlayers.forEach((player, index) => {
             shareText += `${index + 1}° ${player.name}: ${player.totalScore} puntos`;
@@ -550,24 +697,29 @@ class ChinchonGame {
             shareText += '\n';
         });
         
-        shareText += `\nLíder: ${winner.name} con ${winner.totalScore} puntos`;
+        shareText += `\n🏅 Líder: ${winner.name} con ${winner.totalScore} puntos`;
         
         this.showShareModal(shareText);
     }
 
     shareHistory() {
-        let shareText = `📊 CHINCHÓN - Historial de Partidas\n\n`;
+        let shareText = `📊 CHINCHÓN - Historial de Partidas\n`;
+        shareText += `══════════════════════════════════\n\n`;
         
         if (this.savedMatches.length === 0) {
             shareText += 'No hay partidas guardadas.';
         } else {
-            this.savedMatches.forEach(match => {
-                const date = new Date(match.date).toLocaleDateString();
+            this.savedMatches.forEach((match, index) => {
+                const date = new Date(match.date).toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
                 const winner = match.players.sort((a, b) => a.totalScore - b.totalScore)[0];
                 
-                shareText += `🏆 ${match.name} (${date})\n`;
+                shareText += `${index + 1}. ${match.name} (${date})\n`;
                 shareText += `   Ganador: ${winner.name} (${winner.totalScore} pts)\n`;
-                shareText += `   Rondas: ${match.rounds}\n\n`;
+                shareText += `   Rondas: ${match.rounds} | Duración: ${match.duration}\n\n`;
             });
         }
         
@@ -576,13 +728,16 @@ class ChinchonGame {
 
     shareWhatsApp() {
         const sortedPlayers = [...this.players].sort((a, b) => a.totalScore - b.totalScore);
-        let shareText = `*🏆 CHINCHÓN - Resultados*\n\n`;
+        let shareText = `*🏆 CHINCHÓN - Resultados Actuales*\n\n`;
         
         sortedPlayers.forEach((player, index) => {
             shareText += `${index + 1}° *${player.name}*: ${player.totalScore} puntos`;
             if (player.chinchons > 0) shareText += ` (${player.chinchons} Chinchón${player.chinchons > 1 ? 'es' : ''})`;
             shareText += '\n';
         });
+        
+        const winner = sortedPlayers[0];
+        shareText += `\n*Líder:* ${winner.name} con ${winner.totalScore} puntos`;
         
         const encodedText = encodeURIComponent(shareText);
         window.open(`https://wa.me/?text=${encodedText}`, '_blank');
@@ -593,17 +748,60 @@ class ChinchonGame {
         this.shareModal.style.display = 'block';
     }
 
+    hideShareModal() {
+        this.shareModal.style.display = 'none';
+    }
+
+    copyShareText() {
+        const text = document.getElementById('share-text').textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            this.showNotification('Texto copiado al portapapeles', 'success');
+        }).catch(err => {
+            this.showNotification('Error al copiar el texto', 'error');
+        });
+    }
+
+    shareNative() {
+        const text = document.getElementById('share-text').textContent;
+        
+        if (navigator.share) {
+            navigator.share({
+                title: 'Resultados de Chinchón',
+                text: text,
+                url: window.location.href
+            }).catch(err => {
+                console.log('Error al compartir:', err);
+            });
+        } else {
+            this.copyShareText();
+        }
+    }
+
     showNotification(message, type = 'info') {
         const notification = this.notification;
         const text = notification.querySelector('#notification-text');
         
         text.textContent = message;
-        notification.style.background = type === 'error' ? '#e74c3c' : 
-                                      type === 'success' ? '#27ae60' : '#3498db';
+        
+        // Colores según tipo
+        switch(type) {
+            case 'success':
+                notification.style.background = '#27ae60';
+                break;
+            case 'error':
+                notification.style.background = '#e74c3c';
+                break;
+            case 'warning':
+                notification.style.background = '#f39c12';
+                break;
+            default:
+                notification.style.background = '#3498db';
+        }
         
         notification.style.display = 'flex';
         notification.style.opacity = '1';
         
+        // Auto-ocultar después de 3 segundos
         setTimeout(() => {
             notification.style.opacity = '0';
             setTimeout(() => {
@@ -639,6 +837,13 @@ class ChinchonGame {
                 this.roundHistory = gameData.roundHistory || [];
                 this.savedMatches = gameData.savedMatches || [];
                 this.gameStartTime = gameData.gameStartTime || Date.now();
+                
+                // Asegurar que los jugadores tienen el campo hasChinchonCurrentRound
+                this.players.forEach(player => {
+                    if (player.hasChinchonCurrentRound === undefined) {
+                        player.hasChinchonCurrentRound = false;
+                    }
+                });
                 
                 // Actualizar selects
                 this.playerCountSelect.value = this.players.length.toString();
