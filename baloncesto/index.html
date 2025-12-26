@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baloncesto - Liga Escolar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Estilos base -->
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/themes.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <!-- Estilos específicos del marcador -->
+    <link rel="stylesheet" href="../sport-specific/baloncesto.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e74c3c, #c0392b, #96281b);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: #fff;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body class="theme-baloncesto">
+    <div class="container">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1><i class="fas fa-basketball-ball"></i> Marcador de Baloncesto</h1>
+                    <p class="subtitle">Liga Escolar - Control de cuartos, puntos y faltas</p>
+                </div>
+                <div class="header-right">
+                    <a href="../" class="btn-back">
+                        <i class="fas fa-arrow-left"></i> Volver al inicio
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Aquí irá el marcador de baloncesto -->
+        <div class="baloncesto-marcador">
+            <!-- Contenido del marcador -->
+            <div class="teams-container">
+                <div class="team team-local">
+                    <h3>Equipo Local</h3>
+                    <div class="score">0</div>
+                    <div class="team-controls">
+                        <button class="btn-points" data-points="1">+1</button>
+                        <button class="btn-points" data-points="2">+2</button>
+                        <button class="btn-points" data-points="3">+3</button>
+                    </div>
+                </div>
+                
+                <div class="game-info">
+                    <div class="quarter">
+                        <h4>Cuarto</h4>
+                        <div class="quarter-number">1</div>
+                        <div class="quarter-controls">
+                            <button id="prev-quarter"><i class="fas fa-chevron-left"></i></button>
+                            <button id="next-quarter"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="timer">
+                        <h4>Tiempo</h4>
+                        <div id="game-clock">10:00</div>
+                        <div class="timer-controls">
+                            <button id="start-timer"><i class="fas fa-play"></i></button>
+                            <button id="pause-timer"><i class="fas fa-pause"></i></button>
+                            <button id="reset-timer"><i class="fas fa-redo"></i></button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="team team-visitor">
+                    <h3>Equipo Visitante</h3>
+                    <div class="score">0</div>
+                    <div class="team-controls">
+                        <button class="btn-points" data-points="1">+1</button>
+                        <button class="btn-points" data-points="2">+2</button>
+                        <button class="btn-points" data-points="3">+3</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Controles de faltas -->
+            <div class="fouls-section">
+                <h3><i class="fas fa-exclamation-triangle"></i> Faltas</h3>
+                <div class="fouls-container">
+                    <div class="team-fouls">
+                        <h4>Local</h4>
+                        <div class="fouls-count">0</div>
+                        <div class="fouls-buttons">
+                            <button class="btn-foul">+ Falta</button>
+                            <button class="btn-foul-remove">- Falta</button>
+                        </div>
+                    </div>
+                    
+                    <div class="team-fouls">
+                        <h4>Visitante</h4>
+                        <div class="fouls-count">0</div>
+                        <div class="fouls-buttons">
+                            <button class="btn-foul">+ Falta</button>
+                            <button class="btn-foul-remove">- Falta</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Historial del partido -->
+            <div class="game-history">
+                <h3><i class="fas fa-history"></i> Historial del Partido</h3>
+                <div id="history-log">
+                    <p>Partido iniciado</p>
+                </div>
+                <div class="history-controls">
+                    <button id="reset-game"><i class="fas fa-trash-alt"></i> Reiniciar Partido</button>
+                    <button id="save-game"><i class="fas fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2025 Liga Escolar - Marcador de Baloncesto</p>
+            <p class="footer-links">
+                <a href="../">Inicio</a> |
+                <a href="../privacidad.html">Privacidad</a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/clock.js"></script>
+    <script src="../js/baloncesto.js"></script>
+</body>
+</html>
