@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Google Analiticas y Publicidad con consentimiento -->
+    <script src="../js/ads-analytics.js"></script>     
+    <!-- End Google Analiticas y Publicidad con consentimiento -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <title>Simulador de Dados | Liga Escolar</title>
+    <meta name="description" content="Simulador de dados virtual para juegos escolares. Elige número de dados y caras, lanza y calcula la suma total automáticamente.">
+    <link rel="canonical" href="https://www.ligaescolar.es/dados/">
+
+    <meta property="og:title" content="Simulador de Dados - Liga Escolar">
+    <meta property="og:description" content="Lanza dados virtuales para tus juegos escolares. Totalmente personalizable y gratuito.">
+    <meta property="og:url" content="https://www.ligaescolar.es/dados/">
+    <meta property="og:image" content="https://www.ligaescolar.es/imagenes/og-dados.png">
+    <meta property="og:type" content="website">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ESTILOS BASE -->
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/themes.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <!-- HEADER CON IMAGEN DE FONDO -->
+    <link rel="stylesheet" href="../css/header-with-bg.css">
+    <!-- Estilos específicos del simulador de dados -->
+    <link rel="stylesheet" href="../css/sport-specific/dados.css">
+
+    <!-- Favicon -->
+    <link rel="icon" href="../imagenes/favicon.ico" type="image/x-icon">
+
+    <style>
+        body.theme-dados {
+            --primary-color: #FF6B35;
+            --secondary-color: #4ECDC4;
+            --gradient: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            --accent-color: #FF6B35;
+        }
+        
+        .dice-animation {
+            animation: diceRoll 1s ease-out;
+        }
+        
+        @keyframes diceRoll {
+            0% { transform: rotate(0deg) scale(0.5); opacity: 0; }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); opacity: 1; }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+    </style>
+</head>
+<body class="theme-dados">
+    <!-- Botón flotante de inicio -->
+    <a href="../" class="floating-home-btn" title="Volver al inicio">
+        <i class="fas fa-home"></i>
+    </a>
+
+    <div class="container">
+        <header class="app-header">
+            <!-- Imagen de fondo -->
+            <div class="header-bg">
+                <img src="../imagenes/pizarra.png" alt="Fondo pizarra" class="header-bg-image">
+            </div>
+            
+            <!-- Contenido sobre la imagen -->
+            <div class="header-content">
+                <div class="header-left">
+                    <h1><i class="fas fa-dice"></i> Simulador de Dados</h1>
+                    <p class="subtitle">Lanza dados virtuales para tus juegos escolares</p>
+                </div>
+                <div class="header-right">
+                    <div class="clock-container">
+                        <div id="clock">00:00:00</div>
+                        <div id="date">--/--/----</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="welcome-section">
+                <h2><i class="fas fa-gamepad"></i> Simulador de Dados Virtual</h2>
+                <p class="description">
+                    ¿No tienes dados físicos? ¡No hay problema! Usa este simulador para lanzar dados virtuales.
+                    Perfecto para juegos de mesa, actividades escolares y toma de decisiones.
+                </p>
+            </div>
+
+            <!-- Panel de configuración -->
+            <div class="config-panel card">
+                <h3><i class="fas fa-cog"></i> Configuración de los Dados</h3>
+                
+                <div class="config-grid">
+                    <div class="config-group">
+                        <label for="numDice"><i class="fas fa-cubes"></i> Número de Dados</label>
+                        <div class="number-selector">
+                            <button class="btn btn-secondary btn-small" id="decrease-dice"><i class="fas fa-minus"></i></button>
+                            <input type="number" id="numDice" min="1" max="10" value="2" class="number-input">
+                            <button class="btn btn-secondary btn-small" id="increase-dice"><i class="fas fa-plus"></i></button>
+                        </div>
+                        <div class="range-slider">
+                            <input type="range" id="diceRange" min="1" max="10" value="2">
+                        </div>
+                    </div>
+
+                    <div class="config-group">
+                        <label for="diceFaces"><i class="fas fa-shapes"></i> Caras por Dado</label>
+                        <div class="faces-selector">
+                            <select id="diceFaces" class="faces-dropdown">
+                                <option value="4">D4 (Tetraedro)</option>
+                                <option value="6" selected>D6 (Cubo)</option>
+                                <option value="8">D8 (Octaedro)</option>
+                                <option value="10">D10 (Decaedro)</option>
+                                <option value="12">D12 (Dodecaedro)</option>
+                                <option value="20">D20 (Icosaedro)</option>
+                                <option value="100">D100 (Porcentaje)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="config-group">
+                        <label><i class="fas fa-history"></i> Historial de Lanzamientos</label>
+                        <div class="history-controls">
+                            <button class="btn btn-info btn-small" id="clear-history">
+                                <i class="fas fa-trash-alt"></i> Limpiar Historial
+                            </button>
+                            <button class="btn btn-secondary btn-small" id="toggle-history">
+                                <i class="fas fa-eye"></i> Mostrar/Ocultar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área de lanzamiento -->
+            <div class="roll-area card">
+                <div class="roll-controls">
+                    <button class="btn btn-primary btn-roll" id="rollDice">
+                        <i class="fas fa-dice"></i> LANZAR DADOS
+                    </button>
+                    <button class="btn btn-secondary" id="autoRoll" title="Lanzamiento automático cada 2 segundos">
+                        <i class="fas fa-sync-alt"></i> AUTO-LANZAR
+                    </button>
+                    <button class="btn btn-warning" id="resetRoll">
+                        <i class="fas fa-redo"></i> REINICIAR
+                    </button>
+                </div>
+
+                <!-- Resultados -->
+                <div class="results-section">
+                    <div class="total-display">
+                        <h3><i class="fas fa-calculator"></i> SUMA TOTAL</h3>
+                        <div class="total-number" id="totalResult">0</div>
+                    </div>
+
+                    <div class="dice-container" id="diceContainer">
+                        <!-- Los dados se generarán aquí dinámicamente -->
+                        <div class="dice-placeholder">
+                            <i class="fas fa-dice"></i>
+                            <p>Configura los dados y haz clic en "LANZAR"</p>
+                        </div>
+                    </div>
+
+                    <div class="roll-info">
+                        <div class="info-item">
+                            <i class="fas fa-hashtag"></i>
+                            <span>Lanzamientos hoy: <strong id="rollsToday">0</strong></span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Promedio: <strong id="averageRoll">0</strong></span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-trophy"></i>
+                            <span>Máximo: <strong id="maxRoll">0</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historial de lanzamientos -->
+            <div class="history-panel card" id="historyPanel">
+                <h3><i class="fas fa-history"></i> Historial de Lanzamientos</h3>
+                <div class="history-list" id="rollHistory">
+                    <!-- Los lanzamientos se añadirán aquí -->
+                    <div class="empty-history">
+                        <i class="fas fa-clipboard-list fa-2x"></i>
+                        <p>No hay lanzamientos registrados todavía.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="stats-panel card">
+                <h3><i class="fas fa-chart-line"></i> Estadísticas</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-icon" style="background-color: #3498db;">
+                            <i class="fas fa-dice-d20"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h4>Distribución</h4>
+                            <p id="distributionText">Configura los dados para ver estadísticas</p>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon" style="background-color: #2ecc71;">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h4>Probabilidades</h4>
+                            <p id="probabilitiesText">Rango de resultados posibles</p>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon" style="background-color: #9b59b6;">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h4>Consejo</h4>
+                            <p id="tipText">Haz clic en "LANZAR" para comenzar</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información educativa -->
+            <div class="info-card card">
+                <h3><i class="fas fa-graduation-cap"></i> ¿Sabías que...?</h3>
+                <div class="fun-facts">
+                    <p><i class="fas fa-star"></i> Los dados más antiguos datan del 2800-2500 a.C. y se encontraron en Irán.</p>
+                    <p><i class="fas fa-star"></i> En los dados estándar (D6), la suma de caras opuestas siempre es 7.</p>
+                    <p><i class="fas fa-star"></i> El D20 es el dado más icónico de los juegos de rol como Dungeons & Dragons.</p>
+                    <p><i class="fas fa-star"></i> Los dados D100 en realidad son dos dados de 10 caras: uno para las decenas y otro para las unidades.</p>
+                </div>
+            </div>
+
+            <!-- Botón de compartir -->
+            <div class="share-section">
+                <button class="btn btn-info" id="shareResults">
+                    <i class="fas fa-share-alt"></i> Compartir Resultados
+                </button>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2025 Liga Escolar - Simulador de Dados Virtual</p>
+            <p class="footer-links">
+                <a href="../">Inicio</a> |
+                <a href="../privacidad.html">Privacidad</a> |
+                <a href="https://www.enfaseterminal.com/">Blog</a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Modal para compartir -->
+    <div class="modal" id="shareModal">
+        <div class="modal-content">
+            <h2><i class="fas fa-share-alt"></i> Compartir Resultados</h2>
+            <div class="form-group">
+                <label for="shareText">Texto para compartir:</label>
+                <textarea id="shareText" rows="6" readonly></textarea>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" id="copyText">
+                    <i class="fas fa-copy"></i> Copiar
+                </button>
+                <button class="btn btn-primary" id="shareWhatsapp">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </button>
+                <button class="btn" id="closeShare">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/clock.js"></script>
+    <script src="../js/dados.js"></script>
+    
+    <!-- Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('../sw.js')
+                    .then(reg => console.log('Service Worker registrado', reg))
+                    .catch(err => console.error('Error al registrar SW', err));
+            });
+        }
+    </script>
+</body>
+</html>
