@@ -1,4 +1,4 @@
-// dados.js - VERSIÓN COMPLETA CON CONFIGURACIÓN INDIVIDUAL POR DADO
+// dados.js - VERSIÓN COMPLETA CON CONFIGURACIÓN INDIVIDUAL POR DADO FUNCIONAL
 // Lógica del simulador de dados optimizado para móviles
 
 // Estado del simulador
@@ -135,7 +135,6 @@ function loadSavedState() {
             }
             
             updateHistoryDisplay();
-            updateIndividualDiceList();
         } catch (e) {
             console.error('Error cargando estado:', e);
         }
@@ -342,8 +341,11 @@ function updateDiceCount(count) {
     if (count > oldCount) {
         // Añadir nuevos dados
         for (let i = oldCount; i < count; i++) {
+            const newFace = diceState.configMode === 'uniform' ? 
+                diceState.diceFaces : 6; // Default D6 para nuevos dados individuales
+            
             diceState.diceConfig.push({
-                faces: diceState.configMode === 'uniform' ? diceState.diceFaces : 6,
+                faces: newFace,
                 value: 0
             });
         }
@@ -352,12 +354,20 @@ function updateDiceCount(count) {
         diceState.diceConfig = diceState.diceConfig.slice(0, count);
     }
     
+    // Actualizar según el modo actual
+    if (diceState.configMode === 'uniform') {
+        // Sincronizar todas las caras con el valor uniforme
+        diceState.diceConfig.forEach(dice => {
+            dice.faces = diceState.diceFaces;
+        });
+    }
+    
     updateIndividualDiceList();
     updateProbabilities();
     saveState();
 }
 
-// Establecer modo de configuración
+// Establecer modo de configuración (FUNCIÓN CORREGIDA)
 function setConfigMode(mode) {
     diceState.configMode = mode;
     
@@ -369,40 +379,35 @@ function setConfigMode(mode) {
     document.getElementById('uniform-section').style.display = mode === 'uniform' ? 'block' : 'none';
     document.getElementById('individual-section').style.display = mode === 'individual' ? 'block' : 'none';
     
-    // Si cambiamos a modo uniforme, sincronizar todos los dados
     if (mode === 'uniform') {
+        // Cambiar a modo uniforme: todos los dados toman la cara seleccionada
+        const uniformFaces = parseInt(document.getElementById('diceFaces').value);
         diceState.diceConfig.forEach(dice => {
-            dice.faces = diceState.diceFaces;
+            dice.faces = uniformFaces;
         });
-        updateIndividualDiceList();
-    }
-    
-    // Si cambiamos a modo individual, actualizar select global
-    if (mode === 'individual') {
-        // Buscar el valor más común para establecer en el select global
-        const faceCounts = {};
-        diceState.diceConfig.forEach(dice => {
-            faceCounts[dice.faces] = (faceCounts[dice.faces] || 0) + 1;
-        });
-        
-        let mostCommonFace = 6;
-        let maxCount = 0;
-        for (const [faces, count] of Object.entries(faceCounts)) {
-            if (count > maxCount) {
-                maxCount = count;
-                mostCommonFace = parseInt(faces);
+        diceState.diceFaces = uniformFaces;
+    } else if (mode === 'individual') {
+        // Cambiar a modo individual: mantener la configuración actual
+        // Si no hay configuración individual, usar la uniforme como base
+        if (diceState.diceConfig.length === 0 || 
+            diceState.diceConfig.every(d => d.faces === diceState.diceFaces)) {
+            // Inicializar con la configuración uniforme actual
+            diceState.diceConfig = [];
+            for (let i = 0; i < diceState.numDice; i++) {
+                diceState.diceConfig.push({
+                    faces: diceState.diceFaces,
+                    value: 0
+                });
             }
         }
-        
-        diceState.diceFaces = mostCommonFace;
-        document.getElementById('diceFaces').value = mostCommonFace;
     }
     
+    updateIndividualDiceList();
     updateProbabilities();
     saveState();
 }
 
-// Actualizar lista de dados individuales
+// Actualizar lista de dados individuales (FUNCIÓN CORREGIDA)
 function updateIndividualDiceList() {
     const diceList = document.getElementById('individualDiceList');
     
@@ -441,6 +446,12 @@ function updateIndividualDiceList() {
         select.addEventListener('change', function() {
             const newFaces = parseInt(this.value);
             diceState.diceConfig[index].faces = newFaces;
+            
+            // Si estamos en modo uniforme, cambiar a individual automáticamente
+            if (diceState.configMode === 'uniform') {
+                setConfigMode('individual');
+            }
+            
             updateProbabilities();
             saveState();
             
@@ -491,13 +502,13 @@ function swapDice(index1, index2) {
     }
 }
 
-// Aplicar preconfiguración
+// Aplicar preconfiguración (FUNCIÓN CORREGIDA)
 function applyPreset(preset) {
     switch(preset) {
         case 'dnd':
             diceState.numDice = 1;
             diceState.diceConfig = [{ faces: 20, value: 0 }];
-            setConfigMode('individual');
+            diceState.configMode = 'individual';
             break;
             
         case 'damage':
@@ -506,14 +517,14 @@ function applyPreset(preset) {
                 { faces: 6, value: 0 },
                 { faces: 6, value: 0 }
             ];
-            setConfigMode('uniform');
+            diceState.configMode = 'uniform';
             diceState.diceFaces = 6;
             break;
             
         case 'percent':
             diceState.numDice = 1;
             diceState.diceConfig = [{ faces: 100, value: 0 }];
-            setConfigMode('individual');
+            diceState.configMode = 'individual';
             break;
             
         case 'mixed':
@@ -522,16 +533,21 @@ function applyPreset(preset) {
                 { faces: 20, value: 0 },
                 { faces: 6, value: 0 }
             ];
-            setConfigMode('individual');
+            diceState.configMode = 'individual';
             break;
     }
     
-    // Actualizar controles
+    // Actualizar controles UI
     document.getElementById('numDice').value = diceState.numDice;
     document.getElementById('diceRange').value = diceState.numDice;
-    document.getElementById('diceFaces').value = diceState.diceFaces;
     
-    updateIndividualDiceList();
+    if (diceState.configMode === 'uniform') {
+        document.getElementById('diceFaces').value = diceState.diceFaces;
+    }
+    
+    // Establecer modo visual
+    setConfigMode(diceState.configMode);
+    
     updateProbabilities();
     
     showNotification(`Preconfiguración "${preset}" aplicada`);
