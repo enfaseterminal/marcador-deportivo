@@ -1,10 +1,12 @@
-// dados.js - Optimizado para móviles
-// Lógica del simulador de dados
+// dados.js - VERSIÓN COMPLETA CON CONFIGURACIÓN INDIVIDUAL POR DADO
+// Lógica del simulador de dados optimizado para móviles
 
 // Estado del simulador
 const diceState = {
     numDice: 2,
     diceFaces: 6,
+    diceConfig: [], // Array de configuraciones individuales
+    configMode: 'uniform', // 'uniform' o 'individual'
     rollsHistory: [],
     rollsToday: 0,
     totalSum: 0,
@@ -16,12 +18,48 @@ const diceState = {
     orientation: 'portrait'
 };
 
+// Inicialización
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Simulador de dados cargado - Configuración individual habilitada');
+    
+    // Detectar orientación inicial
+    detectOrientation();
+    
+    // Escuchar cambios de orientación
+    window.addEventListener('resize', function() {
+        clearTimeout(this.resizeTimer);
+        this.resizeTimer = setTimeout(detectOrientation, 250);
+    });
+    
+    window.addEventListener('orientationchange', function() {
+        setTimeout(detectOrientation, 100);
+    });
+    
+    // Inicializar configuración de dados
+    initDiceConfig();
+    
+    // Inicializar controles
+    initControls();
+    
+    // Cargar estado guardado
+    loadSavedState();
+    
+    // Actualizar estadísticas iniciales
+    updateStats();
+    updateProbabilities();
+    
+    // Inicializar reloj
+    if (typeof updateClock === 'function') {
+        updateClock();
+        setInterval(updateClock, 1000);
+    }
+});
+
 // Detectar orientación
 function detectOrientation() {
     const isLandscape = window.innerWidth > window.innerHeight;
     diceState.orientation = isLandscape ? 'landscape' : 'portrait';
     document.body.classList.toggle('landscape-mode', isLandscape);
-    document.body.classList.toggle('portrait-mode', !isLandscape);
     
     // Ajustar UI según orientación
     adjustUIForOrientation();
@@ -34,96 +72,101 @@ function adjustUIForOrientation() {
     const historyPanel = document.getElementById('historyPanel');
     const statsPanel = document.querySelector('.stats-panel');
     const infoCard = document.querySelector('.info-card');
-    const diceContainer = document.getElementById('diceContainer');
-    const totalResult = document.getElementById('totalResult');
     
     if (diceState.orientation === 'landscape' && window.innerHeight < 600) {
         // En landscape con pantalla pequeña, ocultar elementos secundarios
         if (historyPanel) historyPanel.style.display = 'none';
         if (statsPanel) statsPanel.style.display = 'none';
         if (infoCard) infoCard.style.display = 'none';
-        
-        // Hacer dados y total más prominentes
-        if (diceContainer) {
-            diceContainer.style.gap = '8px';
-            diceContainer.style.margin = '10px 0';
-        }
-        
-        if (totalResult) {
-            totalResult.style.fontSize = '4rem';
-        }
     } else {
         // Mostrar todo en portrait o pantallas grandes
         if (historyPanel) historyPanel.style.display = 'block';
         if (statsPanel) statsPanel.style.display = 'block';
         if (infoCard) infoCard.style.display = 'block';
-        
-        if (diceContainer) {
-            diceContainer.style.gap = '15px';
-            diceContainer.style.margin = '20px 0';
-        }
-        
-        if (totalResult) {
-            totalResult.style.fontSize = '';
+    }
+}
+
+// Inicializar configuración de dados
+function initDiceConfig() {
+    // Configuración inicial: 2 dados D6
+    diceState.diceConfig = [
+        { faces: 6, value: 0 },
+        { faces: 6, value: 0 }
+    ];
+}
+
+// Cargar estado guardado
+function loadSavedState() {
+    const savedState = localStorage.getItem('diceState');
+    if (savedState) {
+        try {
+            const parsed = JSON.parse(savedState);
+            
+            // Cargar configuración si existe
+            if (parsed.diceConfig) {
+                diceState.diceConfig = parsed.diceConfig;
+                diceState.numDice = parsed.diceConfig.length;
+                
+                // Actualizar controles
+                document.getElementById('numDice').value = diceState.numDice;
+                document.getElementById('diceRange').value = diceState.numDice;
+            }
+            
+            if (parsed.configMode) {
+                diceState.configMode = parsed.configMode;
+                setConfigMode(parsed.configMode);
+            }
+            
+            if (parsed.diceFaces) {
+                diceState.diceFaces = parsed.diceFaces;
+                document.getElementById('diceFaces').value = diceState.diceFaces;
+            }
+            
+            diceState.rollsToday = parsed.rollsToday || 0;
+            diceState.rollsHistory = parsed.rollsHistory || [];
+            
+            // Verificar si es un día diferente
+            const lastRollDate = localStorage.getItem('lastRollDate');
+            const today = new Date().toDateString();
+            
+            if (lastRollDate !== today) {
+                diceState.rollsToday = 0;
+                localStorage.setItem('lastRollDate', today);
+            }
+            
+            updateHistoryDisplay();
+            updateIndividualDiceList();
+        } catch (e) {
+            console.error('Error cargando estado:', e);
         }
     }
 }
 
-// Inicialización mejorada para móviles
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Simulador de dados cargado - Optimizado para móviles');
+// Guardar estado
+function saveState() {
+    const today = new Date().toDateString();
+    localStorage.setItem('lastRollDate', today);
     
-    // Detectar orientación inicial
-    detectOrientation();
+    const stateToSave = {
+        diceConfig: diceState.diceConfig,
+        configMode: diceState.configMode,
+        diceFaces: diceState.diceFaces,
+        numDice: diceState.numDice,
+        rollsToday: diceState.rollsToday,
+        rollsHistory: diceState.rollsHistory.slice(0, 50),
+        lastUpdate: new Date().toISOString()
+    };
     
-    // Escuchar cambios de orientación
-    window.addEventListener('resize', function() {
-        // Usar debounce para evitar llamadas excesivas
-        clearTimeout(this.resizeTimer);
-        this.resizeTimer = setTimeout(() => {
-            detectOrientation();
-        }, 250);
-    });
-    
-    // También detectar cambios explícitos de orientación
-    window.addEventListener('orientationchange', function() {
-        setTimeout(detectOrientation, 100);
-    });
-    
-    // Cargar estado guardado
-    loadSavedState();
-    
-    // Inicializar controles táctiles
-    initTouchControls();
-    
-    // Actualizar estadísticas iniciales
-    updateStats();
-    updateProbabilities();
-    
-    // Inicializar reloj si no se ha hecho
-    if (typeof updateClock === 'function') {
-        updateClock();
-        setInterval(updateClock, 1000);
-    }
-});
+    localStorage.setItem('diceState', JSON.stringify(stateToSave));
+}
 
-// Inicializar controles táctiles
-function initTouchControls() {
+// Inicializar controles
+function initControls() {
     // Controles de número de dados
     const numDiceInput = document.getElementById('numDice');
     const diceRange = document.getElementById('diceRange');
     const decreaseBtn = document.getElementById('decrease-dice');
     const increaseBtn = document.getElementById('increase-dice');
-    
-    // Hacer inputs más táctiles
-    numDiceInput.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        this.focus();
-        // En móviles, mostrar teclado numérico
-        this.type = 'number';
-        this.setAttribute('pattern', '[0-9]*');
-        this.setAttribute('inputmode', 'numeric');
-    });
     
     // Sincronizar input y range
     numDiceInput.addEventListener('input', function() {
@@ -131,13 +174,79 @@ function initTouchControls() {
         value = Math.max(1, Math.min(10, value));
         this.value = value;
         diceRange.value = value;
-        diceState.numDice = value;
-        updateProbabilities();
+        updateDiceCount(value);
     });
     
     diceRange.addEventListener('input', function() {
         numDiceInput.value = this.value;
-        diceState.numDice = parseInt(this.value);
+        updateDiceCount(parseInt(this.value));
+        
+        // Feedback táctil
+        if ('vibrate' in navigator) {
+            navigator.vibrate(10);
+        }
+    });
+    
+    decreaseBtn.addEventListener('click', function() {
+        let value = parseInt(numDiceInput.value) - 1;
+        if (value < 1) value = 1;
+        numDiceInput.value = value;
+        diceRange.value = value;
+        updateDiceCount(value);
+        
+        // Feedback táctil
+        if ('vibrate' in navigator) {
+            navigator.vibrate(20);
+        }
+    });
+    
+    increaseBtn.addEventListener('click', function() {
+        let value = parseInt(numDiceInput.value) + 1;
+        if (value > 10) value = 10;
+        numDiceInput.value = value;
+        diceRange.value = value;
+        updateDiceCount(value);
+        
+        // Feedback táctil
+        if ('vibrate' in navigator) {
+            navigator.vibrate(20);
+        }
+    });
+    
+    // Selector de modo
+    const modeUniformBtn = document.getElementById('mode-uniform');
+    const modeIndividualBtn = document.getElementById('mode-individual');
+    const uniformSection = document.getElementById('uniform-section');
+    const individualSection = document.getElementById('individual-section');
+    const diceFacesSelect = document.getElementById('diceFaces');
+    
+    modeUniformBtn.addEventListener('click', function() {
+        setConfigMode('uniform');
+        
+        // Feedback táctil
+        if ('vibrate' in navigator) {
+            navigator.vibrate(20);
+        }
+    });
+    
+    modeIndividualBtn.addEventListener('click', function() {
+        setConfigMode('individual');
+        
+        // Feedback táctil
+        if ('vibrate' in navigator) {
+            navigator.vibrate(20);
+        }
+    });
+    
+    diceFacesSelect.addEventListener('change', function() {
+        diceState.diceFaces = parseInt(this.value);
+        if (diceState.configMode === 'uniform') {
+            // Actualizar todos los dados
+            diceState.diceConfig.forEach(dice => {
+                dice.faces = diceState.diceFaces;
+            });
+            updateIndividualDiceList();
+        }
         updateProbabilities();
         
         // Feedback táctil
@@ -146,65 +255,21 @@ function initTouchControls() {
         }
     });
     
-    // Botones +/- con feedback táctil
-    [decreaseBtn, increaseBtn].forEach(btn => {
-        btn.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            this.classList.add('active');
-            
-            let value = parseInt(numDiceInput.value);
-            if (this.id === 'decrease-dice') {
-                value = Math.max(1, value - 1);
-            } else {
-                value = Math.min(10, value + 1);
-            }
-            
-            numDiceInput.value = value;
-            diceRange.value = value;
-            diceState.numDice = value;
-            updateProbabilities();
+    // Preconfiguraciones rápidas
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const preset = this.dataset.preset;
+            applyPreset(preset);
             
             // Feedback táctil
             if ('vibrate' in navigator) {
-                navigator.vibrate(20);
+                navigator.vibrate(30);
             }
         });
-        
-        btn.addEventListener('touchend', function() {
-            this.classList.remove('active');
-        });
     });
     
-    // Control de caras
-    const diceFacesSelect = document.getElementById('diceFaces');
-    diceFacesSelect.addEventListener('change', function() {
-        diceState.diceFaces = parseInt(this.value);
-        updateProbabilities();
-        
-        // Feedback táctil
-        if ('vibrate' in navigator) {
-            navigator.vibrate(10);
-        }
-    });
-    
-    // Botón de lanzar con feedback táctil mejorado
+    // Botón de lanzar
     const rollBtn = document.getElementById('rollDice');
-    rollBtn.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        this.classList.add('active');
-        
-        // Feedback táctil inmediato
-        if ('vibrate' in navigator) {
-            navigator.vibrate(30);
-        }
-    });
-    
-    rollBtn.addEventListener('touchend', function(e) {
-        e.preventDefault();
-        this.classList.remove('active');
-        rollDice();
-    });
-    
     rollBtn.addEventListener('click', rollDice);
     
     // Botón de auto-lanzar
@@ -244,53 +309,237 @@ function initTouchControls() {
     document.getElementById('shareWhatsapp').addEventListener('click', shareToWhatsapp);
     document.getElementById('closeShare').addEventListener('click', closeShareModal);
     
-    // Permitir lanzar con toque en cualquier parte (opcional)
-    const rollArea = document.querySelector('.roll-area');
-    rollArea.addEventListener('touchstart', function(e) {
-        // Solo si no es un botón u input
-        if (!e.target.closest('button') && !e.target.closest('input') && !e.target.closest('select')) {
-            // Pequeño feedback visual
+    // Permitir lanzar con toque en el área de resultados
+    const diceContainer = document.getElementById('diceContainer');
+    diceContainer.addEventListener('touchstart', function(e) {
+        if (!e.target.closest('.dice') && !e.target.closest('button')) {
             this.style.transform = 'scale(0.99)';
         }
     });
     
-    rollArea.addEventListener('touchend', function(e) {
+    diceContainer.addEventListener('touchend', function(e) {
         this.style.transform = '';
         
-        // Solo si no es un botón u input y fue un toque rápido
-        if (!e.target.closest('button') && !e.target.closest('input') && !e.target.closest('select')) {
-            if (e.changedTouches && e.changedTouches[0]) {
-                const touch = e.changedTouches[0];
-                const now = Date.now();
-                
-                // Verificar que fue un toque rápido (no desplazamiento)
-                if (now - this.lastTouch < 300) {
-                    rollDice();
-                }
-                this.lastTouch = now;
-            }
+        if (!e.target.closest('.dice') && !e.target.closest('button')) {
+            rollDice();
         }
     });
     
-    // Gestos para limpiar historial (opcional)
-    let touchStartY = 0;
-    document.addEventListener('touchstart', function(e) {
-        if (e.touches.length === 3) { // Tres dedos
-            touchStartY = e.touches[0].clientY;
-        }
-    });
-    
-    document.addEventListener('touchend', function(e) {
-        if (e.touches.length === 0 && touchStartY > 0) {
-            // Gestos de tres dedos podrían usarse para acciones rápidas
-            touchStartY = 0;
+    // Permitir lanzar con la barra espaciadora
+    document.addEventListener('keydown', function(e) {
+        if (e.code === 'Space' && !e.target.matches('input, textarea, select')) {
+            e.preventDefault();
+            rollDice();
         }
     });
 }
 
-// Lanzar dados optimizado para móviles
+// Actualizar número de dados
+function updateDiceCount(count) {
+    const oldCount = diceState.diceConfig.length;
+    diceState.numDice = count;
+    
+    if (count > oldCount) {
+        // Añadir nuevos dados
+        for (let i = oldCount; i < count; i++) {
+            diceState.diceConfig.push({
+                faces: diceState.configMode === 'uniform' ? diceState.diceFaces : 6,
+                value: 0
+            });
+        }
+    } else if (count < oldCount) {
+        // Eliminar dados del final
+        diceState.diceConfig = diceState.diceConfig.slice(0, count);
+    }
+    
+    updateIndividualDiceList();
+    updateProbabilities();
+    saveState();
+}
+
+// Establecer modo de configuración
+function setConfigMode(mode) {
+    diceState.configMode = mode;
+    
+    // Actualizar botones
+    document.getElementById('mode-uniform').classList.toggle('active', mode === 'uniform');
+    document.getElementById('mode-individual').classList.toggle('active', mode === 'individual');
+    
+    // Mostrar/ocultar secciones
+    document.getElementById('uniform-section').style.display = mode === 'uniform' ? 'block' : 'none';
+    document.getElementById('individual-section').style.display = mode === 'individual' ? 'block' : 'none';
+    
+    // Si cambiamos a modo uniforme, sincronizar todos los dados
+    if (mode === 'uniform') {
+        diceState.diceConfig.forEach(dice => {
+            dice.faces = diceState.diceFaces;
+        });
+        updateIndividualDiceList();
+    }
+    
+    // Si cambiamos a modo individual, actualizar select global
+    if (mode === 'individual') {
+        // Buscar el valor más común para establecer en el select global
+        const faceCounts = {};
+        diceState.diceConfig.forEach(dice => {
+            faceCounts[dice.faces] = (faceCounts[dice.faces] || 0) + 1;
+        });
+        
+        let mostCommonFace = 6;
+        let maxCount = 0;
+        for (const [faces, count] of Object.entries(faceCounts)) {
+            if (count > maxCount) {
+                maxCount = count;
+                mostCommonFace = parseInt(faces);
+            }
+        }
+        
+        diceState.diceFaces = mostCommonFace;
+        document.getElementById('diceFaces').value = mostCommonFace;
+    }
+    
+    updateProbabilities();
+    saveState();
+}
+
+// Actualizar lista de dados individuales
+function updateIndividualDiceList() {
+    const diceList = document.getElementById('individualDiceList');
+    
+    // Limpiar lista
+    diceList.innerHTML = '';
+    
+    // Crear elementos para cada dado
+    diceState.diceConfig.forEach((dice, index) => {
+        const diceItem = document.createElement('div');
+        diceItem.className = 'dice-config-item';
+        diceItem.dataset.index = index;
+        
+        diceItem.innerHTML = `
+            <span class="dice-number">Dado ${index + 1}:</span>
+            <select class="dice-face-select">
+                <option value="4" ${dice.faces === 4 ? 'selected' : ''}>D4</option>
+                <option value="6" ${dice.faces === 6 ? 'selected' : ''}>D6</option>
+                <option value="8" ${dice.faces === 8 ? 'selected' : ''}>D8</option>
+                <option value="10" ${dice.faces === 10 ? 'selected' : ''}>D10</option>
+                <option value="12" ${dice.faces === 12 ? 'selected' : ''}>D12</option>
+                <option value="20" ${dice.faces === 20 ? 'selected' : ''}>D20</option>
+                <option value="100" ${dice.faces === 100 ? 'selected' : ''}>D100</option>
+            </select>
+            <button class="btn btn-small btn-icon swap-up" title="Mover arriba" ${index === 0 ? 'disabled' : ''}>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            <button class="btn btn-small btn-icon swap-down" title="Mover abajo" ${index === diceState.diceConfig.length - 1 ? 'disabled' : ''}>
+                <i class="fas fa-arrow-down"></i>
+            </button>
+        `;
+        
+        diceList.appendChild(diceItem);
+        
+        // Añadir event listener al select
+        const select = diceItem.querySelector('.dice-face-select');
+        select.addEventListener('change', function() {
+            const newFaces = parseInt(this.value);
+            diceState.diceConfig[index].faces = newFaces;
+            updateProbabilities();
+            saveState();
+            
+            // Feedback táctil
+            if ('vibrate' in navigator) {
+                navigator.vibrate(10);
+            }
+        });
+        
+        // Botones para mover dados
+        const upBtn = diceItem.querySelector('.swap-up');
+        const downBtn = diceItem.querySelector('.swap-down');
+        
+        upBtn.addEventListener('click', function() {
+            if (index > 0) {
+                swapDice(index, index - 1);
+            }
+        });
+        
+        downBtn.addEventListener('click', function() {
+            if (index < diceState.diceConfig.length - 1) {
+                swapDice(index, index + 1);
+            }
+        });
+    });
+}
+
+// Intercambiar posición de dos dados
+function swapDice(index1, index2) {
+    if (index1 < 0 || index2 < 0 || 
+        index1 >= diceState.diceConfig.length || 
+        index2 >= diceState.diceConfig.length) {
+        return;
+    }
+    
+    // Intercambiar posiciones
+    const temp = diceState.diceConfig[index1];
+    diceState.diceConfig[index1] = diceState.diceConfig[index2];
+    diceState.diceConfig[index2] = temp;
+    
+    // Actualizar interfaz
+    updateIndividualDiceList();
+    saveState();
+    
+    // Feedback táctil
+    if ('vibrate' in navigator) {
+        navigator.vibrate(20);
+    }
+}
+
+// Aplicar preconfiguración
+function applyPreset(preset) {
+    switch(preset) {
+        case 'dnd':
+            diceState.numDice = 1;
+            diceState.diceConfig = [{ faces: 20, value: 0 }];
+            setConfigMode('individual');
+            break;
+            
+        case 'damage':
+            diceState.numDice = 2;
+            diceState.diceConfig = [
+                { faces: 6, value: 0 },
+                { faces: 6, value: 0 }
+            ];
+            setConfigMode('uniform');
+            diceState.diceFaces = 6;
+            break;
+            
+        case 'percent':
+            diceState.numDice = 1;
+            diceState.diceConfig = [{ faces: 100, value: 0 }];
+            setConfigMode('individual');
+            break;
+            
+        case 'mixed':
+            diceState.numDice = 2;
+            diceState.diceConfig = [
+                { faces: 20, value: 0 },
+                { faces: 6, value: 0 }
+            ];
+            setConfigMode('individual');
+            break;
+    }
+    
+    // Actualizar controles
+    document.getElementById('numDice').value = diceState.numDice;
+    document.getElementById('diceRange').value = diceState.numDice;
+    document.getElementById('diceFaces').value = diceState.diceFaces;
+    
+    updateIndividualDiceList();
+    updateProbabilities();
+    
+    showNotification(`Preconfiguración "${preset}" aplicada`);
+}
+
+// Lanzar dados
 function rollDice() {
-    // Efecto visual mejorado
+    // Efectos visuales
     const rollBtn = document.getElementById('rollDice');
     const diceContainer = document.getElementById('diceContainer');
     const totalResult = document.getElementById('totalResult');
@@ -310,17 +559,22 @@ function rollDice() {
         totalResult.classList.remove('shake');
     }, 500);
     
-    // Generar resultados
+    // Generar resultados según cada dado
     const results = [];
     let total = 0;
     
-    for (let i = 0; i < diceState.numDice; i++) {
-        const roll = Math.floor(Math.random() * diceState.diceFaces) + 1;
-        results.push(roll);
+    diceState.diceConfig.forEach((dice, index) => {
+        const roll = Math.floor(Math.random() * dice.faces) + 1;
+        dice.value = roll;
+        results.push({
+            value: roll,
+            faces: dice.faces,
+            index: index
+        });
         total += roll;
-    }
+    });
     
-    // Guardar resultados actuales
+    // Guardar en estado
     diceState.currentResults = results;
     diceState.totalSum = total;
     diceState.rollsToday++;
@@ -328,10 +582,11 @@ function rollDice() {
     // Agregar al historial
     const now = new Date();
     const rollRecord = {
-        results: [...results],
+        results: results.map(r => ({ value: r.value, faces: r.faces })),
         total: total,
         numDice: diceState.numDice,
-        faces: diceState.diceFaces,
+        configMode: diceState.configMode,
+        diceConfig: JSON.parse(JSON.stringify(diceState.diceConfig)),
         timestamp: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         date: now.toLocaleDateString(),
         fullTime: now.getTime()
@@ -339,24 +594,18 @@ function rollDice() {
     
     diceState.rollsHistory.unshift(rollRecord);
     
-    // Limitar historial a 50 elementos
+    // Limitar historial
     if (diceState.rollsHistory.length > 50) {
         diceState.rollsHistory = diceState.rollsHistory.slice(0, 50);
     }
     
-    // Actualizar estadísticas
+    // Actualizar estadísticas y mostrar resultados
     updateStats();
-    
-    // Mostrar resultados con animación mejorada
     displayResults(results, total);
-    
-    // Actualizar historial
     updateHistoryDisplay();
-    
-    // Guardar estado
     saveState();
     
-    // Sonido opcional (solo si no está en silencio)
+    // Sonido opcional
     playDiceSound();
     
     // En landscape, mostrar temporalmente el historial si estaba oculto
@@ -377,7 +626,7 @@ function rollDice() {
     }
 }
 
-// Mostrar resultados con animaciones mejoradas
+// Mostrar resultados
 function displayResults(results, total) {
     const diceContainer = document.getElementById('diceContainer');
     const totalResult = document.getElementById('totalResult');
@@ -390,17 +639,27 @@ function displayResults(results, total) {
         // Crear dados con animación escalonada
         results.forEach((result, index) => {
             setTimeout(() => {
+                const diceWrapper = document.createElement('div');
+                diceWrapper.className = 'dice-result-item';
+                
                 const dice = document.createElement('div');
-                dice.className = `dice d${diceState.diceFaces} dice-animation`;
-                dice.textContent = result;
+                dice.className = `dice d${result.faces} dice-animation`;
+                dice.textContent = result.value;
                 dice.style.animationDelay = `${index * 0.1}s`;
                 
-                // Efecto de brillo en el dado con el número más alto
-                if (result === Math.max(...results)) {
-                    dice.style.boxShadow += ', 0 0 20px rgba(255, 215, 0, 0.7)';
-                }
+                const typeLabel = document.createElement('div');
+                typeLabel.className = 'dice-type-label';
+                typeLabel.textContent = `D${result.faces}`;
                 
-                diceContainer.appendChild(dice);
+                diceWrapper.appendChild(typeLabel);
+                diceWrapper.appendChild(dice);
+                diceContainer.appendChild(diceWrapper);
+                
+                // Efecto especial para resultados máximos
+                if (result.value === result.faces) {
+                    dice.style.boxShadow += ', 0 0 20px rgba(255, 215, 0, 0.7)';
+                    typeLabel.style.backgroundColor = 'rgba(255, 215, 0, 0.3)';
+                }
                 
                 // Feedback táctil para cada dado (opcional)
                 if ('vibrate' in navigator && index === results.length - 1) {
@@ -414,7 +673,7 @@ function displayResults(results, total) {
     
     // Animación del total
     totalResult.style.transform = 'scale(1.2)';
-    totalResult.style.color = '#FFD700'; // Dorado temporal
+    totalResult.style.color = '#FFD700';
     
     // Contar hacia arriba si es un número grande
     if (total > 10) {
@@ -432,7 +691,7 @@ function displayResults(results, total) {
                 totalResult.style.color = '';
                 
                 // Efecto de confeti para totales altos
-                if (total > diceState.numDice * diceState.diceFaces * 0.8) {
+                if (total > getExpectedAverage() * 1.5) {
                     showMiniCelebration();
                 }
             } else {
@@ -446,6 +705,15 @@ function displayResults(results, total) {
             totalResult.style.color = '';
         }, 300);
     }
+}
+
+// Calcular promedio esperado
+function getExpectedAverage() {
+    let sum = 0;
+    diceState.diceConfig.forEach(dice => {
+        sum += (dice.faces + 1) / 2;
+    });
+    return sum;
 }
 
 // Mini celebración para resultados altos
@@ -495,15 +763,306 @@ function showMiniCelebration() {
     }
 }
 
-// El resto de funciones permanecen iguales (loadSavedState, saveState, updateStats, etc.)
-// Solo asegúrate de que todas las funciones estén definidas
+// Auto-lanzar
+function toggleAutoRoll() {
+    const autoRollBtn = document.getElementById('autoRoll');
+    
+    if (!diceState.isAutoRolling) {
+        // Iniciar auto-lanzamiento
+        diceState.isAutoRolling = true;
+        autoRollBtn.innerHTML = '<i class="fas fa-stop"></i> DETENER AUTO';
+        autoRollBtn.classList.remove('btn-secondary');
+        autoRollBtn.classList.add('btn-error');
+        
+        diceState.autoRollInterval = setInterval(rollDice, 2000);
+    } else {
+        // Detener auto-lanzamiento
+        diceState.isAutoRolling = false;
+        autoRollBtn.innerHTML = '<i class="fas fa-sync-alt"></i> AUTO-LANZAR';
+        autoRollBtn.classList.remove('btn-error');
+        autoRollBtn.classList.add('btn-secondary');
+        
+        clearInterval(diceState.autoRollInterval);
+    }
+}
 
-// Nota: Asegúrate de que todas las demás funciones del archivo anterior estén presentes aquí
-// (loadSavedState, saveState, updateStats, updateProbabilities, updateHistoryDisplay, 
-// clearHistory, shareResults, copyShareText, shareToWhatsapp, closeShareModal, 
-// playDiceSound, showNotification, etc.)
+// Reiniciar
+function resetRoll() {
+    const diceContainer = document.getElementById('diceContainer');
+    const totalResult = document.getElementById('totalResult');
+    
+    diceContainer.innerHTML = `
+        <div class="dice-placeholder">
+            <i class="fas fa-dice"></i>
+            <p>Configura los dados y haz clic en "LANZAR"</p>
+        </div>
+    `;
+    
+    totalResult.textContent = '0';
+    diceState.totalSum = 0;
+    
+    updateStats();
+}
 
-// Al final del archivo, exporta las funciones necesarias
+// Actualizar estadísticas
+function updateStats() {
+    document.getElementById('rollsToday').textContent = diceState.rollsToday;
+    
+    // Calcular promedio
+    if (diceState.rollsHistory.length > 0) {
+        const sum = diceState.rollsHistory.reduce((acc, roll) => acc + roll.total, 0);
+        diceState.averageRoll = (sum / diceState.rollsHistory.length).toFixed(2);
+        
+        // Calcular máximo
+        diceState.maxRoll = Math.max(...diceState.rollsHistory.map(r => r.total));
+    } else {
+        diceState.averageRoll = 0;
+        diceState.maxRoll = 0;
+    }
+    
+    document.getElementById('averageRoll').textContent = diceState.averageRoll;
+    document.getElementById('maxRoll').textContent = diceState.maxRoll;
+    
+    // Actualizar distribución
+    updateDistribution();
+}
+
+// Actualizar distribución
+function updateDistribution() {
+    const distributionText = document.getElementById('distributionText');
+    const min = diceState.numDice;
+    const max = diceState.diceConfig.reduce((sum, dice) => sum + dice.faces, 0);
+    
+    distributionText.textContent = `Rango: ${min}-${max}`;
+}
+
+// Actualizar probabilidades
+function updateProbabilities() {
+    const probabilitiesText = document.getElementById('probabilitiesText');
+    const tipText = document.getElementById('tipText');
+    
+    const min = diceState.numDice;
+    const max = diceState.diceConfig.reduce((sum, dice) => sum + dice.faces, 0);
+    const expectedAvg = getExpectedAverage();
+    
+    probabilitiesText.textContent = `Mín: ${min} | Máx: ${max} | Media: ${expectedAvg.toFixed(1)}`;
+    
+    // Verificar si hay dados diferentes
+    const hasDifferentDice = diceState.diceConfig.some(dice => 
+        dice.faces !== diceState.diceConfig[0].faces
+    );
+    
+    // Consejo según configuración
+    if (diceState.diceConfig.length === 1) {
+        tipText.textContent = 'Un solo dado: todos los resultados son igualmente probables.';
+    } else if (hasDifferentDice) {
+        tipText.textContent = 'Dados diferentes: distribución asimétrica.';
+        
+        // Mostrar detalles de dados diferentes
+        const diceTypes = {};
+        diceState.diceConfig.forEach(dice => {
+            diceTypes[`D${dice.faces}`] = (diceTypes[`D${dice.faces}`] || 0) + 1;
+        });
+        
+        const typeSummary = Object.entries(diceTypes)
+            .map(([type, count]) => `${count}${type}`)
+            .join(' + ');
+        
+        distributionText.textContent = `Rango: ${min}-${max} (${typeSummary})`;
+    } else {
+        tipText.textContent = 'Dados iguales: distribución normal (campana).';
+    }
+}
+
+// Actualizar historial
+function updateHistoryDisplay() {
+    const historyList = document.getElementById('rollHistory');
+    
+    if (diceState.rollsHistory.length === 0) {
+        historyList.innerHTML = `
+            <div class="empty-history">
+                <i class="fas fa-clipboard-list fa-2x"></i>
+                <p>No hay lanzamientos registrados todavía.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    historyList.innerHTML = '';
+    
+    diceState.rollsHistory.forEach(roll => {
+        const historyItem = document.createElement('div');
+        historyItem.className = 'roll-history-item';
+        
+        // Mostrar tipos de dados en el historial
+        const diceSummary = roll.results.map(r => 
+            `<div class="dice-mini d${r.faces}">${r.value}<span class="mini-type">D${r.faces}</span></div>`
+        ).join('');
+        
+        historyItem.innerHTML = `
+            <div>
+                <div class="roll-dice-values">${diceSummary}</div>
+                <div class="roll-time">${roll.date} ${roll.timestamp}</div>
+            </div>
+            <div class="roll-total">${roll.total}</div>
+        `;
+        
+        historyList.appendChild(historyItem);
+    });
+}
+
+// Limpiar historial
+function clearHistory() {
+    if (confirm('¿Estás seguro de que quieres borrar todo el historial de lanzamientos?')) {
+        diceState.rollsHistory = [];
+        updateHistoryDisplay();
+        saveState();
+        
+        // Mostrar notificación
+        showNotification('Historial de lanzamientos borrado correctamente');
+    }
+}
+
+// Compartir resultados
+function shareResults() {
+    const shareModal = document.getElementById('shareModal');
+    const shareText = document.getElementById('shareText');
+    
+    if (diceState.rollsHistory.length === 0) {
+        showNotification('No hay resultados para compartir', 'warning');
+        return;
+    }
+    
+    const lastRoll = diceState.rollsHistory[0];
+    
+    let text = `🎲 RESULTADOS DE DADOS VIRTUALES 🎲\n`;
+    text += `📅 ${lastRoll.date} 🕒 ${lastRoll.timestamp}\n\n`;
+    
+    text += `Configuración (${lastRoll.configMode === 'uniform' ? 'todos iguales' : 'individual'}):\n`;
+    lastRoll.diceConfig.forEach((dice, index) => {
+        text += `• Dado ${index + 1}: D${dice.faces}\n`;
+    });
+    
+    text += `\n🎯 Resultados:\n`;
+    lastRoll.results.forEach((result, index) => {
+        text += `• Dado ${index + 1} (D${result.faces}): ${result.value}\n`;
+    });
+    
+    text += `\n⭐ SUMA TOTAL: ${lastRoll.total}\n\n`;
+    
+    // Estadísticas adicionales si hay resultados interesantes
+    const maxPossible = lastRoll.diceConfig.reduce((sum, dice) => sum + dice.faces, 0);
+    const percentage = Math.round((lastRoll.total / maxPossible) * 100);
+    
+    if (percentage > 80) {
+        text += `🔥 ¡Excelente lanzamiento! (${percentage}% del máximo)\n\n`;
+    }
+    
+    text += `📊 Estadísticas del día:\n`;
+    text += `• Lanzamientos: ${diceState.rollsToday}\n`;
+    text += `• Promedio: ${diceState.averageRoll}\n`;
+    text += `• Máximo: ${diceState.maxRoll}\n\n`;
+    
+    text += `🎲 Generado con Simulador de Dados - Liga Escolar\n`;
+    text += `🔗 https://www.ligaescolar.es/dados/`;
+    
+    shareText.value = text;
+    shareModal.style.display = 'flex';
+}
+
+// Copiar texto al portapapeles
+function copyShareText() {
+    const shareText = document.getElementById('shareText');
+    shareText.select();
+    shareText.setSelectionRange(0, 99999);
+    
+    try {
+        navigator.clipboard.writeText(shareText.value);
+        showNotification('Texto copiado al portapapeles');
+    } catch (err) {
+        // Fallback para navegadores antiguos
+        document.execCommand('copy');
+        showNotification('Texto copiado al portapapeles');
+    }
+}
+
+// Compartir por WhatsApp
+function shareToWhatsapp() {
+    const shareText = document.getElementById('shareText');
+    const text = encodeURIComponent(shareText.value);
+    const url = `https://wa.me/?text=${text}`;
+    window.open(url, '_blank');
+}
+
+// Cerrar modal de compartir
+function closeShareModal() {
+    document.getElementById('shareModal').style.display = 'none';
+}
+
+// Sonido de dados (opcional)
+function playDiceSound() {
+    try {
+        // Crear contexto de audio
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // Sonido de dados
+        oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(400, audioContext.currentTime + 0.1);
+        oscillator.frequency.setValueAtTime(300, audioContext.currentTime + 0.2);
+        
+        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.3);
+    } catch (e) {
+        // Silenciar errores de audio
+        console.log('Audio no disponible');
+    }
+}
+
+// Mostrar notificación
+function showNotification(message, type = 'success') {
+    // Crear notificación si no existe
+    let notification = document.getElementById('notification');
+    
+    if (!notification) {
+        notification = document.createElement('div');
+        notification.id = 'notification';
+        notification.className = 'notification';
+        document.body.appendChild(notification);
+    }
+    
+    // Configurar notificación
+    notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+        <span id="notification-text">${message}</span>
+    `;
+    
+    notification.className = 'notification';
+    if (type !== 'success') {
+        notification.classList.add(type);
+    }
+    
+    // Mostrar notificación
+    notification.style.display = 'flex';
+    
+    // Ocultar después de 3 segundos
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => {
+            notification.style.display = 'none';
+            notification.style.animation = '';
+        }, 300);
+    }, 3000);
+}
+
+// Hacer funciones globales
 window.rollDice = rollDice;
 window.toggleAutoRoll = toggleAutoRoll;
 window.resetRoll = resetRoll;
@@ -512,4 +1071,3 @@ window.shareResults = shareResults;
 window.copyShareText = copyShareText;
 window.shareToWhatsapp = shareToWhatsapp;
 window.closeShareModal = closeShareModal;
-window.detectOrientation = detectOrientation;

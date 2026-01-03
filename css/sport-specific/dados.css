@@ -1,7 +1,7 @@
-/* dados.css - Optimizado para móviles en horizontal */
-/* Estilos específicos para el simulador de dados */
+/* dados.css - VERSIÓN COMPLETA OPTIMIZADA PARA MÓVILES */
+/* Estilos específicos para el simulador de dados con configuración individual */
 
-/* Panel de configuración compacto para móviles */
+/* Panel de configuración */
 .config-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -25,6 +25,46 @@
     font-weight: bold;
     color: var(--light-color);
     font-size: 0.9rem;
+}
+
+/* Controles principales */
+.main-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mode-selector {
+    display: flex;
+    gap: 8px;
+    margin-top: 5px;
+}
+
+.mode-btn {
+    flex: 1;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.mode-btn.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
 }
 
 .number-selector {
@@ -73,6 +113,16 @@
     cursor: pointer;
 }
 
+/* Secciones de configuración */
+.config-section {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    animation: fadeIn 0.3s ease;
+}
+
 .faces-selector select {
     width: 100%;
     padding: 10px;
@@ -84,7 +134,113 @@
     cursor: pointer;
 }
 
-/* Área de lanzamiento optimizada para horizontal */
+/* Configuración individual de dados */
+.individual-dice-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.dice-config-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+}
+
+.dice-config-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--primary-color);
+}
+
+.dice-number {
+    font-weight: bold;
+    color: var(--primary-color);
+    min-width: 60px;
+    font-size: 0.9rem;
+}
+
+.dice-face-select {
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--primary-color);
+    border-radius: 5px;
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.btn-icon:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--primary-color);
+}
+
+.btn-icon:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Preconfiguraciones rápidas */
+.quick-presets {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.quick-presets label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.preset-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.preset-btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 8px 12px;
+    background: rgba(52, 152, 219, 0.1);
+    border: 1px solid rgba(52, 152, 219, 0.3);
+    font-size: 0.8rem;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.preset-btn:hover {
+    background: rgba(52, 152, 219, 0.2);
+    border-color: var(--info-color);
+}
+
+/* Área de lanzamiento */
 .roll-area {
     margin: 20px 0;
 }
@@ -106,6 +262,9 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+    color: white;
+    cursor: pointer;
+    border-radius: 8px;
 }
 
 .btn-roll:active {
@@ -113,7 +272,7 @@
     box-shadow: 0 2px 8px rgba(255, 107, 53, 0.4);
 }
 
-/* Área de resultados - Optimizada para pantallas pequeñas */
+/* Resultados */
 .results-section {
     text-align: center;
     padding: 15px;
@@ -132,6 +291,7 @@
     font-size: 1rem;
     margin-bottom: 8px;
     opacity: 0.9;
+    color: white;
 }
 
 .total-number {
@@ -143,7 +303,7 @@
     letter-spacing: 1px;
 }
 
-/* Contenedor de dados optimizado */
+/* Contenedor de dados */
 .dice-container {
     display: flex;
     justify-content: center;
@@ -161,6 +321,7 @@
     justify-content: center;
     padding: 20px;
     opacity: 0.5;
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .dice-placeholder i {
@@ -170,9 +331,10 @@
 
 .dice-placeholder p {
     font-size: 0.85rem;
+    text-align: center;
 }
 
-/* Dados individuales - Más grandes en móviles */
+/* Dados individuales */
 .dice {
     width: 70px;
     height: 70px;
@@ -229,6 +391,26 @@
 .dice.d20 { background: linear-gradient(145deg, #54a0ff, #2e86de); }
 .dice.d100 { background: linear-gradient(145deg, #5f27cd, #341f97); }
 
+/* Área de resultados individuales */
+.dice-result-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    position: relative;
+}
+
+.dice-type-label {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.7);
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2px 6px;
+    border-radius: 10px;
+    position: absolute;
+    top: -10px;
+    white-space: nowrap;
+}
+
 /* Información de rollos */
 .roll-info {
     display: flex;
@@ -246,6 +428,7 @@
     gap: 8px;
     font-size: 0.85rem;
     padding: 5px 10px;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .info-item i {
@@ -259,7 +442,19 @@
     font-size: 1rem;
 }
 
-/* Historial de lanzamientos compacto */
+/* Controles de historial */
+.history-controls-section {
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.history-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* Historial de lanzamientos */
 .history-panel {
     margin-top: 20px;
 }
@@ -267,6 +462,7 @@
 .history-panel h3 {
     font-size: 1.1rem;
     margin-bottom: 12px;
+    color: white;
 }
 
 .roll-history-item {
@@ -279,6 +475,7 @@
     align-items: center;
     font-size: 0.85rem;
     transition: all 0.2s ease;
+    color: white;
 }
 
 .roll-history-item:active {
@@ -301,7 +498,28 @@
     justify-content: center;
     font-size: 0.8rem;
     font-weight: bold;
+    color: white;
+    position: relative;
 }
+
+.mini-type {
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem;
+    opacity: 0.7;
+    white-space: nowrap;
+}
+
+/* Colores para dados mini en historial */
+.dice-mini.d4 { background: linear-gradient(145deg, #ff6b6b, #ee5a52); }
+.dice-mini.d6 { background: linear-gradient(145deg, #48dbfb, #0abde3); }
+.dice-mini.d8 { background: linear-gradient(145deg, #1dd1a1, #10ac84); }
+.dice-mini.d10 { background: linear-gradient(145deg, #f368e0, #ff9ff3); }
+.dice-mini.d12 { background: linear-gradient(145deg, #ff9f43, #feca57); }
+.dice-mini.d20 { background: linear-gradient(145deg, #54a0ff, #2e86de); }
+.dice-mini.d100 { background: linear-gradient(145deg, #5f27cd, #341f97); }
 
 .roll-total {
     font-weight: bold;
@@ -315,9 +533,24 @@
     font-size: 0.75rem;
     opacity: 0.6;
     margin-top: 3px;
+    color: rgba(255, 255, 255, 0.7);
 }
 
-/* Estadísticas compactas */
+.empty-history {
+    text-align: center;
+    padding: 20px;
+    opacity: 0.7;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.empty-history i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+/* Estadísticas */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -349,6 +582,7 @@
 .stat-info h4 {
     font-size: 0.9rem;
     margin-bottom: 4px;
+    color: white;
 }
 
 .stat-info p {
@@ -356,9 +590,10 @@
     opacity: 0.8;
     margin: 0;
     line-height: 1.3;
+    color: rgba(255, 255, 255, 0.9);
 }
 
-/* Información educativa compacta */
+/* Información educativa */
 .info-card {
     margin-top: 20px;
 }
@@ -366,6 +601,7 @@
 .info-card h3 {
     font-size: 1.1rem;
     margin-bottom: 12px;
+    color: white;
 }
 
 .fun-facts {
@@ -380,6 +616,7 @@
     gap: 8px;
     font-size: 0.85rem;
     line-height: 1.3;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .fun-facts p:last-child {
@@ -399,6 +636,21 @@
     margin-top: 20px;
     padding-top: 20px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Scrollbar personalizado */
+.individual-dice-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.individual-dice-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+}
+
+.individual-dice-list::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 3px;
 }
 
 /* MODOS ESPECÍFICOS PARA ORIENTACIÓN */
@@ -446,23 +698,38 @@
     }
     
     /* Configuración en fila */
-    .config-grid {
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 10px !important;
+    .main-controls {
+        grid-template-columns: 1fr;
+        gap: 10px;
     }
     
-    .config-group {
-        padding: 8px !important;
+    .config-section {
+        padding: 10px;
     }
     
-    .number-input {
-        width: 50px;
+    .individual-dice-list {
+        max-height: 120px;
+    }
+    
+    .dice-config-item {
+        grid-template-columns: 40px 1fr 30px 30px;
+        gap: 6px;
         padding: 6px;
-        font-size: 1rem;
     }
     
-    .faces-selector select {
+    .dice-number {
+        min-width: 40px;
+        font-size: 0.8rem;
+    }
+    
+    .dice-face-select {
         padding: 6px;
+        font-size: 0.8rem;
+    }
+    
+    .btn-icon {
+        width: 30px;
+        height: 30px;
         font-size: 0.8rem;
     }
     
@@ -525,6 +792,14 @@
         padding: 10px !important;
         font-size: 0.75rem;
     }
+    
+    .preset-buttons {
+        flex-direction: column;
+    }
+    
+    .preset-btn {
+        min-width: auto;
+    }
 }
 
 /* Modo Vertical (Portrait) */
@@ -541,6 +816,14 @@
     
     .total-number {
         font-size: 4rem;
+    }
+    
+    .dice-config-item {
+        grid-template-columns: 50px 1fr 36px 36px;
+    }
+    
+    .preset-buttons {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
@@ -559,6 +842,19 @@
     .btn-roll {
         padding: 10px 15px;
         font-size: 1rem;
+    }
+    
+    .dice-config-item {
+        grid-template-columns: 45px 1fr;
+        gap: 8px;
+    }
+    
+    .btn-icon {
+        display: none;
+    }
+    
+    .preset-buttons {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -593,4 +889,10 @@
     .btn:active {
         transform: scale(0.98);
     }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }

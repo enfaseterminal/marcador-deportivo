@@ -98,51 +98,119 @@
             </div>
 
             <!-- Panel de configuración -->
-            <div class="config-panel card">
-                <h3><i class="fas fa-cog"></i> Configuración de los Dados</h3>
-                
-                <div class="config-grid">
-                    <div class="config-group">
-                        <label for="numDice"><i class="fas fa-cubes"></i> Número de Dados</label>
-                        <div class="number-selector">
-                            <button class="btn btn-secondary btn-small" id="decrease-dice"><i class="fas fa-minus"></i></button>
-                            <input type="number" id="numDice" min="1" max="10" value="2" class="number-input">
-                            <button class="btn btn-secondary btn-small" id="increase-dice"><i class="fas fa-plus"></i></button>
-                        </div>
-                        <div class="range-slider">
-                            <input type="range" id="diceRange" min="1" max="10" value="2">
-                        </div>
-                    </div>
+          <div class="config-panel card">
+              <h3><i class="fas fa-cog"></i> Configuración de los Dados</h3>
+              
+              <!-- Controles principales -->
+              <div class="main-controls">
+                  <div class="control-group">
+                      <label for="numDice"><i class="fas fa-cubes"></i> Número de Dados</label>
+                      <div class="number-selector">
+                          <button class="btn btn-secondary btn-small" id="decrease-dice"><i class="fas fa-minus"></i></button>
+                          <input type="number" id="numDice" min="1" max="10" value="2" class="number-input">
+                          <button class="btn btn-secondary btn-small" id="increase-dice"><i class="fas fa-plus"></i></button>
+                      </div>
+                      <div class="range-slider">
+                          <input type="range" id="diceRange" min="1" max="10" value="2">
+                      </div>
+                  </div>
 
-                    <div class="config-group">
-                        <label for="diceFaces"><i class="fas fa-shapes"></i> Caras por Dado</label>
-                        <div class="faces-selector">
-                            <select id="diceFaces" class="faces-dropdown">
-                                <option value="4">D4 (Tetraedro)</option>
-                                <option value="6" selected>D6 (Cubo)</option>
-                                <option value="8">D8 (Octaedro)</option>
-                                <option value="10">D10 (Decaedro)</option>
-                                <option value="12">D12 (Dodecaedro)</option>
-                                <option value="20">D20 (Icosaedro)</option>
-                                <option value="100">D100 (Porcentaje)</option>
-                            </select>
-                        </div>
-                    </div>
+                  <div class="control-group">
+                      <label><i class="fas fa-magic"></i> Modo de Configuración</label>
+                      <div class="mode-selector">
+                          <button class="btn btn-small mode-btn active" data-mode="uniform" id="mode-uniform">
+                              <i class="fas fa-clone"></i> Todos iguales
+                          </button>
+                          <button class="btn btn-small mode-btn" data-mode="individual" id="mode-individual">
+                              <i class="fas fa-list"></i> Individual
+                          </button>
+                      </div>
+                  </div>
+              </div>
 
-                    <div class="config-group">
-                        <label><i class="fas fa-history"></i> Historial de Lanzamientos</label>
-                        <div class="history-controls">
-                            <button class="btn btn-info btn-small" id="clear-history">
-                                <i class="fas fa-trash-alt"></i> Limpiar Historial
-                            </button>
-                            <button class="btn btn-secondary btn-small" id="toggle-history">
-                                <i class="fas fa-eye"></i> Mostrar/Ocultar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+              <!-- Configuración uniforme (todos iguales) -->
+              <div class="config-section" id="uniform-section">
+                  <label for="diceFaces"><i class="fas fa-shapes"></i> Caras para todos los dados</label>
+                  <div class="faces-selector">
+                      <select id="diceFaces" class="faces-dropdown">
+                          <option value="4">D4 (Tetraedro)</option>
+                          <option value="6" selected>D6 (Cubo)</option>
+                          <option value="8">D8 (Octaedro)</option>
+                          <option value="10">D10 (Decaedro)</option>
+                          <option value="12">D12 (Dodecaedro)</option>
+                          <option value="20">D20 (Icosaedro)</option>
+                          <option value="100">D100 (Porcentaje)</option>
+                      </select>
+                  </div>
+              </div>
 
+              <!-- Configuración individual (cada dado diferente) -->
+              <div class="config-section" id="individual-section" style="display: none;">
+                  <label><i class="fas fa-dice-d20"></i> Configurar cada dado individualmente</label>
+                  <div class="individual-dice-list" id="individualDiceList">
+                      <!-- Los controles individuales se generarán aquí -->
+                      <div class="dice-config-item" data-index="0">
+                          <span class="dice-number">Dado 1:</span>
+                          <select class="dice-face-select">
+                              <option value="4">D4</option>
+                              <option value="6" selected>D6</option>
+                              <option value="8">D8</option>
+                              <option value="10">D10</option>
+                              <option value="12">D12</option>
+                              <option value="20">D20</option>
+                              <option value="100">D100</option>
+                          </select>
+                          <button class="btn btn-small btn-icon swap-up" title="Mover arriba">
+                              <i class="fas fa-arrow-up"></i>
+                          </button>
+                          <button class="btn btn-small btn-icon swap-down" title="Mover abajo">
+                              <i class="fas fa-arrow-down"></i>
+                          </button>
+                      </div>
+                      <div class="dice-config-item" data-index="1">
+                          <span class="dice-number">Dado 2:</span>
+                          <select class="dice-face-select">
+                              <option value="4">D4</option>
+                              <option value="6" selected>D6</option>
+                              <option value="8">D8</option>
+                              <option value="10">D10</option>
+                              <option value="12">D12</option>
+                              <option value="20">D20</option>
+                              <option value="100">D100</option>
+                          </select>
+                          <button class="btn btn-small btn-icon swap-up" title="Mover arriba">
+                              <i class="fas fa-arrow-up"></i>
+                          </button>
+                          <button class="btn btn-small btn-icon swap-down" title="Mover abajo">
+                              <i class="fas fa-arrow-down"></i>
+                          </button>
+                      </div>
+                  </div>
+                  
+                  <div class="quick-presets">
+                      <label>Preconfiguraciones rápidas:</label>
+                      <div class="preset-buttons">
+                          <button class="btn btn-small preset-btn" data-preset="dnd">D&D (1d20)</button>
+                          <button class="btn btn-small preset-btn" data-preset="damage">Daño (2d6)</button>
+                          <button class="btn btn-small preset-btn" data-preset="percent">Porcentaje (1d100)</button>
+                          <button class="btn btn-small preset-btn" data-preset="mixed">Mixto (1d20+1d6)</button>
+                      </div>
+                  </div>
+              </div>
+
+              <!-- Historial de lanzamientos -->
+              <div class="history-controls-section">
+                  <label><i class="fas fa-history"></i> Historial de Lanzamientos</label>
+                  <div class="history-controls">
+                      <button class="btn btn-info btn-small" id="clear-history">
+                          <i class="fas fa-trash-alt"></i> Limpiar
+                      </button>
+                      <button class="btn btn-secondary btn-small" id="toggle-history">
+                          <i class="fas fa-eye"></i> Mostrar/Ocultar
+                      </button>
+                  </div>
+              </div>
+          </div>
             <!-- Área de lanzamiento -->
             <div class="roll-area card">
                 <div class="roll-controls">
