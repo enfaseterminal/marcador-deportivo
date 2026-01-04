@@ -41,6 +41,8 @@ window.currentMatch = {
 window.matchHistory = [];
 window.editingTeam = null;
 window.savingMatchAfterWin = false;
+window.sportName = "Fútbol Sala";
+window.sportUrl = window.location.href;
 
 // ========== INICIALIZACIÓN DE JUGADORES ==========
 
@@ -273,7 +275,6 @@ function useTimeout(team) {
     }
 }
 
-// FUNCIÓN PARA REMOVER TIMEOUT (corrección)
 function removeTimeout(team) {
     const teamObj = window.currentMatch[team];
     
@@ -342,198 +343,258 @@ function removeFoul(team) {
     }
 }
 
-// ========== INICIALIZACIÓN ==========
+// ========== FUNCIONES DE DISPLAY ==========
 
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Inicializando fútbol sala...');
+function updatePeriodDisplay() {
+    const currentPeriodEl = document.getElementById('current-period');
+    const periodInfoEl = document.getElementById('period-info');
+    const matchStatusEl = document.getElementById('match-status');
     
-    // Inicializar jugadores
-    initializePlayers();
+    if (currentPeriodEl) {
+        if (window.currentMatch.isOvertime) {
+            currentPeriodEl.textContent = `Prórroga ${window.currentMatch.currentPeriod}`;
+        } else {
+            currentPeriodEl.textContent = `${window.currentMatch.currentPeriod}° Tiempo`;
+        }
+    }
     
-    // Cargar datos guardados
-    loadFromCookies();
+    if (periodInfoEl) {
+        if (window.currentMatch.isOvertime) {
+            periodInfoEl.textContent = `Prórroga ${window.currentMatch.currentPeriod}`;
+        } else {
+            periodInfoEl.textContent = `${window.currentMatch.currentPeriod}° Tiempo`;
+        }
+    }
     
-    // Inicializar la interfaz
+    if (matchStatusEl) {
+        switch(window.currentMatch.matchStatus) {
+            case 'NOT_STARTED':
+                matchStatusEl.textContent = 'No iniciado';
+                break;
+            case 'RUNNING':
+                matchStatusEl.textContent = 'En juego';
+                break;
+            case 'PAUSED':
+                matchStatusEl.textContent = 'Pausado';
+                break;
+            case 'FINISHED':
+                matchStatusEl.textContent = 'Finalizado';
+                break;
+            default:
+                matchStatusEl.textContent = 'Desconocido';
+        }
+    }
+}
+
+function updateTimerDisplay() {
+    const mainTimerEl = document.getElementById('main-timer');
+    const matchTimerEl = document.getElementById('match-timer');
+    
+    if (!mainTimerEl && !matchTimerEl) return;
+    
+    const minutes = Math.floor(window.currentMatch.timeRemaining / 60);
+    const seconds = window.currentMatch.timeRemaining % 60;
+    const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
+    if (mainTimerEl) mainTimerEl.textContent = timeString;
+    if (matchTimerEl) matchTimerEl.textContent = timeString;
+}
+
+function updateMatchStatus() {
+    // Esta función ya se maneja en updatePeriodDisplay
+}
+
+function renderEvents() {
+    const eventsListEl = document.getElementById('events-list');
+    if (!eventsListEl) return;
+    
+    eventsListEl.innerHTML = '';
+    
+    const recentEvents = window.currentMatch.events.slice(-10);
+    
+    if (recentEvents.length === 0) {
+        const emptyMessage = document.createElement('div');
+        emptyMessage.className = 'empty-history';
+        emptyMessage.textContent = 'No hay eventos registrados.';
+        eventsListEl.appendChild(emptyMessage);
+        return;
+    }
+    
+    recentEvents.reverse().forEach(event => {
+        const eventEl = document.createElement('div');
+        eventEl.className = 'event-item';
+        
+        let icon = 'fa-circle';
+        let color = '#3498db';
+        
+        switch(event.type) {
+            case 'goal':
+                icon = 'fa-futbol';
+                color = '#2ecc71';
+                break;
+            case 'foul':
+                icon = 'fa-exclamation-triangle';
+                color = '#e74c3c';
+                break;
+            case 'timeout':
+                icon = 'fa-clock';
+                color = '#f39c12';
+                break;
+            case 'yellow_card':
+                icon = 'fa-square';
+                color = '#FFD700';
+                break;
+            case 'blue_card':
+                icon = 'fa-square';
+                color = '#2196F3';
+                break;
+            case 'match_start':
+                icon = 'fa-play';
+                color = '#2ecc71';
+                break;
+            case 'timer_pause':
+                icon = 'fa-pause';
+                color = '#f39c12';
+                break;
+            case 'timer_reset':
+                icon = 'fa-redo-alt';
+                color = '#3498db';
+                break;
+            case 'foul_removed':
+                icon = 'fa-undo';
+                color = '#3498db';
+                break;
+            case 'timeout_removed':
+                icon = 'fa-undo';
+                color = '#f39c12';
+                break;
+            case 'period_change':
+                icon = 'fa-forward';
+                color = '#9b59b6';
+                break;
+            case 'period_end':
+                icon = 'fa-stop';
+                color = '#e74c3c';
+                break;
+            case 'overtime_start':
+                icon = 'fa-plus-circle';
+                color = '#e67e22';
+                break;
+        }
+        
+        eventEl.innerHTML = `
+            <div class="event-time">${event.time}</div>
+            <div class="event-icon" style="color: ${color};">
+                <i class="fas ${icon}"></i>
+            </div>
+            <div class="event-description">${event.description}</div>
+        `;
+        
+        eventsListEl.appendChild(eventEl);
+    });
+}
+
+// ========== FUNCIONES DE PERIODO Y TIEMPO EXTRA ==========
+
+function nextPeriod() {
+    if (window.currentMatch.currentPeriod >= window.currentMatch.totalPeriods) {
+        activateOvertime();
+    } else {
+        window.currentMatch.currentPeriod++;
+        window.currentMatch.timeRemaining = window.currentMatch.periodDuration;
+        
+        // Resetear timeouts para el nuevo periodo
+        window.currentMatch.team1.timeouts = 1;
+        window.currentMatch.team2.timeouts = 1;
+        
+        window.currentMatch.events.push({
+            time: getCurrentTime(),
+            type: 'period_change',
+            description: `Inicio del periodo ${window.currentMatch.currentPeriod}`
+        });
+        
+        updateDisplay();
+        showNotification(`Periodo ${window.currentMatch.currentPeriod} iniciado`);
+    }
+}
+
+function endPeriod() {
+    if (window.currentMatch.matchStatus !== 'RUNNING') return;
+    
+    clearInterval(window.currentMatch.timerInterval);
+    
+    window.currentMatch.events.push({
+        time: getCurrentTime(),
+        type: 'period_end',
+        description: `Fin del periodo ${window.currentMatch.currentPeriod}`
+    });
+    
+    if (window.currentMatch.currentPeriod >= window.currentMatch.totalPeriods) {
+        window.currentMatch.matchStatus = 'FINISHED';
+        
+        if (window.currentMatch.team1.score === window.currentMatch.team2.score) {
+            showNotification('¡Empate! Activa la prórroga si es necesario', 'info');
+        } else {
+            window.currentMatch.winner = window.currentMatch.team1.score > window.currentMatch.team2.score ? 'team1' : 'team2';
+            showNotification(`¡Partido finalizado! Ganador: ${window.currentMatch[window.currentMatch.winner].name}`, 'success');
+        }
+    } else {
+        window.currentMatch.matchStatus = 'PAUSED';
+        showNotification(`Periodo ${window.currentMatch.currentPeriod} finalizado`, 'warning');
+    }
+    
     updateDisplay();
-    
-    // Configurar event listeners
-    setupEventListeners();
-    
-    // Configurar funciones globales
-    window.generateShareText = generateShareText;
-    window.saveToCookies = saveToCookies;
-    window.loadFromCookies = loadFromCookies;
-    
-    // Funciones para botones flotantes
-    window.openHelpModal = openHelpModal;
-    window.closeHelpModal = closeHelpModal;
-    window.openRulesModal = openRulesModal;
-    window.closeRulesModal = closeRulesModal;
-    window.showUsageInstructions = showUsageInstructions;
-    window.closeUsageModal = closeUsageModal;
-    
-    console.log("Fútbol sala con tarjetas inicializado correctamente");
-});
-
-function setupEventListeners() {
-    // Controles de tiempo
-    const startTimerBtn = document.getElementById('start-timer');
-    const pauseTimerBtn = document.getElementById('pause-timer');
-    const resetTimerBtn = document.getElementById('reset-timer');
-    const nextPeriodBtn = document.getElementById('next-period');
-    
-    if (startTimerBtn) startTimerBtn.addEventListener('click', startTimer);
-    if (pauseTimerBtn) pauseTimerBtn.addEventListener('click', pauseTimer);
-    if (resetTimerBtn) resetTimerBtn.addEventListener('click', resetTimer);
-    if (nextPeriodBtn) nextPeriodBtn.addEventListener('click', nextPeriod);
-    
-    // Controles de goles
-    document.getElementById('team1-add-goal').addEventListener('click', () => addGoal('team1'));
-    document.getElementById('team1-remove-goal').addEventListener('click', () => removeGoal('team1'));
-    document.getElementById('team2-add-goal').addEventListener('click', () => addGoal('team2'));
-    document.getElementById('team2-remove-goal').addEventListener('click', () => removeGoal('team2'));
-    
-    // Controles de faltas y timeouts (actualizados)
-    document.getElementById('team1-foul').addEventListener('click', () => addFoul('team1'));
-    document.getElementById('team2-foul').addEventListener('click', () => addFoul('team2'));
-    document.getElementById('team1-timeout').addEventListener('click', () => useTimeout('team1'));
-    document.getElementById('team2-timeout').addEventListener('click', () => useTimeout('team2'));
-    
-    // Controles del partido
-    document.getElementById('activate-overtime').addEventListener('click', activateOvertime);
-    document.getElementById('reset-match').addEventListener('click', resetMatch);
-    document.getElementById('save-match').addEventListener('click', () => {
-        if (window.modalManager && window.modalManager.openSaveMatchModal) {
-            window.modalManager.openSaveMatchModal();
-        } else {
-            showNotification("Función de guardar no disponible", "warning");
-        }
-    });
-    
-    // Compartir
-    document.getElementById('share-results').addEventListener('click', function() {
-        if (window.common && window.common.openShareCurrentModal) {
-            window.common.openShareCurrentModal();
-        } else {
-            openShareCurrentModal();
-        }
-    });
-    
-    document.getElementById('share-history').addEventListener('click', function() {
-        if (window.common && window.common.openShareHistoryModal) {
-            window.common.openShareHistoryModal();
-        } else {
-            openShareHistoryModal();
-        }
-    });
-    
-    document.getElementById('share-whatsapp').addEventListener('click', function() {
-        if (window.common && window.common.shareToWhatsapp) {
-            window.common.shareToWhatsapp();
-        } else {
-            shareToWhatsapp();
-        }
-    });
-    
-    // Ubicación
-    document.getElementById('save-location').addEventListener('click', saveLocation);
-    document.getElementById('match-location-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') saveLocation();
-    });
-    
-    // Nombres de equipos
-    document.getElementById('team1-name').addEventListener('click', () => {
-        if (window.common && window.common.openTeamNameModal) {
-            window.common.openTeamNameModal('team1');
-        } else {
-            openTeamNameModal('team1');
-        }
-    });
-    
-    document.getElementById('team2-name').addEventListener('click', () => {
-        if (window.common && window.common.openTeamNameModal) {
-            window.common.openTeamNameModal('team2');
-        } else {
-            openTeamNameModal('team2');
-        }
-    });
-    
-    // Añadir botones para remover faltas y timeouts
-    addRemoveButtons();
 }
 
-function addRemoveButtons() {
-    // Añadir botón para remover faltas
-    const team1Controls = document.querySelector('#team1 .quick-controls');
-    const team2Controls = document.querySelector('#team2 .quick-controls');
+function activateOvertime() {
+    if (window.currentMatch.matchStatus === 'FINISHED') return;
     
-    if (team1Controls) {
-        const removeFoulBtn1 = document.createElement('button');
-        removeFoulBtn1.className = 'btn btn-small btn-remove-foul';
-        removeFoulBtn1.innerHTML = '<i class="fas fa-undo"></i> Falta';
-        removeFoulBtn1.onclick = () => removeFoul('team1');
-        removeFoulBtn1.title = "Remover última falta";
-        team1Controls.appendChild(removeFoulBtn1);
-        
-        const removeTimeoutBtn1 = document.createElement('button');
-        removeTimeoutBtn1.className = 'btn btn-small btn-remove-timeout';
-        removeTimeoutBtn1.innerHTML = '<i class="fas fa-undo"></i> Timeout';
-        removeTimeoutBtn1.onclick = () => removeTimeout('team1');
-        removeTimeoutBtn1.title = "Recuperar timeout";
-        team1Controls.appendChild(removeTimeoutBtn1);
-    }
+    window.currentMatch.isOvertime = true;
+    window.currentMatch.currentPeriod = 1;
+    window.currentMatch.timeRemaining = window.currentMatch.overtimeDuration;
     
-    if (team2Controls) {
-        const removeFoulBtn2 = document.createElement('button');
-        removeFoulBtn2.className = 'btn btn-small btn-remove-foul';
-        removeFoulBtn2.innerHTML = '<i class="fas fa-undo"></i> Falta';
-        removeFoulBtn2.onclick = () => removeFoul('team2');
-        removeFoulBtn2.title = "Remover última falta";
-        team2Controls.appendChild(removeFoulBtn2);
-        
-        const removeTimeoutBtn2 = document.createElement('button');
-        removeTimeoutBtn2.className = 'btn btn-small btn-remove-timeout';
-        removeTimeoutBtn2.innerHTML = '<i class="fas fa-undo"></i> Timeout';
-        removeTimeoutBtn2.onclick = () => removeTimeout('team2');
-        removeTimeoutBtn2.title = "Recuperar timeout";
-        team2Controls.appendChild(removeTimeoutBtn2);
-    }
+    // Resetear timeouts para prórroga
+    window.currentMatch.team1.timeouts = 1;
+    window.currentMatch.team2.timeouts = 1;
+    
+    window.currentMatch.events.push({
+        time: getCurrentTime(),
+        type: 'overtime_start',
+        description: '¡Prórroga activada!'
+    });
+    
+    updateDisplay();
+    showNotification('¡Prórroga activada! 2 tiempos de 5 minutos');
 }
 
-// ========== ACTUALIZAR DISPLAY ==========
-
-function updateDisplay() {
-    // Actualizar nombres de equipos
-    document.getElementById('team1-name').textContent = window.currentMatch.team1.name;
-    document.getElementById('team2-name').textContent = window.currentMatch.team2.name;
-    
-    // Actualizar marcador de goles
-    document.getElementById('team1-score').textContent = window.currentMatch.team1.score;
-    document.getElementById('team2-score').textContent = window.currentMatch.team2.score;
-    
-    // Actualizar timeouts y faltas
-    document.getElementById('team1-timeouts').textContent = window.currentMatch.team1.timeouts;
-    document.getElementById('team2-timeouts').textContent = window.currentMatch.team2.timeouts;
-    document.getElementById('team1-fouls').textContent = window.currentMatch.team1.fouls;
-    document.getElementById('team2-fouls').textContent = window.currentMatch.team2.fouls;
-    
-    // Actualizar información del periodo
-    updatePeriodDisplay();
-    
-    // Actualizar estado del partido
-    updateMatchStatus();
-    
-    // Actualizar cronómetro
-    updateTimerDisplay();
-    
-    // Actualizar tarjetas de jugadores
-    renderPlayersCards();
-    
-    // Actualizar historial de eventos
-    renderEvents();
-    
-    // Guardar cambios
-    saveToCookies();
+function resetMatch() {
+    if (confirm('¿Reiniciar todo el partido? Se perderán todos los datos.')) {
+        window.currentMatch.team1.score = 0;
+        window.currentMatch.team2.score = 0;
+        window.currentMatch.team1.fouls = 0;
+        window.currentMatch.team2.fouls = 0;
+        window.currentMatch.team1.foulHistory = [];
+        window.currentMatch.team2.foulHistory = [];
+        window.currentMatch.team1.timeouts = 1;
+        window.currentMatch.team2.timeouts = 1;
+        window.currentMatch.currentPeriod = 1;
+        window.currentMatch.isOvertime = false;
+        window.currentMatch.timeRemaining = window.currentMatch.periodDuration;
+        window.currentMatch.matchStatus = 'NOT_STARTED';
+        window.currentMatch.winner = null;
+        window.currentMatch.events = [];
+        
+        if (window.currentMatch.timerInterval) {
+            clearInterval(window.currentMatch.timerInterval);
+            window.currentMatch.timerInterval = null;
+        }
+        
+        // Reiniciar tarjetas
+        initializePlayers();
+        
+        updateDisplay();
+        showNotification('Partido reiniciado completamente', 'success');
+    }
 }
 
 // ========== FUNCIONES DE CRONÓMETRO ==========
@@ -679,6 +740,94 @@ function showNotification(message, type = 'success') {
     }
 }
 
+// ========== FUNCIÓN PARA COMPARTIR ==========
+
+function generateShareText() {
+    if (!window.currentMatch) return '';
+    
+    let text = `⚽ RESULTADO DE FÚTBOL SALA ⚽\n\n`;
+    text += `${window.currentMatch.team1.name} ${window.currentMatch.team1.score} - ${window.currentMatch.team2.score} ${window.currentMatch.team2.name}\n\n`;
+    
+    text += `📅 ${new Date().toLocaleDateString()}\n`;
+    text += `🕒 ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}\n`;
+    text += `📍 ${window.currentMatch.location}\n\n`;
+    
+    if (window.currentMatch.isOvertime) {
+        text += `⚡ Prórroga: Periodo ${window.currentMatch.currentPeriod}\n`;
+    } else {
+        text += `⏱️ Periodo: ${window.currentMatch.currentPeriod}\n`;
+    }
+    
+    text += `📊 Faltas: ${window.currentMatch.team1.fouls} - ${window.currentMatch.team2.fouls}\n`;
+    text += `⏸️ Timeouts restantes: ${window.currentMatch.team1.timeouts} - ${window.currentMatch.team2.timeouts}\n`;
+    text += `🟨 Tarjetas amarillas: ${window.currentMatch.team1.yellowCards} - ${window.currentMatch.team2.yellowCards}\n`;
+    text += `🟦 Tarjetas azules: ${window.currentMatch.team1.blueCards} - ${window.currentMatch.team2.blueCards}\n`;
+    
+    text += `\n📱 Generado con Marcador de Fútbol Sala - Liga Escolar\n`;
+    text += `🔗 ${window.location.href}`;
+    
+    return text;
+}
+
+// ========== COOKIES Y ALMACENAMIENTO ==========
+
+function saveToCookies() {
+    if (window.storage && window.storage.saveToCookies) {
+        window.storage.saveToCookies('futbol_sala_current_match', window.currentMatch);
+        window.storage.saveToCookies('futbol_sala_match_history', window.matchHistory);
+    }
+}
+
+function loadFromCookies() {
+    if (window.storage && window.storage.loadFromCookies) {
+        const savedMatch = window.storage.loadFromCookies('futbol_sala_current_match');
+        if (savedMatch) {
+            window.currentMatch = savedMatch;
+        }
+        
+        const savedHistory = window.storage.loadFromCookies('futbol_sala_match_history');
+        if (savedHistory) {
+            window.matchHistory = savedHistory;
+        }
+    }
+}
+
+// ========== ACTUALIZAR DISPLAY ==========
+
+function updateDisplay() {
+    // Actualizar nombres de equipos
+    document.getElementById('team1-name').textContent = window.currentMatch.team1.name;
+    document.getElementById('team2-name').textContent = window.currentMatch.team2.name;
+    
+    // Actualizar marcador de goles
+    document.getElementById('team1-score').textContent = window.currentMatch.team1.score;
+    document.getElementById('team2-score').textContent = window.currentMatch.team2.score;
+    
+    // Actualizar timeouts y faltas
+    document.getElementById('team1-timeouts').textContent = window.currentMatch.team1.timeouts;
+    document.getElementById('team2-timeouts').textContent = window.currentMatch.team2.timeouts;
+    document.getElementById('team1-fouls').textContent = window.currentMatch.team1.fouls;
+    document.getElementById('team2-fouls').textContent = window.currentMatch.team2.fouls;
+    
+    // Actualizar información del periodo
+    updatePeriodDisplay();
+    
+    // Actualizar estado del partido
+    updateMatchStatus();
+    
+    // Actualizar cronómetro
+    updateTimerDisplay();
+    
+    // Actualizar tarjetas de jugadores
+    renderPlayersCards();
+    
+    // Actualizar historial de eventos
+    renderEvents();
+    
+    // Guardar cambios
+    saveToCookies();
+}
+
 // ========== FUNCIONES DE MODALES DE AYUDA ==========
 
 function openHelpModal() {
@@ -707,12 +856,171 @@ function closeUsageModal() {
     document.getElementById('usage-modal').style.display = 'none';
 }
 
-// ========== FUNCIONES EXISTENTES (mantener compatibilidad) ==========
+// ========== SETUP EVENT LISTENERS ==========
 
-// Mantén todas las funciones que ya tenía tu archivo futbol-sala.js original
-// Solo asegúrate de que no se dupliquen con las nuevas
+function setupEventListeners() {
+    // Controles de tiempo
+    const startTimerBtn = document.getElementById('start-timer');
+    const pauseTimerBtn = document.getElementById('pause-timer');
+    const resetTimerBtn = document.getElementById('reset-timer');
+    const nextPeriodBtn = document.getElementById('next-period');
+    
+    if (startTimerBtn) startTimerBtn.addEventListener('click', startTimer);
+    if (pauseTimerBtn) pauseTimerBtn.addEventListener('click', pauseTimer);
+    if (resetTimerBtn) resetTimerBtn.addEventListener('click', resetTimer);
+    if (nextPeriodBtn) nextPeriodBtn.addEventListener('click', nextPeriod);
+    
+    // Controles de goles
+    document.getElementById('team1-add-goal').addEventListener('click', () => addGoal('team1'));
+    document.getElementById('team1-remove-goal').addEventListener('click', () => removeGoal('team1'));
+    document.getElementById('team2-add-goal').addEventListener('click', () => addGoal('team2'));
+    document.getElementById('team2-remove-goal').addEventListener('click', () => removeGoal('team2'));
+    
+    // Controles de faltas y timeouts
+    document.getElementById('team1-foul').addEventListener('click', () => addFoul('team1'));
+    document.getElementById('team2-foul').addEventListener('click', () => addFoul('team2'));
+    document.getElementById('team1-timeout').addEventListener('click', () => useTimeout('team1'));
+    document.getElementById('team2-timeout').addEventListener('click', () => useTimeout('team2'));
+    
+    // Controles del partido
+    document.getElementById('activate-overtime').addEventListener('click', activateOvertime);
+    document.getElementById('reset-match').addEventListener('click', resetMatch);
+    document.getElementById('save-match').addEventListener('click', () => {
+        if (window.modalManager && window.modalManager.openSaveMatchModal) {
+            window.modalManager.openSaveMatchModal();
+        } else {
+            showNotification("Función de guardar no disponible", "warning");
+        }
+    });
+    
+    // Compartir
+    document.getElementById('share-results').addEventListener('click', function() {
+        if (window.common && window.common.openShareCurrentModal) {
+            window.common.openShareCurrentModal();
+        } else {
+            if (window.modalManager && window.modalManager.openSaveMatchModal) {
+                window.modalManager.openSaveMatchModal();
+            }
+        }
+    });
+    
+    document.getElementById('share-history').addEventListener('click', function() {
+        if (window.common && window.common.openShareHistoryModal) {
+            window.common.openShareHistoryModal();
+        }
+    });
+    
+    document.getElementById('share-whatsapp').addEventListener('click', function() {
+        if (window.common && window.common.shareToWhatsapp) {
+            window.common.shareToWhatsapp();
+        }
+    });
+    
+    // Ubicación
+    document.getElementById('save-location').addEventListener('click', saveLocation);
+    document.getElementById('match-location-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') saveLocation();
+    });
+    
+    // Nombres de equipos
+    document.getElementById('team1-name').addEventListener('click', () => {
+        if (window.common && window.common.openTeamNameModal) {
+            window.common.openTeamNameModal('team1');
+        }
+    });
+    
+    document.getElementById('team2-name').addEventListener('click', () => {
+        if (window.common && window.common.openTeamNameModal) {
+            window.common.openTeamNameModal('team2');
+        }
+    });
+    
+    // Añadir botones para remover faltas y timeouts
+    addRemoveButtons();
+}
 
-// Añade esto al final del archivo para mantener compatibilidad:
+function addRemoveButtons() {
+    // Añadir botón para remover faltas
+    const team1Controls = document.querySelector('#team1 .quick-controls');
+    const team2Controls = document.querySelector('#team2 .quick-controls');
+    
+    if (team1Controls) {
+        const removeFoulBtn1 = document.createElement('button');
+        removeFoulBtn1.className = 'btn btn-small btn-remove-foul';
+        removeFoulBtn1.innerHTML = '<i class="fas fa-undo"></i> Falta';
+        removeFoulBtn1.onclick = () => removeFoul('team1');
+        removeFoulBtn1.title = "Remover última falta";
+        team1Controls.appendChild(removeFoulBtn1);
+        
+        const removeTimeoutBtn1 = document.createElement('button');
+        removeTimeoutBtn1.className = 'btn btn-small btn-remove-timeout';
+        removeTimeoutBtn1.innerHTML = '<i class="fas fa-undo"></i> Timeout';
+        removeTimeoutBtn1.onclick = () => removeTimeout('team1');
+        removeTimeoutBtn1.title = "Recuperar timeout";
+        team1Controls.appendChild(removeTimeoutBtn1);
+    }
+    
+    if (team2Controls) {
+        const removeFoulBtn2 = document.createElement('button');
+        removeFoulBtn2.className = 'btn btn-small btn-remove-foul';
+        removeFoulBtn2.innerHTML = '<i class="fas fa-undo"></i> Falta';
+        removeFoulBtn2.onclick = () => removeFoul('team2');
+        removeFoulBtn2.title = "Remover última falta";
+        team2Controls.appendChild(removeFoulBtn2);
+        
+        const removeTimeoutBtn2 = document.createElement('button');
+        removeTimeoutBtn2.className = 'btn btn-small btn-remove-timeout';
+        removeTimeoutBtn2.innerHTML = '<i class="fas fa-undo"></i> Timeout';
+        removeTimeoutBtn2.onclick = () => removeTimeout('team2');
+        removeTimeoutBtn2.title = "Recuperar timeout";
+        team2Controls.appendChild(removeTimeoutBtn2);
+    }
+}
+
+function saveLocation() {
+    const matchLocationInput = document.getElementById('match-location-input');
+    const currentLocationEl = document.getElementById('current-location');
+    
+    if (!matchLocationInput || !currentLocationEl) return;
+    
+    const location = matchLocationInput.value.trim();
+    if (location) {
+        window.currentMatch.location = location;
+        currentLocationEl.textContent = location;
+        
+        saveToCookies();
+        
+        showNotification(`Ubicación guardada: ${location}`);
+        matchLocationInput.value = '';
+    } else {
+        showNotification("Por favor, ingresa una ubicación válida", "warning");
+    }
+}
+
+// ========== INICIALIZACIÓN ==========
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Inicializando fútbol sala...');
+    
+    // Inicializar jugadores
+    initializePlayers();
+    
+    // Configurar funciones globales
+    window.generateShareText = generateShareText;
+    window.saveToCookies = saveToCookies;
+    window.loadFromCookies = loadFromCookies;
+    
+    // Cargar datos guardados
+    loadFromCookies();
+    
+    // Inicializar la interfaz
+    updateDisplay();
+    
+    // Configurar event listeners
+    setupEventListeners();
+    
+    console.log("Fútbol sala con tarjetas inicializado correctamente");
+});
 
 // Hacer funciones accesibles globalmente
 window.addCard = addCard;
@@ -728,6 +1036,12 @@ window.openRulesModal = openRulesModal;
 window.closeRulesModal = closeRulesModal;
 window.showUsageInstructions = showUsageInstructions;
 window.closeUsageModal = closeUsageModal;
-
-// Si necesitas otras funciones de tu archivo original, cópialas aquí
-// asegurándote de que no se dupliquen con las nuevas
+window.startTimer = startTimer;
+window.pauseTimer = pauseTimer;
+window.resetTimer = resetTimer;
+window.nextPeriod = nextPeriod;
+window.addGoal = addGoal;
+window.removeGoal = removeGoal;
+window.activateOvertime = activateOvertime;
+window.resetMatch = resetMatch;
+window.saveLocation = saveLocation;

@@ -1,17 +1,15 @@
-const CACHE_NAME = 'futbol-sala-v1';
+const CACHE_NAME = 'futbol-sala-v2';
 const ASSETS_TO_CACHE = [
-  './',
-  'index.html',
-  'site.webmanifest',
-  // CSS (Rutas relativas al SW)
+  '/futbol-sala/',
+  'futbol-sala/index.html',
+  // CSS
   '../css/base.css',
   '../css/themes.css',
   '../css/layout.css',
   '../css/components.css',
   '../css/header-with-bg.css',
   '../css/sport-specific/futbol-sala.css',
-  // JS (Rutas relativas al SW)
-  '../js/ads-analytics.js',
+  // JS
   '../js/clock.js',
   '../js/celebrate.js',
   '../js/common.js',
@@ -19,7 +17,7 @@ const ASSETS_TO_CACHE = [
   '../js/match-core.js',
   '../js/modal-manager.js',
   '../js/futbol-sala.js',
-  // Imágenes locales del marcador
+  // Imágenes
   'imagenes/pizarra.png',
   'imagenes/favicon.ico'
 ];
@@ -27,8 +25,14 @@ const ASSETS_TO_CACHE = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // Usamos {cache: 'reload'} para forzar la descarga de la red durante la instalación
-      return cache.addAll(ASSETS_TO_CACHE);
+      console.log('Cache abierto');
+      return Promise.all(
+        ASSETS_TO_CACHE.map(url => {
+          return cache.add(url).catch(error => {
+            console.log('Error al cachear:', url, error);
+          });
+        })
+      );
     })
   );
 });
@@ -44,10 +48,34 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      // Si está en caché, lo devuelve; si no, va a la red
-      return cachedResponse || fetch(event.request);
-    })
-  );
+  const url = new URL(event.request.url);
+  
+  // Solo cachear recursos locales, ignorar anuncios y analytics
+  if (url.origin === location.origin && 
+      !url.pathname.includes('/pagead/') && 
+      !url.pathname.includes('/gtag/') &&
+      !url.pathname.includes('/getconfig/') &&
+      !url.pathname.includes('/sodar/')) {
+    
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        return fetch(event.request).then(response => {
+          // Solo cacheamos respuestas exitosas
+          if (response.ok) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return response;
+        });
+      })
+    );
+  } else {
+    // Para recursos externos, no usar cache
+    return;
+  }
 });

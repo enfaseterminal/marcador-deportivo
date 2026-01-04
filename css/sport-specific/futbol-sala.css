@@ -6,7 +6,6 @@ body.theme-futbol-sala {
     color: #ecf0f1;
 }
 
-
 /* Reloj específico */
 .clock-container-futbol-sala {
     background: rgba(46, 204, 113, 0.85);
@@ -137,6 +136,7 @@ body.theme-futbol-sala {
     display: flex;
     gap: 10px;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 .btn-foul {
@@ -208,6 +208,11 @@ body.theme-futbol-sala {
     background: rgba(255, 255, 255, 0.15);
 }
 
+.player-card-item.expelled {
+    opacity: 0.7;
+    border: 1px solid #e74c3c;
+}
+
 .player-info {
     display: flex;
     align-items: center;
@@ -267,6 +272,7 @@ body.theme-futbol-sala {
     justify-content: center;
     font-weight: bold;
     transition: all 0.3s;
+    font-size: 0.9rem;
 }
 
 .card-btn.yellow {
@@ -294,6 +300,11 @@ body.theme-futbol-sala {
 
 .card-btn.remove:hover {
     background: #E64A19;
+}
+
+.card-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 /* Resumen de tarjetas */
@@ -514,6 +525,51 @@ body.theme-futbol-sala {
     line-height: 1.6;
 }
 
+/* ===== EVENTOS ===== */
+.event-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    margin-bottom: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.event-time {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    min-width: 50px;
+}
+
+.event-icon {
+    width: 24px;
+    text-align: center;
+}
+
+.event-description {
+    flex: 1;
+    font-size: 0.85rem;
+}
+
+/* Botones de corrección */
+.btn-remove-foul {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    margin-top: 5px;
+}
+
+.btn-remove-timeout {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    margin-top: 5px;
+}
+
+.btn-remove-foul:hover, .btn-remove-timeout:hover {
+    opacity: 0.9;
+}
+
 /* Optimización para móvil */
 @media (max-width: 767px) {
     .team-futbol-sala {
@@ -638,20 +694,4 @@ body.theme-futbol-sala {
         padding: 8px 12px;
         font-size: 1rem;
     }
-}
-/* Botones de corrección */
-.btn-remove-foul {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
-    color: white;
-    margin-top: 5px;
-}
-
-.btn-remove-timeout {
-    background: linear-gradient(135deg, #3498db, #2980b9);
-    color: white;
-    margin-top: 5px;
-}
-
-.btn-remove-foul:hover, .btn-remove-timeout:hover {
-    opacity: 0.9;
 }
