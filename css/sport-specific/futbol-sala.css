@@ -421,6 +421,10 @@ body.theme-futbol-sala {
     background: linear-gradient(135deg, #3498db, #2980b9);
 }
 
+.btn-finish-time {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+}
+
 .btn-overtime {
     background: linear-gradient(135deg, #9b59b6, #8e44ad);
 }
