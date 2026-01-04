@@ -1,4 +1,3 @@
-<!-- [file name]: impostor/index.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -9,6 +8,7 @@
     <meta name="description" content="Juego del impostor para grupos. Descubre quién es el impostor antes de que se acabe el tiempo. Configura partidas personalizadas con palabras y pistas únicas.">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -29,13 +29,15 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/imagenes/apple-touch-icon-180x180.png">
     
     <style>
-        /* Estilos críticos */
+        /* Estilos críticos y tema impostor */
         body.theme-impostor {
             --primary-color: #9c27b0;
             --secondary-color: #673ab7;
             --gradient: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
             --accent-color: #ff4081;
             background: var(--gradient);
+            background-attachment: fixed;
+            min-height: 100vh;
         }
         
         .theme-impostor {
@@ -44,6 +46,101 @@
             --gradient: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
             --accent-color: #ff4081;
         }
+        
+        /* Clases para resultados */
+        body.impostor-win {
+            animation: impostorPulse 2s infinite;
+        }
+        
+        body.innocent-win {
+            animation: innocentPulse 2s infinite;
+        }
+        
+        @keyframes impostorPulse {
+            0% { background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); }
+            50% { background: linear-gradient(135deg, #ff4081 0%, #9c27b0 100%); }
+            100% { background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); }
+        }
+        
+        @keyframes innocentPulse {
+            0% { background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); }
+            50% { background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%); }
+            100% { background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); }
+        }
+        
+        /* Botón flotante de ayuda adicional */
+        .floating-help-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--accent-color), #ff2a6d);
+            color: white;
+            border-radius: 50%;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 9998;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-help-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* Ajuste para móviles en vertical */
+        @media (orientation: portrait) {
+            .floating-home-btn,
+            .floating-help-btn {
+                display: none !important;
+            }
+        }
+        
+        /* Estilos específicos para la nueva opción de dificultad */
+        .config-group select.form-control {
+            width: 100%;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        
+        .config-group select.form-control option {
+            background: #2c3e50;
+            color: white;
+            padding: 10px;
+        }
+        
+        .small {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        
+        /* Mejoras en responsividad */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .game-stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .stat-badge {
+                width: 100%;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body class="theme-impostor">
@@ -51,6 +148,11 @@
     <a href="/" class="floating-home-btn" title="Volver al inicio">
         <i class="fas fa-home"></i>
     </a>
+    
+    <!-- Botón flotante de ayuda (solo visible en landscape) -->
+    <button id="help-btn" class="floating-help-btn" title="Ayuda del juego">
+        <i class="fas fa-question-circle"></i>
+    </button>
     
     <div class="container">
         <header class="app-header">
@@ -96,6 +198,7 @@
                             <div class="range-slider">
                                 <input type="range" id="playerRange" min="3" max="12" value="6">
                             </div>
+                            <small>Mínimo 3, máximo 12 jugadores</small>
                         </div>
                         
                         <div class="config-group">
@@ -143,13 +246,28 @@
                             <select id="wordCategory" class="form-control">
                                 <option value="all">Todas las categorías</option>
                                 <option value="deportes">Deportes</option>
-                                <option value="objetos">Objetos cotidianos</option>
                                 <option value="profesiones">Profesiones</option>
                                 <option value="animales">Animales</option>
                                 <option value="comida">Comida</option>
+                                <option value="objetos">Objetos</option>
                                 <option value="lugares">Lugares</option>
+                                <option value="general">General</option>
                             </select>
                             <small id="word-count">Cargando palabras disponibles...</small>
+                        </div>
+                        
+                        <!-- NUEVA OPCIÓN: Dificultad -->
+                        <div class="config-group">
+                            <label for="difficulty">
+                                <i class="fas fa-chart-line"></i> Dificultad de palabras
+                            </label>
+                            <select id="difficulty" class="form-control">
+                                <option value="all">Todas las dificultades</option>
+                                <option value="facil">Fácil</option>
+                                <option value="dificil">Difícil</option>
+                                <option value="mixto">Mixto</option>
+                            </select>
+                            <small>Selecciona el nivel de dificultad de las palabras</small>
                         </div>
                     </div>
                     
@@ -161,6 +279,7 @@
                                 <span class="toggle-slider"></span>
                                 <span>Mostrar pistas al impostor</span>
                             </label>
+                            <small class="small">El impostor recibirá una pista sobre la palabra secreta</small>
                         </div>
                         <div class="toggle-group">
                             <label class="toggle-label">
@@ -168,6 +287,7 @@
                                 <span class="toggle-slider"></span>
                                 <span>Habilitar votaciones</span>
                             </label>
+                            <small class="small">Al final del tiempo, los jugadores votarán quién creen que es el impostor</small>
                         </div>
                         <div class="toggle-group">
                             <label class="toggle-label">
@@ -175,6 +295,7 @@
                                 <span class="toggle-slider"></span>
                                 <span>Asignar roles aleatoriamente</span>
                             </label>
+                            <small class="small">Los roles se asignarán al azar entre los jugadores</small>
                         </div>
                     </div>
                     
@@ -195,6 +316,7 @@
                         <p><i class="fas fa-user-secret"></i> <strong>Impostor:</strong> No conoce la palabra, solo una pista. Debe engañar a los demás sin ser descubierto.</p>
                         <p><i class="fas fa-clock"></i> <strong>Tiempo límite:</strong> Los inocentes tienen tiempo limitado para descubrir al impostor.</p>
                         <p><i class="fas fa-vote-yea"></i> <strong>Votación:</strong> Al final del tiempo, todos votan quién creen que es el impostor.</p>
+                        <p><i class="fas fa-chart-line"></i> <strong>Dificultad:</strong> Puedes elegir palabras fáciles, difíciles o mixtas.</p>
                     </div>
                 </div>
             </section>
@@ -255,6 +377,7 @@
                         <p><i class="fas fa-mobile-alt"></i> <strong>Pasa el dispositivo</strong> a cada jugador individualmente.</p>
                         <p><i class="fas fa-eye-slash"></i> <strong>Los inocentes no deben ver</strong> las pistas del impostor.</p>
                         <p><i class="fas fa-volume-mute"></i> <strong>Mantén silencio</strong> mientras otros ven su rol.</p>
+                        <p><i class="fas fa-history"></i> <strong>Todos deben ver su rol</strong> antes de comenzar a jugar.</p>
                     </div>
                 </div>
             </section>
@@ -294,6 +417,7 @@
                                 <li><i class="fas fa-search"></i> <strong>Observe</strong> las reacciones y respuestas de los demás</li>
                                 <li><i class="fas fa-user-secret"></i> <strong>Descubra</strong> quién no parece conocer la palabra</li>
                                 <li><i class="fas fa-clock"></i> <strong>Tenga en cuenta</strong> el tiempo restante</li>
+                                <li><i class="fas fa-lightbulb"></i> <strong>Pistas:</strong> El impostor solo conoce una pista sobre la palabra</li>
                             </ul>
                         </div>
                         
@@ -321,6 +445,10 @@
                     <h3><i class="fas fa-users"></i> Lista de jugadores</h3>
                     <div class="players-list" id="players-list">
                         <!-- Los jugadores se agregarán dinámicamente aquí -->
+                        <div class="empty-state">
+                            <i class="fas fa-users fa-2x"></i>
+                            <p>Los jugadores aparecerán aquí durante el juego</p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -341,6 +469,7 @@
                     
                     <div class="voting-instructions">
                         <p><i class="fas fa-info-circle"></i> Cada jugador debe votar por quien crea que es el impostor. El más votado será eliminado.</p>
+                        <p><i class="fas fa-exclamation-triangle"></i> Si hay empate o nadie vota, ¡el impostor gana!</p>
                     </div>
                     
                     <div class="voting-options" id="voting-options">
@@ -398,6 +527,8 @@
                                 <li><strong>Impostores:</strong> <span id="game-impostors">1</span></li>
                                 <li><strong>Palabra secreta:</strong> "<span id="game-word">Fútbol</span>"</li>
                                 <li><strong>Pista del impostor:</strong> "<span id="game-hint">Deporte con balón</span>"</li>
+                                <li><strong>Categoría:</strong> <span id="game-category">Deportes</span></li>
+                                <li><strong>Dificultad:</strong> <span id="game-difficulty">Fácil</span></li>
                                 <li><strong>Resultado:</strong> <span id="game-result">Inocentes ganan</span></li>
                                 <li><strong>Impostor(es):</strong> <span id="game-impostor-names">Jugador 3</span></li>
                             </ul>
@@ -435,12 +566,14 @@
                     <div class="empty-history">
                         <i class="fas fa-history fa-2x"></i>
                         <p>No hay partidas guardadas todavía.</p>
+                        <p class="small">Juega una partida para comenzar el historial</p>
                     </div>
                 </div>
                 <div class="history-controls">
                     <button id="clear-impostor-history" class="btn btn-warning btn-small">
                         <i class="fas fa-trash"></i> Limpiar historial
                     </button>
+                    <small class="small">Se guardan las últimas 50 partidas</small>
                 </div>
             </section>
         </main>
@@ -496,19 +629,51 @@
     <script src="../js/impostor-storage.js"></script>
     <script src="../js/impostor.js"></script>
     
-    <!-- Inicialización -->
+    <!-- Inicialización mejorada -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM completamente cargado - Inicializando juego');
+            
             // Inicializar reloj
             if (typeof updateClock === 'function') {
+                console.log('Inicializando reloj...');
                 updateClock();
                 setInterval(updateClock, 1000);
             }
             
-            // Inicializar juego
-            if (typeof window.impostorGame !== 'undefined') {
-                window.impostorGame.init();
+            // Función para verificar si los datos están cargados
+            function checkDataLoaded() {
+                return new Promise((resolve) => {
+                    if (window.impostorData && window.impostorData.gameData) {
+                        console.log('Datos ya cargados:', window.impostorData.gameData.palabras.length, 'palabras');
+                        resolve();
+                    } else {
+                        // Esperar y reintentar
+                        setTimeout(() => {
+                            if (window.impostorData && window.impostorData.gameData) {
+                                console.log('Datos cargados después de esperar');
+                                resolve();
+                            } else {
+                                console.warn('Datos aún no cargados, continuando de todos modos');
+                                resolve(); // Continuar aunque no haya datos
+                            }
+                        }, 1000);
+                    }
+                });
             }
+            
+            // Inicializar juego después de verificar datos
+            checkDataLoaded().then(() => {
+                if (typeof window.impostorGame !== 'undefined') {
+                    console.log('Inicializando juego del impostor...');
+                    window.impostorGame.init();
+                } else {
+                    console.error('Error: window.impostorGame no está definido');
+                    alert('Error al cargar el juego. Por favor, recarga la página.');
+                }
+            }).catch(error => {
+                console.error('Error al verificar datos:', error);
+            });
             
             // Configurar botón de inicio flotante
             const floatingBtn = document.querySelector('.floating-home-btn');
@@ -520,6 +685,30 @@
                         }
                     }
                 });
+            }
+            
+            // Configurar botón de ayuda flotante si no está configurado por el juego
+            const helpBtn = document.getElementById('help-btn');
+            if (helpBtn && (!window.impostorGame || typeof window.impostorGame.showHelp !== 'function')) {
+                helpBtn.addEventListener('click', function() {
+                    alert('AYUDA DEL JUEGO DEL IMPOSTOR\n\n' +
+                          '1. Configura número de jugadores e impostores\n' +
+                          '2. Selecciona categoría y dificultad de palabras\n' +
+                          '3. Pasa el dispositivo para asignar roles\n' +
+                          '4. Los inocentes reciben una palabra secreta\n' +
+                          '5. El impostor solo recibe una pista\n' +
+                          '6. ¡Conversen y descubran al impostor!\n' +
+                          '7. Al final del tiempo, voten\n\n' +
+                          '¡Diviértete! 🎮');
+                });
+            }
+        });
+        
+        // Manejar recarga de página con partida en curso
+        window.addEventListener('beforeunload', function (e) {
+            if (window.impostorGame && window.impostorGame.gameState !== 'setup') {
+                e.preventDefault();
+                e.returnValue = 'Hay una partida en curso. ¿Seguro que quieres salir?';
             }
         });
     </script>

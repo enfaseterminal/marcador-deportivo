@@ -137,12 +137,97 @@
       "pista": "Utensilio para comer sopa",
       "categoria": "objetos",
       "dificultad": "facil"
+    },
+    {
+      "palabra": "Silla",
+      "pista": "Mueble para sentarse",
+      "categoria": "objetos",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Mesa",
+      "pista": "Mueble con patas y superficie plana",
+      "categoria": "objetos",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Caleidoscopio",
+      "pista": "Instrumento óptico con espejos que crea patrones simétricos",
+      "categoria": "objetos",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Filantropía",
+      "pista": "Amor a la humanidad que se manifiesta en ayudar a los demás",
+      "categoria": "conceptos",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Paralelepípedo",
+      "pista": "Figura geométrica con seis caras paralelogramas",
+      "categoria": "geometria",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Onomatopeya",
+      "pista": "Palabra que imita un sonido natural",
+      "categoria": "lenguaje",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Efímero",
+      "pista": "Que dura muy poco tiempo",
+      "categoria": "conceptos",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Serendipia",
+      "pista": "Hallazgo afortunado e inesperado que se produce cuando se busca otra cosa",
+      "categoria": "conceptos",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Ubicuidad",
+      "pista": "Capacidad de estar presente en todas partes al mismo tiempo",
+      "categoria": "conceptos",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Oxímoron",
+      "pista": "Figura retórica que une dos conceptos opuestos",
+      "categoria": "lenguaje",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Paleontólogo",
+      "pista": "Científico que estudia los fósiles",
+      "categoria": "profesiones",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Ornitólogo",
+      "pista": "Científico que estudia las aves",
+      "categoria": "profesiones",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Equinoccio",
+      "pista": "Momento del año en que el día y la noche tienen la misma duración",
+      "categoria": "ciencia",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Fotosíntesis",
+      "pista": "Proceso por el cual las plantas convierten la luz solar en energía",
+      "categoria": "ciencia",
+      "dificultad": "dificil"
     }
   ],
   "configuracion": {
     "tiempo_votacion": 30,
     "max_jugadores": 12,
     "min_jugadores": 3,
-    "max_impostores": 3
+    "max_impostores": 3,
+    "dificultades_disponibles": ["facil", "dificil", "mixto"]
   }
 }

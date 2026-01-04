@@ -8,32 +8,24 @@ const impostorData = {
     // Cargar datos
     async loadGameData() {
         try {
+            console.log('Cargando datos del juego desde:', this.dataUrl);
             const response = await fetch(this.dataUrl);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             this.gameData = await response.json();
-            console.log('Datos del juego cargados exitosamente');
+            console.log('Datos del juego cargados exitosamente:', this.gameData.palabras.length, 'palabras');
+            
+            // Cargar también datos de localStorage si existen
+            this.loadFromLocalStorage();
+            
             return this.gameData;
         } catch (error) {
             console.error('Error al cargar datos:', error);
             
             // Datos por defecto en caso de error
             this.gameData = {
-                palabras: [
-                    {
-                        palabra: "Fútbol",
-                        pista: "Deporte con balón que se juega con los pies",
-                        categoria: "deportes",
-                        dificultad: "facil"
-                    },
-                    {
-                        palabra: "Baloncesto",
-                        pista: "Deporte donde se encesta una pelota en un aro",
-                        categoria: "deportes",
-                        dificultad: "facil"
-                    }
-                ],
+                palabras: this.getDefaultWords(),
                 configuracion: {
                     tiempo_votacion: 30,
                     max_jugadores: 12,
@@ -42,36 +34,177 @@ const impostorData = {
                 }
             };
             
+            console.log('Usando datos por defecto:', this.gameData.palabras.length, 'palabras');
             return this.gameData;
         }
+    },
+    
+    // Palabras por defecto
+    getDefaultWords() {
+        return [
+            {
+                palabra: "Fútbol",
+                pista: "Deporte con balón que se juega con los pies",
+                categoria: "deportes",
+                dificultad: "facil"
+            },
+            {
+                palabra: "Baloncesto",
+                pista: "Deporte donde se encesta una pelota en un aro",
+                categoria: "deportes",
+                dificultad: "facil"
+            },
+            {
+                palabra: "Tenis",
+                pista: "Deporte con raqueta y pelota amarilla",
+                categoria: "deportes",
+                dificultad: "facil"
+            },
+            {
+                palabra: "Natación",
+                pista: "Deporte acuático donde se avanza en el agua",
+                categoria: "deportes",
+                dificultad: "facil"
+            },
+            {
+                palabra: "Médico",
+                pista: "Persona que cura enfermedades",
+                categoria: "profesiones",
+                dificultad: "facil"
+            },
+            {
+                palabra: "Profesor",
+                pista: "Persona que enseña en una escuela",
+                categoria: "profesiones",
+                dificultad: "facil"
+            },
+            {
+                palabra: "Policía",
+                pista: "Persona que mantiene el orden",
+                categoria: "profesiones",
+                dificultad: "facil"
+            },
+            {
+                palabra: "Perro",
+                pista: "Animal doméstico que ladra",
+                categoria: "animales",
+                dificultad: "facil"
+            },
+            {
+                palabra: "Gato",
+                pista: "Animal doméstico que maúlla",
+                categoria: "animales",
+                dificultad: "facil"
+            },
+            {
+                palabra: "Elefante",
+                pista: "Animal grande con trompa",
+                categoria: "animales",
+                dificultad: "facil"
+            },
+            {
+                palabra: "Pizza",
+                pista: "Comida italiana con masa y queso",
+                categoria: "comida",
+                dificultad: "facil"
+            },
+            {
+                palabra: "Hamburguesa",
+                pista: "Comida rápida con carne y pan",
+                categoria: "comida",
+                dificultad: "facil"
+            },
+            {
+                palabra: "Manzana",
+                pista: "Fruta roja o verde",
+                categoria: "comida",
+                dificultad: "facil"
+            },
+            {
+                palabra: "Teléfono",
+                pista: "Objeto para hablar a distancia",
+                categoria: "objetos",
+                dificultad: "facil"
+            },
+            {
+                palabra: "Libro",
+                pista: "Objeto con páginas para leer",
+                categoria: "objetos",
+                dificultad: "facil"
+            },
+            // Palabras difíciles
+            {
+                palabra: "Caleidoscopio",
+                pista: "Instrumento óptico con espejos que crea patrones simétricos",
+                categoria: "objetos",
+                dificultad: "dificil"
+            },
+            {
+                palabra: "Filantropía",
+                pista: "Amor a la humanidad que se manifiesta en ayudar a los demás",
+                categoria: "conceptos",
+                dificultad: "dificil"
+            },
+            {
+                palabra: "Paralelepípedo",
+                pista: "Figura geométrica con seis caras paralelogramas",
+                categoria: "geometria",
+                dificultad: "dificil"
+            },
+            {
+                palabra: "Onomatopeya",
+                pista: "Palabra que imita un sonido natural",
+                categoria: "lenguaje",
+                dificultad: "dificil"
+            },
+            {
+                palabra: "Efímero",
+                pista: "Que dura muy poco tiempo",
+                categoria: "conceptos",
+                dificultad: "dificil"
+            }
+        ];
     },
     
     // Obtener datos
     getGameData() {
         if (!this.gameData) {
+            console.warn('gameData no está cargado, cargando...');
             this.loadGameData();
         }
         return this.gameData;
     },
     
-    // Obtener palabras por categoría
-    getWordsByCategory(category) {
+    // Obtener palabras por categoría y dificultad
+    getWords(category = 'all', difficulty = 'all') {
         if (!this.gameData || !this.gameData.palabras) {
-            return [];
+            console.warn('No hay datos disponibles, usando palabras por defecto');
+            return this.getDefaultWords();
         }
         
-        if (category === 'all') {
-            return this.gameData.palabras;
+        let palabras = this.gameData.palabras;
+        
+        // Filtrar por categoría
+        if (category !== 'all') {
+            palabras = palabras.filter(word => 
+                word.categoria === category
+            );
         }
         
-        return this.gameData.palabras.filter(word => 
-            word.categoria === category);
+        // Filtrar por dificultad
+        if (difficulty !== 'all') {
+            palabras = palabras.filter(word => 
+                word.dificultad === difficulty
+            );
+        }
+        
+        return palabras;
     },
     
     // Obtener categorías disponibles
     getCategories() {
         if (!this.gameData || !this.gameData.palabras) {
-            return ['all'];
+            return ['all', 'deportes', 'profesiones', 'animales', 'comida', 'objetos'];
         }
         
         const categories = ['all'];
@@ -84,49 +217,33 @@ const impostorData = {
         return categories;
     },
     
-    // Añadir nueva palabra
-    addWord(palabra, pista, categoria = 'general', dificultad = 'facil') {
-        if (!this.gameData || !this.gameData.palabras) {
-            this.gameData = { palabras: [] };
-        }
-        
-        const newWord = {
-            palabra,
-            pista,
-            categoria,
-            dificultad
-        };
-        
-        this.gameData.palabras.push(newWord);
-        this.saveToLocalStorage();
-        
-        return newWord;
+    // Obtener palabras por dificultad
+    getWordsByDifficulty(difficulty) {
+        return this.getWords('all', difficulty);
     },
     
-    // Eliminar palabra
-    removeWord(palabra) {
-        if (!this.gameData || !this.gameData.palabras) {
-            return false;
-        }
-        
-        const initialLength = this.gameData.palabras.length;
-        this.gameData.palabras = this.gameData.palabras.filter(
-            word => word.palabra !== palabra
-        );
-        
-        if (this.gameData.palabras.length < initialLength) {
-            this.saveToLocalStorage();
-            return true;
-        }
-        
-        return false;
+    // Obtener palabras por categoría
+    getWordsByCategory(category) {
+        return this.getWords(category, 'all');
+    },
+    
+    // Contar palabras disponibles
+    countWords(category = 'all', difficulty = 'all') {
+        return this.getWords(category, difficulty).length;
     },
     
     // Guardar en localStorage
     saveToLocalStorage() {
         try {
-            localStorage.setItem('impostor_custom_words', 
-                JSON.stringify(this.gameData.palabras));
+            const customWords = this.gameData.palabras.filter(word => 
+                word.custom === true
+            );
+            
+            if (customWords.length > 0) {
+                localStorage.setItem('impostor_custom_words', 
+                    JSON.stringify(customWords));
+                console.log('Palabras personalizadas guardadas:', customWords.length);
+            }
             return true;
         } catch (error) {
             console.error('Error al guardar en localStorage:', error);
@@ -141,20 +258,23 @@ const impostorData = {
             if (savedWords) {
                 const customWords = JSON.parse(savedWords);
                 
-                // Combinar con palabras por defecto
-                if (this.gameData && this.gameData.palabras) {
-                    // Evitar duplicados
-                    customWords.forEach(customWord => {
-                        const exists = this.gameData.palabras.some(
-                            word => word.palabra === customWord.palabra
-                        );
-                        
-                        if (!exists) {
-                            this.gameData.palabras.push(customWord);
-                        }
-                    });
-                }
+                // Marcar como custom
+                customWords.forEach(word => {
+                    word.custom = true;
+                });
                 
+                // Combinar con palabras existentes (evitar duplicados)
+                customWords.forEach(customWord => {
+                    const exists = this.gameData.palabras.some(
+                        word => word.palabra === customWord.palabra
+                    );
+                    
+                    if (!exists) {
+                        this.gameData.palabras.push(customWord);
+                    }
+                });
+                
+                console.log('Palabras personalizadas cargadas:', customWords.length);
                 return true;
             }
         } catch (error) {
@@ -164,57 +284,29 @@ const impostorData = {
         return false;
     },
     
-    // Exportar datos
-    exportData() {
-        if (!this.gameData) {
-            return null;
+    // Añadir nueva palabra personalizada
+    addCustomWord(palabra, pista, categoria = 'personalizado', dificultad = 'facil') {
+        if (!this.gameData || !this.gameData.palabras) {
+            this.gameData = { palabras: [] };
         }
         
-        const dataStr = JSON.stringify(this.gameData, null, 2);
-        const dataUri = 'data:application/json;charset=utf-8,'+ 
-            encodeURIComponent(dataStr);
-        
-        const exportFileDefaultName = `impostor_data_${new Date().getTime()}.json`;
-        
-        return {
-            data: dataStr,
-            filename: exportFileDefaultName,
-            uri: dataUri
+        const newWord = {
+            palabra,
+            pista,
+            categoria,
+            dificultad,
+            custom: true
         };
-    },
-    
-    // Importar datos
-    importData(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            
-            reader.onload = (event) => {
-                try {
-                    const importedData = JSON.parse(event.target.result);
-                    
-                    // Validar estructura básica
-                    if (importedData.palabras && Array.isArray(importedData.palabras)) {
-                        this.gameData = importedData;
-                        this.saveToLocalStorage();
-                        resolve(true);
-                    } else {
-                        reject(new Error('Estructura de datos inválida'));
-                    }
-                } catch (error) {
-                    reject(new Error('Error al procesar el archivo JSON'));
-                }
-            };
-            
-            reader.onerror = () => {
-                reject(new Error('Error al leer el archivo'));
-            };
-            
-            reader.readAsText(file);
-        });
+        
+        this.gameData.palabras.push(newWord);
+        this.saveToLocalStorage();
+        
+        console.log('Palabra personalizada añadida:', newWord);
+        return newWord;
     }
 };
 
-// Cargar datos al inicio
+// Cargar datos inmediatamente
 impostorData.loadGameData().then(() => {
     console.log('Datos del impostor cargados y listos');
 });
