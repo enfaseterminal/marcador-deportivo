@@ -1,33 +1,39 @@
-// /js/futbol-sala.js
-// Marcador completo para fútbol sala con cronómetro y prórroga
+// /js/futbol-sala-completo.js
+// Marcador completo para fútbol sala con control de tarjetas amarillas/azules
 
-// Variables globales específicas de fútbol sala
+// Variables globales extendidas
 window.currentMatch = {
     team1: { 
         name: "Equipo Local", 
         score: 0,
         timeouts: 1,
         fouls: 0,
-        foulHistory: []
+        foulHistory: [],
+        players: [], // Nuevo: array de jugadores
+        yellowCards: 0, // Total de amarillas
+        blueCards: 0   // Total de azules
     },
     team2: { 
         name: "Equipo Visitante", 
         score: 0,
         timeouts: 1,
         fouls: 0,
-        foulHistory: []
+        foulHistory: [],
+        players: [], // Nuevo: array de jugadores
+        yellowCards: 0, // Total de amarillas
+        blueCards: 0   // Total de azules
     },
-    currentPeriod: 1, // 1 = Primer tiempo, 2 = Segundo tiempo, 3 = Prórroga 1, 4 = Prórroga 2
+    currentPeriod: 1,
     totalPeriods: 2,
     overtimePeriods: 2,
     isOvertime: false,
-    periodDuration: 20 * 60, // 20 minutos en segundos
-    overtimeDuration: 5 * 60, // 5 minutos en segundos para prórroga
+    periodDuration: 20 * 60,
+    overtimeDuration: 5 * 60,
     timeRemaining: 20 * 60,
     timerRunning: false,
     timerInterval: null,
     startTime: new Date(),
-    matchStatus: 'NOT_STARTED', // NOT_STARTED, RUNNING, PAUSED, FINISHED
+    matchStatus: 'NOT_STARTED',
     winner: null,
     location: "No especificada",
     events: []
@@ -37,15 +43,222 @@ window.matchHistory = [];
 window.editingTeam = null;
 window.savingMatchAfterWin = false;
 
-// Configuración específica del deporte
+// Configuración específica
 window.sportName = "Fútbol Sala";
 window.sportUrl = "https://www.ligaescolar.es/futbol-sala/";
 
-// ========== FUNCIONES PRINCIPALES ==========
+// ========== INICIALIZACIÓN DE JUGADORES ==========
 
-// Inicialización
+function initializePlayers() {
+    // Inicializar 5 jugadores por equipo
+    window.currentMatch.team1.players = [];
+    window.currentMatch.team2.players = [];
+    
+    // Jugadores equipo local (1-5)
+    for (let i = 1; i <= 5; i++) {
+        window.currentMatch.team1.players.push({
+            id: `team1-player-${i}`,
+            number: i,
+            yellowCards: 0,
+            blueCards: 0,
+            isExpelled: false
+        });
+    }
+    
+    // Jugadores equipo visitante (6-10)
+    for (let i = 1; i <= 5; i++) {
+        window.currentMatch.team2.players.push({
+            id: `team2-player-${i}`,
+            number: i,
+            yellowCards: 0,
+            blueCards: 0,
+            isExpelled: false
+        });
+    }
+    
+    // Resetear totales
+    window.currentMatch.team1.yellowCards = 0;
+    window.currentMatch.team1.blueCards = 0;
+    window.currentMatch.team2.yellowCards = 0;
+    window.currentMatch.team2.blueCards = 0;
+}
+
+// ========== FUNCIONES DE TARJETAS ==========
+
+function addCard(teamId, playerId, cardType) {
+    const team = window.currentMatch[teamId];
+    const playerIndex = team.players.findIndex(p => p.id === playerId);
+    
+    if (playerIndex === -1) return;
+    
+    const player = team.players[playerIndex];
+    
+    if (player.isExpelled) {
+        showNotification("Este jugador ya está expulsado", "warning");
+        return;
+    }
+    
+    if (cardType === 'yellow') {
+        player.yellowCards++;
+        team.yellowCards++;
+        
+        // Verificar si acumula 2 amarillas
+        if (player.yellowCards >= 2) {
+            const blueCardsToAdd = Math.floor(player.yellowCards / 2);
+            player.blueCards += blueCardsToAdd;
+            player.yellowCards = player.yellowCards % 2;
+            player.isExpelled = true;
+            team.blueCards += blueCardsToAdd;
+            
+            showNotification(`¡Jugador ${player.number} expulsado por doble amarilla!`, "warning");
+        }
+        
+        window.currentMatch.events.push({
+            time: getCurrentTime(),
+            type: 'yellow_card',
+            team: teamId,
+            player: player.number,
+            description: `Tarjeta amarilla para jugador ${player.number} (${team.name})`
+        });
+    } 
+    else if (cardType === 'blue') {
+        player.blueCards++;
+        player.isExpelled = true;
+        team.blueCards++;
+        
+        showNotification(`¡Jugador ${player.number} expulsado con tarjeta azul!`, "warning");
+        
+        window.currentMatch.events.push({
+            time: getCurrentTime(),
+            type: 'blue_card',
+            team: teamId,
+            player: player.number,
+            description: `Tarjeta azul para jugador ${player.number} (${team.name}) - EXPULSADO`
+        });
+    }
+    
+    // Actualizar interfaz y guardar
+    updateDisplay();
+    saveToCookies();
+}
+
+function removeCard(teamId, playerId) {
+    const team = window.currentMatch[teamId];
+    const playerIndex = team.players.findIndex(p => p.id === playerId);
+    
+    if (playerIndex === -1) return;
+    
+    const player = team.players[playerIndex];
+    
+    // Si tiene tarjeta azul, quitar una azul primero
+    if (player.blueCards > 0) {
+        player.blueCards--;
+        team.blueCards--;
+        
+        // Si tenía 1 azul y la quitamos, ya no está expulsado
+        if (player.blueCards === 0) {
+            player.isExpelled = false;
+        }
+        
+        showNotification(`Tarjeta azul removida del jugador ${player.number}`, "info");
+    }
+    // Si no tiene azules pero tiene amarillas, quitar una amarilla
+    else if (player.yellowCards > 0) {
+        player.yellowCards--;
+        team.yellowCards--;
+        
+        showNotification(`Tarjeta amarilla removida del jugador ${player.number}`, "info");
+    }
+    else {
+        showNotification("Este jugador no tiene tarjetas", "info");
+        return;
+    }
+    
+    // Actualizar interfaz y guardar
+    updateDisplay();
+    saveToCookies();
+}
+
+function resetCards() {
+    if (confirm('¿Reiniciar todas las tarjetas del partido?')) {
+        initializePlayers();
+        updateDisplay();
+        showNotification("Tarjetas reiniciadas correctamente", "success");
+    }
+}
+
+// ========== RENDERIZADO DE TARJETAS ==========
+
+function renderPlayersCards() {
+    renderTeamPlayersCards('team1', 'team1-players-cards');
+    renderTeamPlayersCards('team2', 'team2-players-cards');
+    updateCardsSummary();
+}
+
+function renderTeamPlayersCards(teamId, containerId) {
+    const team = window.currentMatch[teamId];
+    const container = document.getElementById(containerId);
+    
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    team.players.forEach(player => {
+        const playerCard = createPlayerCard(player, teamId);
+        container.appendChild(playerCard);
+    });
+}
+
+function createPlayerCard(player, teamId) {
+    const div = document.createElement('div');
+    div.className = 'player-card-item';
+    if (player.isExpelled) {
+        div.classList.add('expelled');
+        div.style.opacity = '0.7';
+    }
+    
+    div.innerHTML = `
+        <div class="player-info">
+            <div class="player-number">${player.number}</div>
+            <div class="player-cards-display">
+                <span class="card-count yellow">
+                    <i class="fas fa-square"></i> ${player.yellowCards}
+                </span>
+                <span class="card-count blue">
+                    <i class="fas fa-square"></i> ${player.blueCards}
+                </span>
+            </div>
+        </div>
+        <div class="player-controls">
+            <button class="card-btn yellow" onclick="addCard('${teamId}', '${player.id}', 'yellow')" ${player.isExpelled ? 'disabled' : ''}>
+                +A
+            </button>
+            <button class="card-btn blue" onclick="addCard('${teamId}', '${player.id}', 'blue')" ${player.isExpelled ? 'disabled' : ''}>
+                +Z
+            </button>
+            <button class="card-btn remove" onclick="removeCard('${teamId}', '${player.id}')">
+                <i class="fas fa-undo"></i>
+            </button>
+        </div>
+    `;
+    
+    return div;
+}
+
+function updateCardsSummary() {
+    document.getElementById('team1-yellow-total').textContent = window.currentMatch.team1.yellowCards;
+    document.getElementById('team1-blue-total').textContent = window.currentMatch.team1.blueCards;
+    document.getElementById('team2-yellow-total').textContent = window.currentMatch.team2.yellowCards;
+    document.getElementById('team2-blue-total').textContent = window.currentMatch.team2.blueCards;
+}
+
+// ========== FUNCIONES PRINCIPALES ACTUALIZADAS ==========
+
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Inicializando fútbol sala...');
+    console.log('Inicializando fútbol sala completo...');
+    
+    // Inicializar jugadores
+    initializePlayers();
     
     // Cargar datos guardados
     loadFromCookies();
@@ -61,10 +274,9 @@ document.addEventListener('DOMContentLoaded', function() {
     window.saveToCookies = saveToCookies;
     window.loadFromCookies = loadFromCookies;
     
-    console.log("Fútbol sala inicializado correctamente");
+    console.log("Fútbol sala con tarjetas inicializado correctamente");
 });
 
-// Configurar todos los event listeners
 function setupEventListeners() {
     // Controles de tiempo
     document.getElementById('start-timer').addEventListener('click', startTimer);
@@ -87,12 +299,12 @@ function setupEventListeners() {
     // Controles del partido
     document.getElementById('activate-overtime').addEventListener('click', activateOvertime);
     document.getElementById('reset-match').addEventListener('click', resetMatch);
-    document.getElementById('save-match').addEventListener('click', () => window.modalManager.openSaveMatchModal());
+    document.getElementById('save-match').addEventListener('click', () => window.modalManager?.openSaveMatchModal());
     
     // Compartir
-    document.getElementById('share-results').addEventListener('click', window.common.openShareCurrentModal);
-    document.getElementById('share-history').addEventListener('click', window.common.openShareHistoryModal);
-    document.getElementById('share-whatsapp').addEventListener('click', window.common.shareToWhatsapp);
+    document.getElementById('share-results').addEventListener('click', window.common?.openShareCurrentModal || openShareCurrentModal);
+    document.getElementById('share-history').addEventListener('click', window.common?.openShareHistoryModal || openShareHistoryModal);
+    document.getElementById('share-whatsapp').addEventListener('click', window.common?.shareToWhatsapp || shareToWhatsapp);
     
     // Ubicación
     document.getElementById('save-location').addEventListener('click', saveLocation);
@@ -101,11 +313,10 @@ function setupEventListeners() {
     });
     
     // Nombres de equipos
-    document.getElementById('team1-name').addEventListener('click', () => window.common.openTeamNameModal('team1'));
-    document.getElementById('team2-name').addEventListener('click', () => window.common.openTeamNameModal('team2'));
+    document.getElementById('team1-name').addEventListener('click', () => window.common?.openTeamNameModal('team1') || openTeamNameModal('team1'));
+    document.getElementById('team2-name').addEventListener('click', () => window.common?.openTeamNameModal('team2') || openTeamNameModal('team2'));
 }
 
-// Actualizar la interfaz
 function updateDisplay() {
     // Actualizar nombres de equipos
     document.getElementById('team1-name').textContent = window.currentMatch.team1.name;
@@ -130,6 +341,9 @@ function updateDisplay() {
     // Actualizar cronómetro
     updateTimerDisplay();
     
+    // Actualizar tarjetas de jugadores
+    renderPlayersCards();
+    
     // Actualizar historial de eventos
     renderEvents();
     
@@ -137,7 +351,6 @@ function updateDisplay() {
     saveToCookies();
 }
 
-// Actualizar información del periodo
 function updatePeriodDisplay() {
     let periodText = '';
     let periodNumber = window.currentMatch.currentPeriod;
@@ -150,14 +363,13 @@ function updatePeriodDisplay() {
         else periodText = 'Prórroga';
     }
     
-    document.getElementById('current-period').textContent = periodText;
-    document.getElementById('period-info').textContent = periodText;
-    
-    // Actualizar estado de prórroga
-    document.getElementById('overtime-status').textContent = window.currentMatch.isOvertime ? 'Sí' : 'No';
+    const elements = ['current-period', 'period-info'];
+    elements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = periodText;
+    });
 }
 
-// Actualizar estado del partido
 function updateMatchStatus() {
     let statusText = '';
     let statusColor = '';
@@ -181,39 +393,45 @@ function updateMatchStatus() {
             break;
     }
     
-    document.getElementById('match-status').textContent = statusText;
-    document.getElementById('match-status').style.color = statusColor;
+    const statusEl = document.getElementById('match-status');
+    if (statusEl) {
+        statusEl.textContent = statusText;
+        statusEl.style.color = statusColor;
+    }
 }
 
-// Actualizar cronómetro
 function updateTimerDisplay() {
     const minutes = Math.floor(window.currentMatch.timeRemaining / 60);
     const seconds = window.currentMatch.timeRemaining % 60;
     const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     
     // Actualizar en todos los lugares
-    document.getElementById('main-timer').textContent = timeString;
-    document.getElementById('match-timer').textContent = timeString;
+    const mainTimer = document.getElementById('main-timer');
+    const matchTimer = document.getElementById('match-timer');
+    
+    if (mainTimer) mainTimer.textContent = timeString;
+    if (matchTimer) matchTimer.textContent = timeString;
     
     // Aplicar estilos según el estado
-    const mainTimer = document.getElementById('main-timer');
-    mainTimer.classList.remove('timer-running', 'timer-paused', 'timer-finished');
-    
-    if (window.currentMatch.matchStatus === 'RUNNING') {
-        mainTimer.classList.add('timer-running');
-    } else if (window.currentMatch.matchStatus === 'PAUSED') {
-        mainTimer.classList.add('timer-paused');
-    } else if (window.currentMatch.matchStatus === 'FINISHED') {
-        mainTimer.classList.add('timer-finished');
+    if (mainTimer) {
+        mainTimer.classList.remove('timer-running', 'timer-paused', 'timer-finished');
+        
+        if (window.currentMatch.matchStatus === 'RUNNING') {
+            mainTimer.classList.add('timer-running');
+        } else if (window.currentMatch.matchStatus === 'PAUSED') {
+            mainTimer.classList.add('timer-paused');
+        } else if (window.currentMatch.matchStatus === 'FINISHED') {
+            mainTimer.classList.add('timer-finished');
+        }
     }
 }
 
-// Iniciar cronómetro
+// ========== FUNCIONES DE TIEMPO (se mantienen igual) ==========
+
 function startTimer() {
     if (window.currentMatch.matchStatus === 'FINISHED') return;
     
     if (window.currentMatch.matchStatus === 'NOT_STARTED') {
-        // Primer inicio del partido
         window.currentMatch.startTime = new Date();
         window.currentMatch.matchStatus = 'RUNNING';
         window.currentMatch.events.push({
@@ -230,7 +448,6 @@ function startTimer() {
             window.currentMatch.timeRemaining--;
             updateTimerDisplay();
             
-            // Verificar si el tiempo se acabó
             if (window.currentMatch.timeRemaining === 0) {
                 endPeriod();
             }
@@ -238,13 +455,9 @@ function startTimer() {
     }, 1000);
     
     updateDisplay();
-    
-    if (window.common && window.common.showNotification) {
-        window.common.showNotification('Cronómetro iniciado');
-    }
+    showNotification('Cronómetro iniciado');
 }
 
-// Pausar cronómetro
 function pauseTimer() {
     if (window.currentMatch.matchStatus !== 'RUNNING') return;
     
@@ -258,19 +471,14 @@ function pauseTimer() {
     });
     
     updateDisplay();
-    
-    if (window.common && window.common.showNotification) {
-        window.common.showNotification('Cronómetro pausado', 'warning');
-    }
+    showNotification('Cronómetro pausado', 'warning');
 }
 
-// Reiniciar cronómetro del periodo actual
 function resetTimer() {
     if (window.currentMatch.matchStatus === 'RUNNING') {
         clearInterval(window.currentMatch.timerInterval);
     }
     
-    // Restablecer tiempo según el periodo actual
     if (window.currentMatch.isOvertime) {
         window.currentMatch.timeRemaining = window.currentMatch.overtimeDuration;
     } else {
@@ -286,20 +494,15 @@ function resetTimer() {
     });
     
     updateDisplay();
-    
-    if (window.common && window.common.showNotification) {
-        window.common.showNotification('Tiempo reiniciado');
-    }
+    showNotification('Tiempo reiniciado');
 }
 
-// Pasar al siguiente periodo
 function nextPeriod() {
     if (window.currentMatch.matchStatus === 'RUNNING') {
         clearInterval(window.currentMatch.timerInterval);
     }
     
     if (window.currentMatch.currentPeriod < window.currentMatch.totalPeriods) {
-        // Pasar al siguiente periodo normal
         window.currentMatch.currentPeriod++;
         window.currentMatch.timeRemaining = window.currentMatch.periodDuration;
         
@@ -309,23 +512,21 @@ function nextPeriod() {
             description: `Final del ${window.currentMatch.currentPeriod-1}° tiempo`
         });
         
-        if (window.common && window.common.showNotification) {
-            window.common.showNotification(`Iniciando ${window.currentMatch.currentPeriod}° tiempo`);
-        }
+        // Resetear timeouts para el nuevo tiempo
+        window.currentMatch.team1.timeouts = 1;
+        window.currentMatch.team2.timeouts = 1;
+        
+        showNotification(`Iniciando ${window.currentMatch.currentPeriod}° tiempo`);
     } else if (!window.currentMatch.isOvertime && window.currentMatch.currentPeriod === window.currentMatch.totalPeriods) {
-        // Verificar si hay empate para prórroga
         if (window.currentMatch.team1.score === window.currentMatch.team2.score) {
             if (confirm('¡Empate! ¿Activar prórroga?')) {
                 activateOvertime();
                 return;
             }
         }
-        
-        // Finalizar partido si no hay prórroga
         endMatch();
         return;
     } else if (window.currentMatch.isOvertime) {
-        // Manejar periodos de prórroga
         const overtimePeriod = window.currentMatch.currentPeriod - window.currentMatch.totalPeriods;
         
         if (overtimePeriod < window.currentMatch.overtimePeriods) {
@@ -338,11 +539,8 @@ function nextPeriod() {
                 description: `Final de prórroga ${overtimePeriod}`
             });
             
-            if (window.common && window.common.showNotification) {
-                window.common.showNotification(`Iniciando prórroga ${overtimePeriod + 1}`);
-            }
+            showNotification(`Iniciando prórroga ${overtimePeriod + 1}`);
         } else {
-            // Fin de la prórroga
             endMatch();
             return;
         }
@@ -352,7 +550,6 @@ function nextPeriod() {
     updateDisplay();
 }
 
-// Finalizar periodo automáticamente cuando el tiempo llega a 0
 function endPeriod() {
     clearInterval(window.currentMatch.timerInterval);
     
@@ -366,13 +563,9 @@ function endPeriod() {
         description: `${periodName} finalizado`
     });
     
-    // Verificar si es el último periodo
     if (!window.currentMatch.isOvertime && window.currentMatch.currentPeriod === window.currentMatch.totalPeriods) {
-        // Verificar empate para prórroga
         if (window.currentMatch.team1.score === window.currentMatch.team2.score) {
-            if (window.common && window.common.showNotification) {
-                window.common.showNotification('¡Empate! Puedes activar la prórroga', 'info');
-            }
+            showNotification('¡Empate! Puedes activar la prórroga', 'info');
             window.currentMatch.matchStatus = 'PAUSED';
         } else {
             endMatch();
@@ -387,12 +580,10 @@ function endPeriod() {
     updateDisplay();
 }
 
-// Finalizar partido
 function endMatch() {
     clearInterval(window.currentMatch.timerInterval);
     window.currentMatch.matchStatus = 'FINISHED';
     
-    // Determinar ganador
     let winner;
     if (window.currentMatch.team1.score > window.currentMatch.team2.score) {
         winner = window.currentMatch.team1.name;
@@ -405,9 +596,9 @@ function endMatch() {
         window.currentMatch.winner = 'draw';
     }
     
-    // Bloquear controles
-    document.querySelectorAll('.btn, .btn-icon').forEach(btn => {
-        if (!btn.id.includes('share') && !btn.id.includes('save') && !btn.id.includes('history')) {
+    // Deshabilitar controles
+    document.querySelectorAll('.btn, .btn-icon, .card-btn').forEach(btn => {
+        if (!btn.id || !btn.id.includes('share')) {
             btn.disabled = true;
             btn.classList.add('disabled');
         }
@@ -419,15 +610,12 @@ function endMatch() {
         description: `Partido finalizado. Ganador: ${winner}`
     });
     
-    if (window.common && window.common.showNotification) {
-        if (winner === 'Empate') {
-            window.common.showNotification('¡Partido finalizado! Resultado: Empate', 'info');
-        } else {
-            window.common.showNotification(`¡Partido finalizado! Ganador: ${winner}`, 'success');
-        }
+    if (winner === 'Empate') {
+        showNotification('¡Partido finalizado! Resultado: Empate', 'info');
+    } else {
+        showNotification(`¡Partido finalizado! Ganador: ${winner}`, 'success');
     }
     
-    // Mostrar celebración si hay ganador (no empate)
     if (window.currentMatch.winner !== 'draw' && typeof window.showCelebration === 'function') {
         window.showCelebration();
     }
@@ -443,33 +631,8 @@ function endMatch() {
     updateDisplay();
 }
 
-// Activar prórroga
-function activateOvertime() {
-    if (window.currentMatch.isOvertime) return;
-    
-    window.currentMatch.isOvertime = true;
-    window.currentMatch.currentPeriod = window.currentMatch.totalPeriods + 1;
-    window.currentMatch.timeRemaining = window.currentMatch.overtimeDuration;
-    window.currentMatch.matchStatus = 'PAUSED';
-    
-    // Resetear timeouts para prórroga (normalmente 1 por equipo en prórroga)
-    window.currentMatch.team1.timeouts = 1;
-    window.currentMatch.team2.timeouts = 1;
-    
-    window.currentMatch.events.push({
-        time: getCurrentTime(),
-        type: 'overtime_start',
-        description: 'Prórroga activada'
-    });
-    
-    updateDisplay();
-    
-    if (window.common && window.common.showNotification) {
-        window.common.showNotification('¡Prórroga activada! 2 tiempos de 5 minutos', 'success');
-    }
-}
+// ========== FUNCIONES DE GOLES, FALTAS Y TIMEOUTS ==========
 
-// Añadir gol
 function addGoal(team) {
     if (window.currentMatch.matchStatus === 'FINISHED') return;
     
@@ -487,24 +650,19 @@ function addGoal(team) {
     });
     
     updateDisplay();
+    showNotification(`¡Gol! ${teamObj.name}: ${teamObj.score}`);
     
-    if (window.common && window.common.showNotification) {
-        window.common.showNotification(`¡Gol! ${teamObj.name}: ${teamObj.score}`);
-    }
-    
-    // Verificar si hay ganador automático (en prórroga con gol de oro)
+    // Gol de oro en prórroga
     if (window.currentMatch.isOvertime && 
         window.currentMatch.team1.score !== window.currentMatch.team2.score &&
         window.currentMatch.matchStatus === 'RUNNING') {
         
-        // Gol de oro: partido termina inmediatamente
         setTimeout(() => {
             endMatch();
         }, 1000);
     }
 }
 
-// Remover gol
 function removeGoal(team) {
     if (window.currentMatch.matchStatus === 'FINISHED') return;
     
@@ -520,21 +678,16 @@ function removeGoal(team) {
         });
         
         updateDisplay();
-        
-        if (window.common && window.common.showNotification) {
-            window.common.showNotification(`Gol removido. ${teamObj.name}: ${teamObj.score}`, 'warning');
-        }
+        showNotification(`Gol removido. ${teamObj.name}: ${teamObj.score}`, 'warning');
     }
 }
 
-// Añadir falta
 function addFoul(team) {
     if (window.currentMatch.matchStatus === 'FINISHED') return;
     
     const teamObj = window.currentMatch[team];
     teamObj.fouls++;
     
-    // Registrar en historial de faltas
     const foulTime = getCurrentTime();
     teamObj.foulHistory.push({
         time: foulTime,
@@ -548,14 +701,15 @@ function addFoul(team) {
         description: `Falta #${teamObj.fouls} - ${teamObj.name}`
     });
     
-    updateDisplay();
-    
-    if (window.common && window.common.showNotification) {
-        window.common.showNotification(`Falta #${teamObj.fouls} para ${teamObj.name}`, 'warning');
+    // Alerta en la quinta falta
+    if (teamObj.fouls === 5) {
+        showNotification(`¡${teamObj.name} ha cometido 5 faltas!`, 'warning');
     }
+    
+    updateDisplay();
+    showNotification(`Falta #${teamObj.fouls} para ${teamObj.name}`, 'warning');
 }
 
-// Usar timeout
 function useTimeout(team) {
     if (window.currentMatch.matchStatus === 'FINISHED') return;
     
@@ -570,24 +724,39 @@ function useTimeout(team) {
             description: `Timeout usado - ${teamObj.name} (quedan: ${teamObj.timeouts})`
         });
         
-        // Pausar automáticamente el cronómetro si está corriendo
         if (window.currentMatch.matchStatus === 'RUNNING') {
             pauseTimer();
         }
         
         updateDisplay();
-        
-        if (window.common && window.common.showNotification) {
-            window.common.showNotification(`Timeout usado por ${teamObj.name}`, 'info');
-        }
+        showNotification(`Timeout usado por ${teamObj.name}`, 'info');
     } else {
-        if (window.common && window.common.showNotification) {
-            window.common.showNotification(`${teamObj.name} no tiene más timeouts`, 'warning');
-        }
+        showNotification(`${teamObj.name} no tiene más timeouts`, 'warning');
     }
 }
 
-// Reiniciar partido completo
+function activateOvertime() {
+    if (window.currentMatch.isOvertime) return;
+    
+    window.currentMatch.isOvertime = true;
+    window.currentMatch.currentPeriod = window.currentMatch.totalPeriods + 1;
+    window.currentMatch.timeRemaining = window.currentMatch.overtimeDuration;
+    window.currentMatch.matchStatus = 'PAUSED';
+    
+    // Resetear timeouts para prórroga
+    window.currentMatch.team1.timeouts = 1;
+    window.currentMatch.team2.timeouts = 1;
+    
+    window.currentMatch.events.push({
+        time: getCurrentTime(),
+        type: 'overtime_start',
+        description: 'Prórroga activada'
+    });
+    
+    updateDisplay();
+    showNotification('¡Prórroga activada! 2 tiempos de 5 minutos', 'success');
+}
+
 function resetMatch() {
     if (confirm("¿Reiniciar todo el partido? Se perderán todos los datos no guardados.")) {
         window.currentMatch = {
@@ -596,14 +765,20 @@ function resetMatch() {
                 score: 0,
                 timeouts: 1,
                 fouls: 0,
-                foulHistory: []
+                foulHistory: [],
+                players: [],
+                yellowCards: 0,
+                blueCards: 0
             },
             team2: { 
                 name: window.currentMatch.team2.name, 
                 score: 0,
                 timeouts: 1,
                 fouls: 0,
-                foulHistory: []
+                foulHistory: [],
+                players: [],
+                yellowCards: 0,
+                blueCards: 0
             },
             currentPeriod: 1,
             totalPeriods: 2,
@@ -621,21 +796,22 @@ function resetMatch() {
             events: []
         };
         
+        // Inicializar jugadores
+        initializePlayers();
+        
         // Reactivar controles
-        document.querySelectorAll('.btn, .btn-icon').forEach(btn => {
+        document.querySelectorAll('.btn, .btn-icon, .card-btn').forEach(btn => {
             btn.disabled = false;
             btn.classList.remove('disabled');
         });
         
         updateDisplay();
-        
-        if (window.common && window.common.showNotification) {
-            window.common.showNotification("Partido reiniciado correctamente");
-        }
+        showNotification("Partido reiniciado correctamente");
     }
 }
 
-// Renderizar eventos
+// ========== FUNCIONES DE RENDERIZADO ==========
+
 function renderEvents() {
     const eventsList = document.getElementById('events-list');
     if (!eventsList) return;
@@ -643,29 +819,25 @@ function renderEvents() {
     eventsList.innerHTML = '';
     
     if (window.currentMatch.events.length === 0) {
-        const emptyMessage = document.createElement('div');
-        emptyMessage.className = 'empty-message';
-        emptyMessage.innerHTML = '<p>No hay eventos registrados</p>';
-        eventsList.appendChild(emptyMessage);
+        eventsList.innerHTML = '<div class="empty-message"><p>No hay eventos registrados</p></div>';
         return;
     }
     
-    // Mostrar los últimos 10 eventos (los más recientes primero)
     const recentEvents = window.currentMatch.events.slice().reverse().slice(0, 10);
     
     recentEvents.forEach(event => {
         const eventItem = document.createElement('div');
         eventItem.className = 'event-item';
         
-        // Color según el tipo de evento
-        let borderColor = '#3498db'; // Azul por defecto
-        if (event.type === 'goal') borderColor = '#2ecc71'; // Verde para goles
-        if (event.type === 'foul') borderColor = '#e74c3c'; // Rojo para faltas
-        if (event.type === 'timeout') borderColor = '#9b59b6'; // Morado para timeouts
-        if (event.type === 'match_end') borderColor = '#f39c12'; // Naranja para final
+        let borderColor = '#3498db';
+        if (event.type === 'goal') borderColor = '#2ecc71';
+        if (event.type === 'foul') borderColor = '#e74c3c';
+        if (event.type === 'timeout') borderColor = '#9b59b6';
+        if (event.type === 'yellow_card') borderColor = '#FFD700';
+        if (event.type === 'blue_card') borderColor = '#2196F3';
+        if (event.type === 'match_end') borderColor = '#f39c12';
         
         eventItem.style.borderLeftColor = borderColor;
-        
         eventItem.innerHTML = `
             <div class="event-time">${event.time}</div>
             <div class="event-description">${event.description}</div>
@@ -675,13 +847,41 @@ function renderEvents() {
     });
 }
 
-// Obtener hora actual formateada
+// ========== FUNCIONES DE AYUDA ==========
+
+function openHelpModal() {
+    document.getElementById('help-modal').style.display = 'flex';
+}
+
+function closeHelpModal() {
+    document.getElementById('help-modal').style.display = 'none';
+}
+
+function openRulesModal() {
+    closeHelpModal();
+    document.getElementById('rules-modal').style.display = 'flex';
+}
+
+function closeRulesModal() {
+    document.getElementById('rules-modal').style.display = 'none';
+}
+
+function showUsageInstructions() {
+    closeHelpModal();
+    document.getElementById('usage-modal').style.display = 'flex';
+}
+
+function closeUsageModal() {
+    document.getElementById('usage-modal').style.display = 'none';
+}
+
+// ========== FUNCIONES UTILITARIAS ==========
+
 function getCurrentTime() {
     const now = new Date();
     return now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 }
 
-// Guardar ubicación
 function saveLocation() {
     const locationInput = document.getElementById('match-location-input');
     if (!locationInput) return;
@@ -689,16 +889,13 @@ function saveLocation() {
     const location = locationInput.value.trim();
     if (location) {
         window.currentMatch.location = location;
+        document.getElementById('current-location').textContent = location;
         updateDisplay();
-        
-        if (window.common && window.common.showNotification) {
-            window.common.showNotification(`Ubicación guardada: ${location}`);
-        }
+        showNotification(`Ubicación guardada: ${location}`);
         locationInput.value = '';
     }
 }
 
-// Generar texto para compartir
 function generateShareText() {
     const now = new Date();
     const dateStr = now.toLocaleDateString();
@@ -714,16 +911,14 @@ function generateShareText() {
     text += `${window.currentMatch.team2.name}: ${window.currentMatch.team2.score} goles\n\n`;
     
     text += `⏱️ TIEMPO: ${formatTime(window.currentMatch.timeRemaining)}\n`;
-    text += `📈 PERIODO: ${document.getElementById('current-period').textContent}\n`;
-    text += `📊 ESTADO: ${document.getElementById('match-status').textContent}\n`;
-    
-    if (window.currentMatch.isOvertime) {
-        text += `🔄 PRÓRROGA: Sí\n`;
-    }
+    text += `📈 PERIODO: ${document.getElementById('current-period')?.textContent || ''}\n`;
+    text += `📊 ESTADO: ${document.getElementById('match-status')?.textContent || ''}\n`;
     
     text += `\n📋 ESTADÍSTICAS:\n`;
     text += `Faltas: ${window.currentMatch.team1.name} (${window.currentMatch.team1.fouls}) - ${window.currentMatch.team2.name} (${window.currentMatch.team2.fouls})\n`;
-    text += `Timeouts restantes: ${window.currentMatch.team1.name} (${window.currentMatch.team1.timeouts}) - ${window.currentMatch.team2.name} (${window.currentMatch.team2.timeouts})\n\n`;
+    text += `Timeouts: ${window.currentMatch.team1.name} (${window.currentMatch.team1.timeouts}) - ${window.currentMatch.team2.name} (${window.currentMatch.team2.timeouts})\n`;
+    text += `Tarjetas Amarillas: ${window.currentMatch.team1.yellowCards} - ${window.currentMatch.team2.yellowCards}\n`;
+    text += `Tarjetas Azules: ${window.currentMatch.team1.blueCards} - ${window.currentMatch.team2.blueCards}\n\n`;
     
     text += `📍 Ubicación: ${window.currentMatch.location}\n`;
     text += `⏱️ Duración: ${duration} minutos\n\n`;
@@ -748,33 +943,44 @@ function generateShareText() {
         text += `\n`;
     }
     
-    if (window.matchHistory.length > 0) {
-        text += `=== ÚLTIMOS PARTIDOS (FÚTBOL SALA) ===\n`;
-        const recentMatches = window.matchHistory.slice(0, 3);
-        recentMatches.forEach((match, index) => {
-            const matchDate = new Date(match.timestamp).toLocaleDateString();
-            text += `${index + 1}. ${match.team1.name} ${match.team1.score}-${match.team2.score} ${match.team2.name}`;
-            if (match.location && match.location !== "No especificada") {
-                text += ` (${match.location})`;
-            }
-            text += `\n`;
-        });
-    }
-    
-    text += `\n📱 Generado con Marcador de Fútbol Sala - Liga Escolar`;
+    text += `📱 Generado con Marcador de Fútbol Sala - Liga Escolar`;
     text += `\n🔗 Más info: ${window.sportUrl}`;
     
     return text;
 }
 
-// Formatear tiempo (segundos a MM:SS)
 function formatTime(seconds) {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
-// Función específica para guardar en cookies
+function showNotification(message, type = 'success') {
+    // Usar common.js si está disponible, si no, crear notificación básica
+    if (window.common && window.common.showNotification) {
+        window.common.showNotification(message, type);
+    } else {
+        const notification = document.getElementById('notification');
+        const text = document.getElementById('notification-text');
+        
+        if (notification && text) {
+            text.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.style.display = 'flex';
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                    notification.style.animation = '';
+                }, 300);
+            }, 3000);
+        } else {
+            alert(message);
+        }
+    }
+}
+
 function saveToCookies() {
     const data = {
         currentMatch: window.currentMatch,
@@ -783,6 +989,13 @@ function saveToCookies() {
     
     if (window.storage && window.storage.saveToCookies) {
         window.storage.saveToCookies('futbolSalaScoreboard', data);
+    } else {
+        // Fallback básico
+        try {
+            localStorage.setItem('futbolSalaScoreboard', JSON.stringify(data));
+        } catch (e) {
+            console.error('Error al guardar en localStorage:', e);
+        }
     }
 }
 
@@ -790,57 +1003,55 @@ function loadFromCookies() {
     if (window.storage && window.storage.loadFromCookies) {
         const data = window.storage.loadFromCookies('futbolSalaScoreboard');
         if (data) {
-            window.currentMatch = data.currentMatch || window.currentMatch;
+            Object.assign(window.currentMatch, data.currentMatch || window.currentMatch);
             window.matchHistory = data.matchHistory || window.matchHistory;
             
-            // Restaurar el estado del cronómetro
             if (window.currentMatch.timerInterval) {
                 clearInterval(window.currentMatch.timerInterval);
                 window.currentMatch.timerInterval = null;
             }
             
-            // Actualizar display
+            // Asegurar que los jugadores estén inicializados
+            if (!window.currentMatch.team1.players || window.currentMatch.team1.players.length === 0) {
+                initializePlayers();
+            }
+            
             setTimeout(updateDisplay, 100);
+        }
+    } else {
+        // Fallback básico
+        try {
+            const saved = localStorage.getItem('futbolSalaScoreboard');
+            if (saved) {
+                const data = JSON.parse(saved);
+                Object.assign(window.currentMatch, data.currentMatch || window.currentMatch);
+                window.matchHistory = data.matchHistory || window.matchHistory;
+                
+                if (window.currentMatch.timerInterval) {
+                    clearInterval(window.currentMatch.timerInterval);
+                    window.currentMatch.timerInterval = null;
+                }
+                
+                // Asegurar que los jugadores estén inicializados
+                if (!window.currentMatch.team1.players || window.currentMatch.team1.players.length === 0) {
+                    initializePlayers();
+                }
+                
+                setTimeout(updateDisplay, 100);
+            }
+        } catch (e) {
+            console.error('Error al cargar de localStorage:', e);
         }
     }
 }
 
-// Función para generar texto del historial
-function generateHistoryText() {
-    const now = new Date();
-    const dateStr = now.toLocaleDateString();
-    
-    let text = `📊 HISTORIAL DE FÚTBOL SALA ⚽\n`;
-    text += `📅 ${dateStr}\n\n`;
-    
-    if (window.matchHistory.length === 0) {
-        text += `No hay partidos guardados.\n\n`;
-    } else {
-        text += `=== PARTIDOS GUARDADOS ===\n\n`;
-        
-        window.matchHistory.forEach((match, index) => {
-            const matchDate = new Date(match.timestamp).toLocaleDateString();
-            text += `PARTIDO ${index + 1}\n`;
-            text += `Fecha: ${matchDate}\n`;
-            text += `${match.team1.name} ${match.team1.score} - ${match.team2.score} ${match.team2.name}\n`;
-            if (match.location && match.location !== "No especificada") {
-                text += `📍 ${match.location}\n`;
-            }
-            if (match.duration) {
-                text += `⏱️ ${match.duration} minutos\n`;
-            }
-            if (match.isOvertime) {
-                text += `🔄 Con prórroga\n`;
-            }
-            text += `\n---\n\n`;
-        });
-    }
-    
-    text += `📱 Generado con Marcador de Fútbol Sala - Liga Escolar\n`;
-    text += `🔗 ${window.sportUrl}`;
-    
-    return text;
-}
-
 // Hacer funciones accesibles globalmente
-window.generateHistoryText = generateHistoryText;
+window.addCard = addCard;
+window.removeCard = removeCard;
+window.resetCards = resetCards;
+window.openHelpModal = openHelpModal;
+window.closeHelpModal = closeHelpModal;
+window.openRulesModal = openRulesModal;
+window.closeRulesModal = closeRulesModal;
+window.showUsageInstructions = showUsageInstructions;
+window.closeUsageModal = closeUsageModal;

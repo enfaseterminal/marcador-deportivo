@@ -1,551 +1,641 @@
-/* ESTILOS MUY ESPECÍFICOS PARA FÚTBOL SALA */
+/* ===== FUTBOL-SALA.CSS ACTUALIZADO ===== */
 
 /* Tema específico */
 body.theme-futbol-sala {
-    background: var(--gradient);
+    background: linear-gradient(135deg, #1a5276 0%, #27ae60 50%, #1a5276 100%);
+    color: #ecf0f1;
 }
 
-/* Reloj con color específico */
+
+/* Reloj específico */
 .clock-container-futbol-sala {
-    background-color: rgba(46, 204, 113, 0.8);
+    background: rgba(46, 204, 113, 0.85);
+    border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Reglas del juego - diseño específico */
+/* Reglas del juego */
 .game-rules-futbol-sala {
     color: #ffd700;
     display: flex;
     align-items: center;
-    gap: 5px;
-    margin-bottom: 10px;
-    font-size: 0.9rem;
+    gap: 8px;
+    margin: 10px 0;
+    font-size: 0.95rem;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 8px 12px;
+    border-radius: 8px;
 }
 
-.game-rules-futbol-sala i {
-    color: var(--warning-color);
-}
-
-/* Información del partido */
+/* Información del partido optimizada para móvil */
 .match-info-futbol-sala {
-    background-color: rgba(255, 255, 255, 0.1);
-    padding: 15px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    padding: 12px;
+    margin-bottom: 15px;
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: 15px;
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(10px);
 }
 
 .match-info-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 120px;
+    justify-content: center;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
 }
 
 .info-label {
     font-size: 0.8rem;
     opacity: 0.8;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
 }
 
 .info-value {
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: bold;
     color: #ffd700;
 }
 
-/* Cronómetro principal */
-.timer-container {
-    background-color: rgba(44, 62, 80, 0.9);
-    border-radius: 20px;
-    padding: 30px;
-    margin: 25px 0;
-    text-align: center;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
-    border: 3px solid rgba(255, 255, 255, 0.1);
-}
-
-.main-timer {
-    font-size: 5rem;
-    font-weight: bold;
-    color: #ffd700;
-    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-    margin-bottom: 15px;
-    font-family: 'Courier New', monospace;
-    letter-spacing: 2px;
-}
-
-.period-info {
-    font-size: 1.5rem;
-    color: white;
-    font-weight: bold;
-    padding: 10px 20px;
-    background-color: rgba(52, 152, 219, 0.8);
-    border-radius: 10px;
-    display: inline-block;
-}
-
-/* Scoreboard específico */
+/* Scoreboard optimizado para móvil */
 .scoreboard-futbol-sala {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 30px 0;
-    gap: 30px;
-    position: relative;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+@media (min-width: 768px) {
+    .scoreboard-futbol-sala {
+        flex-direction: row;
+        gap: 20px;
+    }
 }
 
 .team-futbol-sala {
-    background-color: rgba(44, 62, 80, 0.9);
-    border-radius: 20px;
-    padding: 25px;
-    text-align: center;
     flex: 1;
-    box-shadow: var(--shadow);
-    transition: var(--transition);
-    min-height: 350px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    backdrop-filter: blur(5px);
+    background: rgba(44, 62, 80, 0.9);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
-.team-futbol-sala:hover {
-    transform: translateY(-5px);
+.team-header {
+    margin-bottom: 15px;
 }
 
 .team-name-futbol-sala {
-    font-size: 1.6rem;
-    margin-bottom: 20px;
+    font-size: 1.4rem;
     font-weight: bold;
+    margin-bottom: 8px;
     cursor: pointer;
-    padding: 10px;
-    border-radius: 10px;
-    transition: var(--transition);
-    background-color: rgba(255, 255, 255, 0.05);
+    padding: 8px;
+    border-radius: 8px;
+    transition: background 0.3s;
 }
 
 .team-name-futbol-sala:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.team-summary {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    font-size: 0.9rem;
+}
+
+.summary-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
 }
 
 .score-futbol-sala {
-    font-size: 5.5rem;
+    font-size: 4rem;
     font-weight: bold;
-    margin: 20px 0;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
     color: #ffd700;
+    margin: 15px 0;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.vs-separator {
-    font-size: 2.5rem;
-    font-weight: bold;
+.score-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.quick-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.btn-foul {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
     color: white;
-    background-color: rgba(231, 76, 60, 0.8);
-    width: 70px;
-    height: 70px;
+}
+
+.btn-timeout {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+}
+
+/* Sección de tarjetas */
+.cards-section {
+    background: rgba(44, 62, 80, 0.9);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+    backdrop-filter: blur(10px);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.cards-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+@media (min-width: 768px) {
+    .cards-container {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.team-cards-section {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 15px;
+}
+
+.team-title {
+    text-align: center;
+    margin-bottom: 15px;
+    color: #ffd700;
+    font-size: 1.2rem;
+}
+
+.players-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+}
+
+.player-card-item {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 12px;
+    transition: transform 0.3s;
+}
+
+.player-card-item:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.player-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.player-number {
+    background: #3498db;
+    color: white;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-.team-info {
-    margin: 15px 0;
-    padding: 15px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-    display: flex;
-    justify-content: space-around;
-}
-
-.timeouts-info, .fouls-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.timeouts-label, .fouls-label {
-    font-size: 0.9rem;
-    opacity: 0.8;
-    margin-bottom: 5px;
-}
-
-.timeouts-value, .fouls-value {
-    font-size: 1.3rem;
     font-weight: bold;
+}
+
+.player-cards-display {
+    display: flex;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+.card-count {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.card-count.yellow {
+    background: rgba(255, 235, 59, 0.2);
+    color: #FFD700;
+}
+
+.card-count.blue {
+    background: rgba(33, 150, 243, 0.2);
+    color: #2196F3;
+}
+
+.player-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.card-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.card-btn.yellow {
+    background: #FFEB3B;
+    color: #333;
+}
+
+.card-btn.yellow:hover {
+    background: #FDD835;
+}
+
+.card-btn.blue {
+    background: #2196F3;
+    color: white;
+}
+
+.card-btn.blue:hover {
+    background: #1976D2;
+}
+
+.card-btn.remove {
+    background: #FF5722;
+    color: white;
+}
+
+.card-btn.remove:hover {
+    background: #E64A19;
+}
+
+/* Resumen de tarjetas */
+.cards-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+}
+
+.summary-team {
+    text-align: center;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.summary-team h4 {
+    margin-bottom: 10px;
     color: #ffd700;
 }
 
-.additional-controls {
+.summary-cards {
     display: flex;
     justify-content: center;
-    gap: 10px;
+    gap: 20px;
+}
+
+.summary-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.summary-card.yellow {
+    background: rgba(255, 235, 59, 0.3);
+    color: #FFD700;
+}
+
+.summary-card.blue {
+    background: rgba(33, 150, 243, 0.3);
+    color: #2196F3;
+}
+
+/* Modal de ayuda específico */
+.help-section {
+    margin-bottom: 20px;
+}
+
+.install-instructions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
     margin-top: 15px;
 }
 
-.btn-timeout {
-    background-color: #9b59b6;
-    color: white;
+@media (min-width: 768px) {
+    .install-instructions {
+        grid-template-columns: 1fr 1fr;
+    }
 }
 
-.btn-foul {
-    background-color: #e74c3c;
-    color: white;
-}
-
-/* Controles de tiempo */
-.time-controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    margin: 20px 0;
-    flex-wrap: wrap;
-}
-
-/* Botones específicos para fútbol sala */
-.btn-timer-start {
-    background: linear-gradient(135deg, #2ecc71, #27ae60);
-}
-
-.btn-timer-pause {
-    background: linear-gradient(135deg, #f39c12, #d68910);
-}
-
-.btn-timer-reset {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
-}
-
-.btn-next-period {
-    background: linear-gradient(135deg, #3498db, #2980b9);
-}
-
-.btn-overtime {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad);
-}
-
-.btn-share-current {
-    background: linear-gradient(135deg, #3498db, #2980b9);
-}
-
-.btn-share-history {
-    background: linear-gradient(135deg, #34495e, #2c3e50);
-}
-
-.btn-whatsapp {
-    background: linear-gradient(135deg, #25D366, #128C7E);
-}
-
-/* Historial de eventos */
-.events-history {
-    background-color: rgba(44, 62, 80, 0.9);
-    border-radius: 15px;
-    padding: 20px;
-    margin: 30px 0;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(5px);
-}
-
-.events-history h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 1.8rem;
-    color: var(--light-color);
-}
-
-.events-list {
-    max-height: 200px;
-    overflow-y: auto;
-    padding: 10px;
-    background-color: rgba(0, 0, 0, 0.2);
+.os-install {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 15px;
     border-radius: 10px;
-}
-
-.event-item {
-    padding: 10px 15px;
-    margin-bottom: 8px;
-    background-color: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
     border-left: 4px solid #3498db;
-    font-size: 0.9rem;
+}
+
+.os-install h4 {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.event-time {
-    color: #ffd700;
-    font-weight: bold;
-    font-family: monospace;
-}
-
-.event-description {
-    flex: 1;
-    margin-left: 15px;
-}
-
-/* ===== BOTONES DE CONTROL MEJORADOS ===== */
-
-/* Contenedor principal de controles */
-.match-controls, .export-controls, .time-controls {
-    display: flex;
-    justify-content: center;
     align-items: center;
     gap: 10px;
-    margin: 20px 0;
-    flex-wrap: wrap;
+    margin-bottom: 10px;
+    color: #3498db;
 }
 
-/* Estilo para botones con iconos */
-.btn-icon {
+.os-install ol {
+    padding-left: 20px;
+}
+
+.os-install li {
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.help-links {
     display: flex;
     flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.help-link {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s;
+}
+
+.help-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(5px);
+}
+
+.link-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border-radius: 10px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 90px;
-    height: 90px;
-    padding: 10px;
-    border-radius: 12px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-size: 1.5rem;
     color: white;
-    font-size: 0.8rem;
-    text-align: center;
-    gap: 8px;
-    position: relative;
 }
 
-.btn-icon i {
-    font-size: 1.8rem;
-    margin: 0;
+.link-content {
+    flex: 1;
 }
 
-/* Efectos hover */
-.btn-icon:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    opacity: 0.95;
-}
-
-.btn-icon:active {
-    transform: translateY(0);
-}
-
-/* Tooltips para los botones */
-.btn-icon::after {
-    content: attr(title);
-    position: absolute;
-    bottom: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
+.link-content strong {
+    display: block;
+    margin-bottom: 5px;
     color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 0.75rem;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    z-index: 1000;
 }
 
-.btn-icon:hover::after {
-    opacity: 1;
-    visibility: visible;
-    bottom: -35px;
+.link-content p {
+    font-size: 0.9rem;
+    opacity: 0.9;
 }
 
-/* Contenedor para grupos de botones */
-.control-group {
+/* Modal de reglas */
+.rules-content h3 {
+    color: #ffd700;
+    margin: 15px 0 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.rules-content ul {
+    padding-left: 20px;
+    margin-bottom: 20px;
+}
+
+.rules-content li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.cards-explanation {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    gap: 10px;
     margin: 15px 0;
-    width: 100%;
 }
 
-.control-group-label {
-    font-size: 1rem;
-    margin-bottom: 10px;
-    color: white;
-    font-weight: bold;
-    text-align: center;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-    padding: 5px 15px;
-    background-color: rgba(255, 255, 255, 0.1);
+.card-example {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
     border-radius: 8px;
-    width: fit-content;
 }
 
-/* Separador visual */
-.control-separator {
-    width: 90%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    margin: 20px auto;
+.card-example.yellow {
+    background: rgba(255, 235, 59, 0.2);
+    border-left: 4px solid #FFD700;
 }
 
-/* Estados del cronómetro */
-.timer-running {
-    color: #2ecc71 !important;
-    text-shadow: 0 0 20px rgba(46, 204, 113, 0.5) !important;
+.card-example.blue {
+    background: rgba(33, 150, 243, 0.2);
+    border-left: 4px solid #2196F3;
 }
 
-.timer-paused {
-    color: #f39c12 !important;
-    text-shadow: 0 0 20px rgba(243, 156, 18, 0.5) !important;
+.card-example i {
+    font-size: 1.5rem;
 }
 
-.timer-finished {
-    color: #e74c3c !important;
-    text-shadow: 0 0 20px rgba(231, 76, 60, 0.5) !important;
-    animation: pulse 1.5s infinite;
+.card-example.yellow i {
+    color: #FFD700;
 }
 
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+.card-example.blue i {
+    color: #2196F3;
 }
 
-/* Botón deshabilitado */
-.btn-icon:disabled, .btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+/* Instrucciones de uso */
+.instruction-step {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    border-left: 4px solid #2ecc71;
 }
 
-.btn-icon:disabled:hover {
-    transform: none;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+.instruction-step h4 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    color: #2ecc71;
 }
 
-/* Responsive para fútbol sala */
-@media (max-width: 768px) {
-    .scoreboard-futbol-sala {
-        flex-direction: column;
-        gap: 20px;
-    }
-    
-    .vs-separator {
-        position: relative;
-        left: auto;
-        top: auto;
-        transform: none;
-        margin: 10px 0;
-    }
-    
-    .score-futbol-sala {
-        font-size: 4.5rem;
-    }
-    
-    .main-timer {
-        font-size: 4rem;
-    }
-    
+.instruction-step p {
+    line-height: 1.6;
+}
+
+/* Optimización para móvil */
+@media (max-width: 767px) {
     .team-futbol-sala {
-        min-height: 300px;
-        padding: 20px;
+        padding: 15px;
     }
     
-    .btn-icon {
-        min-width: 80px;
-        height: 80px;
-        font-size: 0.75rem;
-    }
-    
-    .btn-icon i {
-        font-size: 1.6rem;
-    }
-}
-
-@media (max-width: 480px) {
     .score-futbol-sala {
         font-size: 3.5rem;
     }
     
-    .main-timer {
-        font-size: 3rem;
+    .players-cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     }
     
-    .match-info-futbol-sala {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
+    .player-card-item {
+        padding: 10px;
     }
     
-    .match-info-item {
-        min-width: 100%;
-        flex-direction: row;
-        justify-content: space-between;
-        padding: 8px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .info-label, .info-value {
+    .card-btn {
+        padding: 6px;
         font-size: 0.9rem;
     }
     
-    .btn-icon {
-        min-width: 70px;
-        height: 70px;
-        font-size: 0.7rem;
-    }
-    
-    .btn-icon i {
-        font-size: 1.4rem;
-    }
-    
-    .control-group-label {
-        font-size: 0.9rem;
+    .floating-help-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.3rem;
+        bottom: 70px;
     }
 }
 
-/* Modo landscape para móviles */
-@media (orientation: landscape) and (max-height: 500px) {
-    .app-header { 
-        display: none !important; 
+/* Optimización para orientación horizontal */
+@media (orientation: landscape) and (max-height: 600px) {
+    .container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas: 
+            "header header"
+            "timer timer"
+            "time-controls time-controls"
+            "scoreboard scoreboard"
+            "cards cards"
+            "summary summary"
+            "match-controls export-controls"
+            "events history";
+        gap: 10px;
+        padding: 10px;
     }
     
-    .scoreboard-futbol-sala {
-        margin: 10px 0;
-        gap: 15px;
+    .app-header { grid-area: header; }
+    .timer-container { grid-area: timer; }
+    .time-controls { grid-area: time-controls; }
+    .scoreboard-futbol-sala { 
+        grid-area: scoreboard; 
+        flex-direction: row;
+        margin: 5px 0;
     }
+    .cards-section { grid-area: cards; }
+    .cards-summary { grid-area: summary; }
+    .match-controls { grid-area: match-controls; }
+    .export-controls { grid-area: export-controls; }
+    .events-history { grid-area: events; }
+    .history { grid-area: history; }
     
+    /* Ajustes específicos para landscape */
     .team-futbol-sala {
-        padding: 15px;
-        min-height: 250px;
+        padding: 10px;
+        min-height: auto;
     }
     
     .score-futbol-sala {
-        font-size: 4rem;
+        font-size: 3rem;
         margin: 10px 0;
     }
     
     .main-timer {
+        font-size: 3.5rem;
+    }
+    
+    .cards-container {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .events-history,
+    .history {
+        max-height: 150px;
+        overflow-y: auto;
+    }
+    
+    /* Ocultar elementos no esenciales en landscape */
+    .match-info-futbol-sala {
+        display: none;
+    }
+    
+    .floating-home-btn,
+    .floating-help-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1.2rem;
+    }
+    
+    .floating-help-btn {
+        bottom: 60px;
+    }
+}
+
+/* Ajustes para pantallas muy pequeñas */
+@media (max-width: 360px) {
+    .team-name-futbol-sala {
+        font-size: 1.2rem;
+    }
+    
+    .score-futbol-sala {
         font-size: 3rem;
-        margin-bottom: 10px;
     }
     
-    .btn-icon {
-        min-width: 70px;
-        height: 70px;
-        font-size: 0.7rem;
-        padding: 5px;
+    .players-cards-grid {
+        grid-template-columns: 1fr;
     }
     
-    .btn-icon i {
-        font-size: 1.4rem;
+    .btn {
+        padding: 8px 12px;
+        font-size: 1rem;
     }
 }
