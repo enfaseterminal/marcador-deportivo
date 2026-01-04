@@ -606,3 +606,129 @@
         min-height: 50px;
     }
 }
+/* ===== CORRECCIONES CRÍTICAS ===== */
+
+/* Asegurar que las pantallas se oculten correctamente */
+.game-screen {
+    display: none !important;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.game-screen.active {
+    display: block !important;
+    opacity: 1;
+}
+
+/* Historial solo visible en pantalla de configuración */
+#setup-screen .history-panel {
+    display: block;
+    margin-top: 30px;
+    animation: fadeIn 0.5s ease 0.3s both;
+}
+
+.game-screen:not(#setup-screen) .history-panel {
+    display: none !important;
+}
+
+/* Asegurar que el contenido principal sea visible */
+.main-content {
+    position: relative;
+    z-index: 10;
+}
+
+/* Evitar que elementos se superpongan */
+.card {
+    position: relative;
+    z-index: 20;
+}
+
+/* Corrección para el botón flotante en landscape */
+@media (orientation: landscape) {
+    .floating-home-btn,
+    .floating-help-btn {
+        display: flex !important;
+    }
+    
+    .main-content {
+        padding-top: 20px;
+    }
+}
+
+/* Asegurar que los botones de configuración funcionen */
+.config-group .number-input {
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid var(--primary-color);
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+
+.config-group .number-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(255, 64, 129, 0.3);
+    outline: none;
+}
+
+/* Mejoras en la visibilidad del historial */
+.history-panel {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.empty-history {
+    text-align: center;
+    padding: 30px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.empty-history i {
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+/* Animación para la transición entre pantallas */
+@keyframes screenTransition {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.game-screen.active {
+    animation: screenTransition 0.5s ease;
+}
+
+/* Asegurar que los botones sean accesibles */
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Corrección para móviles pequeños */
+@media (max-width: 480px) {
+    .container {
+        padding: 10px 5px;
+    }
+    
+    .game-screen {
+        padding: 5px;
+    }
+    
+    .card {
+        padding: 15px;
+    }
+}
+
+/* Forzar visibilidad inicial de la pantalla de configuración */
+#setup-screen.active {
+    display: block !important;
+    visibility: visible !important;
+}

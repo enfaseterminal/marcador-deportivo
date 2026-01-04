@@ -47,6 +47,25 @@
             --accent-color: #ff4081;
         }
         
+        /* Corrección: Historial solo visible en pantalla de configuración */
+        #setup-screen .history-panel {
+            display: block;
+            margin-top: 30px;
+        }
+        
+        .game-screen:not(#setup-screen) .history-panel {
+            display: none;
+        }
+        
+        /* Asegurar que solo una pantalla sea visible */
+        .game-screen {
+            display: none !important;
+        }
+        
+        .game-screen.active {
+            display: block !important;
+        }
+        
         /* Clases para resultados */
         body.impostor-win {
             animation: impostorPulse 2s infinite;
@@ -140,6 +159,12 @@
                 width: 100%;
                 justify-content: center;
             }
+        }
+        
+        /* Asegurar que el contenido principal sea visible */
+        .main-content {
+            position: relative;
+            z-index: 1;
         }
     </style>
 </head>
@@ -317,6 +342,24 @@
                         <p><i class="fas fa-clock"></i> <strong>Tiempo límite:</strong> Los inocentes tienen tiempo limitado para descubrir al impostor.</p>
                         <p><i class="fas fa-vote-yea"></i> <strong>Votación:</strong> Al final del tiempo, todos votan quién creen que es el impostor.</p>
                         <p><i class="fas fa-chart-line"></i> <strong>Dificultad:</strong> Puedes elegir palabras fáciles, difíciles o mixtas.</p>
+                    </div>
+                </div>
+                
+                <!-- Historial de partidas (SOLO en pantalla de configuración) -->
+                <div class="history-panel">
+                    <h3><i class="fas fa-history"></i> Historial de partidas</h3>
+                    <div class="history-list" id="impostor-history-list">
+                        <div class="empty-history">
+                            <i class="fas fa-history fa-2x"></i>
+                            <p>No hay partidas guardadas todavía.</p>
+                            <p class="small">Juega una partida para comenzar el historial</p>
+                        </div>
+                    </div>
+                    <div class="history-controls">
+                        <button id="clear-impostor-history" class="btn btn-warning btn-small">
+                            <i class="fas fa-trash"></i> Limpiar historial
+                        </button>
+                        <small class="small">Se guardan las últimas 50 partidas</small>
                     </div>
                 </div>
             </section>
@@ -558,24 +601,6 @@
                     </div>
                 </div>
             </section>
-            
-            <!-- Historial de partidas -->
-            <section class="history-panel">
-                <h3><i class="fas fa-history"></i> Historial de partidas</h3>
-                <div class="history-list" id="impostor-history-list">
-                    <div class="empty-history">
-                        <i class="fas fa-history fa-2x"></i>
-                        <p>No hay partidas guardadas todavía.</p>
-                        <p class="small">Juega una partida para comenzar el historial</p>
-                    </div>
-                </div>
-                <div class="history-controls">
-                    <button id="clear-impostor-history" class="btn btn-warning btn-small">
-                        <i class="fas fa-trash"></i> Limpiar historial
-                    </button>
-                    <small class="small">Se guardan las últimas 50 partidas</small>
-                </div>
-            </section>
         </main>
 
         <!-- Modal de compartir -->
@@ -628,52 +653,70 @@
     <script src="../js/impostor-data.js"></script>
     <script src="../js/impostor-storage.js"></script>
     <script src="../js/impostor.js"></script>
+    <script src="../js/impostor-fix.js"></script>
     
-    <!-- Inicialización mejorada -->
+    <!-- Inicialización mejorada y simplificada -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM completamente cargado - Inicializando juego');
+            console.log('DOM completamente cargado');
             
-            // Inicializar reloj
+            // Inicializar reloj si existe
             if (typeof updateClock === 'function') {
                 console.log('Inicializando reloj...');
                 updateClock();
                 setInterval(updateClock, 1000);
             }
             
-            // Función para verificar si los datos están cargados
-            function checkDataLoaded() {
-                return new Promise((resolve) => {
-                    if (window.impostorData && window.impostorData.gameData) {
-                        console.log('Datos ya cargados:', window.impostorData.gameData.palabras.length, 'palabras');
-                        resolve();
-                    } else {
-                        // Esperar y reintentar
-                        setTimeout(() => {
-                            if (window.impostorData && window.impostorData.gameData) {
-                                console.log('Datos cargados después de esperar');
-                                resolve();
-                            } else {
-                                console.warn('Datos aún no cargados, continuando de todos modos');
-                                resolve(); // Continuar aunque no haya datos
-                            }
-                        }, 1000);
-                    }
-                });
+            // Asegurar que solo la pantalla de configuración sea visible inicialmente
+            const gameScreens = document.querySelectorAll('.game-screen');
+            gameScreens.forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Forzar que la pantalla de configuración sea visible
+            const setupScreen = document.getElementById('setup-screen');
+            if (setupScreen) {
+                setupScreen.classList.add('active');
+                console.log('Pantalla de configuración activada');
             }
             
-            // Inicializar juego después de verificar datos
-            checkDataLoaded().then(() => {
+            // Inicializar juego con retardo para asegurar que el DOM esté listo
+            setTimeout(function() {
                 if (typeof window.impostorGame !== 'undefined') {
                     console.log('Inicializando juego del impostor...');
+                    
+                    // Sobrescribir la función showScreen para debugging
+                    const originalShowScreen = window.impostorGame.showScreen;
+                    window.impostorGame.showScreen = function(screenId) {
+                        console.log('Mostrando pantalla:', screenId);
+                        
+                        // Ocultar todas las pantallas
+                        document.querySelectorAll('.game-screen').forEach(screen => {
+                            screen.classList.remove('active');
+                        });
+                        
+                        // Mostrar la pantalla solicitada
+                        const screen = document.getElementById(screenId);
+                        if (screen) {
+                            screen.classList.add('active');
+                            console.log('Pantalla ' + screenId + ' activada');
+                        } else {
+                            console.error('No se encontró la pantalla:', screenId);
+                        }
+                    };
+                    
+                    // Inicializar juego
                     window.impostorGame.init();
+                    
+                    // Restaurar función original después de inicializar
+                    setTimeout(() => {
+                        window.impostorGame.showScreen = originalShowScreen;
+                    }, 1000);
                 } else {
                     console.error('Error: window.impostorGame no está definido');
                     alert('Error al cargar el juego. Por favor, recarga la página.');
                 }
-            }).catch(error => {
-                console.error('Error al verificar datos:', error);
-            });
+            }, 500);
             
             // Configurar botón de inicio flotante
             const floatingBtn = document.querySelector('.floating-home-btn');
@@ -687,9 +730,9 @@
                 });
             }
             
-            // Configurar botón de ayuda flotante si no está configurado por el juego
+            // Configurar botón de ayuda flotante
             const helpBtn = document.getElementById('help-btn');
-            if (helpBtn && (!window.impostorGame || typeof window.impostorGame.showHelp !== 'function')) {
+            if (helpBtn) {
                 helpBtn.addEventListener('click', function() {
                     alert('AYUDA DEL JUEGO DEL IMPOSTOR\n\n' +
                           '1. Configura número de jugadores e impostores\n' +
@@ -702,13 +745,20 @@
                           '¡Diviértete! 🎮');
                 });
             }
+            
+            // Debug: Mostrar todas las pantallas para diagnóstico
+            console.log('Pantallas encontradas:', gameScreens.length);
+            gameScreens.forEach((screen, index) => {
+                console.log(index + ': ' + screen.id + ' - visible: ' + screen.classList.contains('active'));
+            });
         });
         
-        // Manejar recarga de página con partida en curso
-        window.addEventListener('beforeunload', function (e) {
-            if (window.impostorGame && window.impostorGame.gameState !== 'setup') {
-                e.preventDefault();
-                e.returnValue = 'Hay una partida en curso. ¿Seguro que quieres salir?';
+        // Forzar visibilidad de la pantalla de configuración al cargar
+        window.addEventListener('load', function() {
+            const setupScreen = document.getElementById('setup-screen');
+            if (setupScreen) {
+                setupScreen.classList.add('active');
+                setupScreen.style.display = 'block';
             }
         });
     </script>

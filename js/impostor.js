@@ -27,33 +27,49 @@ const impostorGame = {
     resultMessage: '',
     
     // Inicialización
-    init() {
-        console.log('Inicializando Juego del Impostor');
-        
-        // Verificar que los datos estén cargados
-        this.ensureDataLoaded().then(() => {
-            // Cargar historial
-            this.loadHistory();
-            
-            // Configurar event listeners
-            this.setupEventListeners();
-            
-            // Mostrar pantalla de configuración
-            this.showScreen('setup');
-            
-            // Actualizar contador de palabras
-            this.updateWordCount();
-            
-            // Inicializar botones de configuración
-            this.initializeConfigControls();
-            
-            console.log('Juego inicializado correctamente');
-        }).catch(error => {
-            console.error('Error al inicializar el juego:', error);
-            this.showNotification('Error al cargar el juego. Por favor, recarga la página.', 'error');
-        });
-    },
+init() {
+    console.log('Inicializando Juego del Impostor - Versión corregida');
     
+    // Forzar visibilidad de la pantalla de configuración
+    this.forceSetupScreenVisibility();
+    
+    // Cargar datos
+    this.loadGameData();
+    
+    // Cargar historial
+    this.loadHistory();
+    
+    // Configurar event listeners
+    this.setupEventListeners();
+    
+    // Mostrar pantalla de configuración
+    this.showScreen('setup');
+    
+    // Actualizar contador de palabras
+    this.updateWordCount();
+    
+    // Inicializar controles
+    this.initializeConfigControls();
+    
+    console.log('Juego inicializado correctamente');
+},
+
+// Nueva función para forzar visibilidad
+forceSetupScreenVisibility() {
+    // Ocultar todas las pantallas
+    document.querySelectorAll('.game-screen').forEach(screen => {
+        screen.classList.remove('active');
+        screen.style.display = 'none';
+    });
+    
+    // Mostrar solo la pantalla de configuración
+    const setupScreen = document.getElementById('setup-screen');
+    if (setupScreen) {
+        setupScreen.classList.add('active');
+        setupScreen.style.display = 'block';
+        console.log('Pantalla de configuración forzada a ser visible');
+    }
+},    
     // Asegurar que los datos estén cargados
     async ensureDataLoaded() {
         return new Promise((resolve, reject) => {
