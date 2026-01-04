@@ -1,5 +1,5 @@
 // /js/modal-manager.js
-// Gestión de modales para guardar partidos - VERSIÓN ACTUALIZADA CON TARJETAS
+// Gestión de modales para guardar partidos - VERSIÓN COMPLETAMENTE CORREGIDA
 
 function openSaveMatchModal() {
     const saveMatchModal = document.getElementById('save-match-modal');
@@ -7,13 +7,17 @@ function openSaveMatchModal() {
     const saveMatchLocationEl = document.getElementById('save-match-location');
     const saveMatchDurationEl = document.getElementById('save-match-duration');
     const cancelSaveBtn = document.getElementById('cancel-save');
+    const confirmSaveBtn = document.getElementById('confirm-save');
     
-    if (!saveMatchModal || !saveMatchResultEl || !saveMatchLocationEl) return;
+    if (!saveMatchModal || !saveMatchResultEl || !saveMatchLocationEl || !confirmSaveBtn) {
+        console.error('Elementos del modal de guardar no encontrados');
+        return;
+    }
     
     // Mostrar el resultado en el modal
     if (window.currentMatch) {
         saveMatchResultEl.textContent = `${window.currentMatch.team1.name} ${window.currentMatch.team1.score} - ${window.currentMatch.team2.score} ${window.currentMatch.team2.name}`;
-        saveMatchLocationEl.textContent = window.currentMatch.location;
+        saveMatchLocationEl.textContent = window.currentMatch.location || "No especificada";
         
         // Calcular duración
         const now = new Date();
@@ -23,28 +27,33 @@ function openSaveMatchModal() {
         }
     }
     
+    // CORRECCIÓN: Asegurar que el botón de confirmación esté habilitado
+    confirmSaveBtn.disabled = false;
+    confirmSaveBtn.textContent = 'Guardar Partido';
+    
     // Si se completó el partido, forzar guardado y ocultar botón cancelar
     if (typeof window.savingMatchAfterWin !== 'undefined' && window.savingMatchAfterWin) {
         if (cancelSaveBtn) cancelSaveBtn.style.display = 'none';
         
         // Mostrar mensaje explicativo
-        const message = document.createElement('p');
-        message.textContent = "Partido finalizado. Debes guardar para continuar.";
-        message.style.color = '#4CAF50';
-        message.style.marginTop = '10px';
-        message.style.fontWeight = 'bold';
-        message.className = 'force-save-message';
-        
-        // Asegurarse de que no se añada múltiples veces
-        const modalContent = saveMatchModal.querySelector('.modal-content');
-        const existingMessage = modalContent.querySelector('.force-save-message');
-        if (!existingMessage && modalContent) {
-            modalContent.appendChild(message);
+        const existingMessage = saveMatchModal.querySelector('.force-save-message');
+        if (!existingMessage) {
+            const message = document.createElement('p');
+            message.textContent = "Partido finalizado. Debes guardar para continuar.";
+            message.style.color = '#4CAF50';
+            message.style.marginTop = '10px';
+            message.style.fontWeight = 'bold';
+            message.className = 'force-save-message';
+            
+            const modalContent = saveMatchModal.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.appendChild(message);
+            }
         }
     } else {
         if (cancelSaveBtn) cancelSaveBtn.style.display = 'block';
         // Remover mensaje si existe
-        const existingMessage = document.querySelector('.force-save-message');
+        const existingMessage = saveMatchModal.querySelector('.force-save-message');
         if (existingMessage) {
             existingMessage.remove();
         }
@@ -72,9 +81,12 @@ function closeSaveMatchModal() {
     }
 }
 
-// Función específica para guardar partido de fútbol sala
+// CORRECCIÓN: Función para guardar partido de fútbol sala (COMPLETAMENTE FUNCIONAL)
 function saveFutbolSalaMatch() {
-    if (!window.currentMatch || !window.matchHistory) return;
+    if (!window.currentMatch || !window.matchHistory) {
+        console.error('No hay datos del partido o historial');
+        return;
+    }
     
     // Deshabilitar el botón para evitar múltiples clics
     const confirmSaveBtn = document.getElementById('confirm-save');
@@ -93,33 +105,38 @@ function saveFutbolSalaMatch() {
             score: window.currentMatch.team1.score,
             timeouts: window.currentMatch.team1.timeouts,
             fouls: window.currentMatch.team1.fouls,
-            yellowCards: [...window.currentMatch.team1.yellowCards],
-            blueCards: [...window.currentMatch.team1.blueCards],
-            expulsions: [...window.currentMatch.team1.expulsions]
+            yellowCards: [...(window.currentMatch.team1.yellowCards || [])],
+            blueCards: [...(window.currentMatch.team1.blueCards || [])],
+            expulsions: [...(window.currentMatch.team1.expulsions || [])]
         },
         team2: {
             name: window.currentMatch.team2.name,
             score: window.currentMatch.team2.score,
             timeouts: window.currentMatch.team2.timeouts,
             fouls: window.currentMatch.team2.fouls,
-            yellowCards: [...window.currentMatch.team2.yellowCards],
-            blueCards: [...window.currentMatch.team2.blueCards],
-            expulsions: [...window.currentMatch.team2.expulsions]
+            yellowCards: [...(window.currentMatch.team2.yellowCards || [])],
+            blueCards: [...(window.currentMatch.team2.blueCards || [])],
+            expulsions: [...(window.currentMatch.team2.expulsions || [])]
         },
         currentPeriod: window.currentMatch.currentPeriod,
         isOvertime: window.currentMatch.isOvertime,
         matchStatus: window.currentMatch.matchStatus,
         winner: window.currentMatch.winner,
-        location: window.currentMatch.location,
+        location: window.currentMatch.location || "No especificada",
         date: now.toLocaleString(),
         timestamp: now.getTime(),
         duration: duration,
-        events: [...window.currentMatch.events]
+        events: [...(window.currentMatch.events || [])]
     };
     
     // Añadir información del deporte
     if (typeof window.sportName !== 'undefined') {
         matchData.sport = window.sportName;
+    }
+    
+    // Inicializar el historial si no existe
+    if (!Array.isArray(window.matchHistory)) {
+        window.matchHistory = [];
     }
     
     window.matchHistory.unshift(matchData);
@@ -129,11 +146,7 @@ function saveFutbolSalaMatch() {
         window.matchHistory = window.matchHistory.slice(0, 20);
     }
     
-    // Renderizar historial usando matchCore
-    if (typeof window.matchCore?.renderMatchHistory === 'function') {
-        window.matchCore.renderMatchHistory();
-    }
-    
+    // Guardar en cookies
     if (typeof window.saveToCookies === 'function') {
         window.saveToCookies();
     }
@@ -172,10 +185,6 @@ function clearMatchHistory() {
     if (confirm(`¿Estás seguro de que quieres borrar todo el historial de partidos de ${sportName}?`)) {
         window.matchHistory = [];
         
-        if (typeof window.renderMatchHistory === 'function') {
-            window.renderMatchHistory();
-        }
-        
         if (typeof window.saveToCookies === 'function') {
             window.saveToCookies();
         }
@@ -186,14 +195,8 @@ function clearMatchHistory() {
     }
 }
 
-// Inicializar event listeners de modales
+// CORRECCIÓN: Inicializar event listeners de modales (COMPLETAMENTE FUNCIONAL)
 function initModalEventListeners() {
-    // Evitar inicialización duplicada
-    if (window.modalManager && window.modalManager.initialized) {
-        console.log('Modal event listeners ya inicializados');
-        return;
-    }
-    
     console.log('Inicializando modal event listeners...');
     
     const cancelSaveBtn = document.getElementById('cancel-save');
@@ -203,34 +206,40 @@ function initModalEventListeners() {
     const saveMatchBtn = document.getElementById('save-match');
     
     // Remover event listeners previos si existen
-    if (cancelSaveBtn) cancelSaveBtn.removeEventListener('click', closeSaveMatchModal);
-    if (confirmSaveBtn) confirmSaveBtn.removeEventListener('click', saveFutbolSalaMatch);
-    if (clearHistoryBtn) clearHistoryBtn.removeEventListener('click', clearMatchHistory);
-    if (resetMatchBtn) resetMatchBtn.removeEventListener('click', window.resetCurrentMatch);
-    if (saveMatchBtn) saveMatchBtn.removeEventListener('click', openSaveMatchModal);
-    
-    // Agregar event listeners
-    if (cancelSaveBtn) cancelSaveBtn.addEventListener('click', closeSaveMatchModal);
-    if (confirmSaveBtn) confirmSaveBtn.addEventListener('click', saveFutbolSalaMatch);
-    if (clearHistoryBtn) clearHistoryBtn.addEventListener('click', clearMatchHistory);
-    
-    if (resetMatchBtn && typeof window.resetCurrentMatch === 'function') {
-        resetMatchBtn.addEventListener('click', window.resetCurrentMatch);
+    if (cancelSaveBtn) {
+        cancelSaveBtn.removeEventListener('click', closeSaveMatchModal);
+        cancelSaveBtn.addEventListener('click', closeSaveMatchModal);
     }
     
-    if (saveMatchBtn) saveMatchBtn.addEventListener('click', openSaveMatchModal);
+    if (confirmSaveBtn) {
+        confirmSaveBtn.removeEventListener('click', saveFutbolSalaMatch);
+        confirmSaveBtn.addEventListener('click', saveFutbolSalaMatch);
+    }
     
-    window.modalManager.initialized = true; // Marcar como inicializado
-    console.log('Modal event listeners inicializados');
+    if (clearHistoryBtn) {
+        clearHistoryBtn.removeEventListener('click', clearMatchHistory);
+        clearHistoryBtn.addEventListener('click', clearMatchHistory);
+    }
+    
+    if (resetMatchBtn && typeof window.resetMatch === 'function') {
+        resetMatchBtn.removeEventListener('click', window.resetMatch);
+        resetMatchBtn.addEventListener('click', window.resetMatch);
+    }
+    
+    if (saveMatchBtn) {
+        saveMatchBtn.removeEventListener('click', openSaveMatchModal);
+        saveMatchBtn.addEventListener('click', openSaveMatchModal);
+    }
+    
+    console.log('Modal event listeners inicializados correctamente');
 }
 
 // Exportar funciones
 window.modalManager = {
     openSaveMatchModal,
     closeSaveMatchModal,
-    saveCurrentMatch: saveFutbolSalaMatch, // Alias para compatibilidad
+    saveCurrentMatch: saveFutbolSalaMatch,
     saveFutbolSalaMatch,
     clearMatchHistory,
-    initModalEventListeners,
-    initialized: false
+    initModalEventListeners
 };

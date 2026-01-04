@@ -56,36 +56,57 @@ function enableScoreButtons() {
     if (team2RemoveBtn) team2RemoveBtn.classList.remove('disabled');
 }
 
-// Funciones para el modal de edición de nombres
+// CORRECCIÓN: Funciones para el modal de edición de nombres (COMPLETAMENTE FUNCIONAL)
 function openTeamNameModal(team) {
+    window.editingTeam = team;
+    
     const teamNameModal = document.getElementById('team-name-modal');
     const teamNameInput = document.getElementById('team-name-input');
     
-    if (!teamNameModal || !teamNameInput) return;
+    if (!teamNameModal || !teamNameInput) {
+        console.error('Modal de nombre no encontrado');
+        return;
+    }
     
-    window.editingTeam = team;
-    teamNameInput.value = window.currentMatch ? window.currentMatch[team].name : '';
+    // Obtener el nombre actual del equipo
+    const currentName = window.currentMatch[team].name || '';
+    teamNameInput.value = currentName;
+    
+    // Mostrar el modal
     teamNameModal.style.display = 'flex';
+    
+    // Enfocar el input automáticamente
+    setTimeout(() => {
+        teamNameInput.focus();
+        teamNameInput.select();
+    }, 100);
 }
 
 function closeTeamNameModal() {
     const teamNameModal = document.getElementById('team-name-modal');
-    if (teamNameModal) teamNameModal.style.display = 'none';
+    if (teamNameModal) {
+        teamNameModal.style.display = 'none';
+    }
     window.editingTeam = null;
 }
 
 function saveTeamName() {
     const teamNameInput = document.getElementById('team-name-input');
     
-    if (!teamNameInput || !window.editingTeam || !window.currentMatch) return;
+    if (!teamNameInput || !window.editingTeam || !window.currentMatch) {
+        console.error('Error: Elementos no encontrados');
+        closeTeamNameModal();
+        return;
+    }
     
     const newName = teamNameInput.value.trim();
     if (newName !== '') {
+        // Actualizar el nombre en el objeto currentMatch
         window.currentMatch[window.editingTeam].name = newName;
         
-        // Actualizar en la interfaz usando matchCore
-        if (window.matchCore && window.matchCore.renderCurrentMatch) {
-            window.matchCore.renderCurrentMatch();
+        // Actualizar en la interfaz usando updateDisplay (que está en futbol-sala.js)
+        if (typeof updateDisplay === 'function') {
+            updateDisplay();
         }
         
         // Guardar en cookies si la función está disponible
@@ -93,8 +114,11 @@ function saveTeamName() {
             window.saveToCookies();
         }
         
-        showNotification(`Nombre cambiado a: ${newName}`);
+        if (typeof showNotification === 'function') {
+            showNotification(`Nombre cambiado a: ${newName}`);
+        }
     }
+    
     closeTeamNameModal();
 }
 
@@ -125,14 +149,14 @@ function openShareHistoryModal() {
     if (!shareModal || !shareTextEl || !modalTitle || !previewTitle) return;
     
     // Cambiar título del modal
-    modalTitle.textContent = 'Compartir Historial (Voleibol)';
+    modalTitle.textContent = 'Compartir Historial (Fútbol Sala)';
     previewTitle.textContent = 'Vista previa del historial:';
     
     // Generar texto del historial
-    let text = `🏐 HISTORIAL DE PARTIDOS DE VOLEIBOL 🏐\n`;
+    let text = `⚽ HISTORIAL DE FÚTBOL SALA ⚽\n`;
     text += `📅 ${new Date().toLocaleDateString()} 🕒 ${new Date().toLocaleTimeString()}\n\n`;
     
-    if (window.matchHistory.length === 0) {
+    if (!window.matchHistory || window.matchHistory.length === 0) {
         text += `No hay partidos guardados.\n\n`;
     } else {
         text += `=== PARTIDOS GUARDADOS ===\n\n`;
@@ -141,7 +165,7 @@ function openShareHistoryModal() {
             const matchDate = new Date(match.timestamp).toLocaleDateString();
             text += `PARTIDO ${index + 1}\n`;
             text += `Fecha: ${matchDate}\n`;
-            text += `${match.team1.name} ${match.team1.sets} - ${match.team2.sets} ${match.team2.name}\n`;
+            text += `${match.team1.name} ${match.team1.score} - ${match.team2.score} ${match.team2.name}\n`;
             if (match.location && match.location !== "No especificada") {
                 text += `📍 ${match.location}\n`;
             }
@@ -152,8 +176,8 @@ function openShareHistoryModal() {
         });
     }
     
-    text += `📱 Generado con Marcador de Voleibol - Liga Escolar\n`;
-    text += `🔗 ${window.sportUrl || "https://www.ligaescolar.es/voleibol/"}`;
+    text += `📱 Generado con Marcador de Fútbol Sala - Liga Escolar\n`;
+    text += `🔗 ${window.sportUrl || "https://www.ligaescolar.es/futbol-sala/"}`;
     
     shareTextEl.textContent = text;
     shareModal.style.display = 'flex';
@@ -175,13 +199,17 @@ function openShareCurrentModal() {
     if (!shareModal || !shareTextEl || !modalTitle || !previewTitle) return;
     
     // Cambiar título del modal
-    modalTitle.textContent = 'Compartir Resultados (Voleibol)';
+    modalTitle.textContent = 'Compartir Resultados (Fútbol Sala)';
     previewTitle.textContent = 'Vista previa del resultado:';
     
     // Generar texto usando la función específica del deporte
     if (typeof window.generateShareText === 'function') {
         shareTextEl.textContent = window.generateShareText();
+    } else {
+        // Texto por defecto si no hay función específica
+        shareTextEl.textContent = 'No hay información disponible para compartir.';
     }
+    
     shareModal.style.display = 'flex';
     
     // Mostrar botón de compartir historial dentro del modal
@@ -219,8 +247,8 @@ function shareViaNative() {
     if (!shareTextEl) return;
     
     const text = shareTextEl.textContent;
-    const sportName = window.sportName || "Deporte";
-    const sportUrl = window.sportUrl || "https://www.ligaescolar.es/";
+    const sportName = window.sportName || "Fútbol Sala";
+    const sportUrl = window.sportUrl || "https://www.ligaescolar.es/futbol-sala/";
     
     if (navigator.share) {
         navigator.share({
@@ -231,6 +259,7 @@ function shareViaNative() {
             console.log('Contenido compartido exitosamente');
         }).catch((error) => {
             console.log('Error al compartir:', error);
+            copyShareText();
         });
     } else {
         // Fallback para navegadores que no soportan la Web Share API
@@ -251,10 +280,10 @@ function shareToWhatsapp() {
             text = shareTextEl.textContent;
         } else {
             // Generar texto del historial si no hay elemento de texto
-            text = `🏐 HISTORIAL DE PARTIDOS DE VOLEIBOL 🏐\n`;
+            text = `⚽ HISTORIAL DE FÚTBOL SALA ⚽\n`;
             text += `📅 ${new Date().toLocaleDateString()} 🕒 ${new Date().toLocaleTimeString()}\n\n`;
             
-            if (window.matchHistory.length === 0) {
+            if (!window.matchHistory || window.matchHistory.length === 0) {
                 text += `No hay partidos guardados.\n\n`;
             } else {
                 text += `=== PARTIDOS GUARDADOS ===\n\n`;
@@ -263,7 +292,7 @@ function shareToWhatsapp() {
                     const matchDate = new Date(match.timestamp).toLocaleDateString();
                     text += `PARTIDO ${index + 1}\n`;
                     text += `Fecha: ${matchDate}\n`;
-                    text += `${match.team1.name} ${match.team1.sets} - ${match.team2.sets} ${match.team2.name}\n`;
+                    text += `${match.team1.name} ${match.team1.score} - ${match.team2.score} ${match.team2.name}\n`;
                     if (match.location && match.location !== "No especificada") {
                         text += `📍 ${match.location}\n`;
                     }
@@ -274,13 +303,16 @@ function shareToWhatsapp() {
                 });
             }
             
-            text += `📱 Generado con Marcador de Voleibol - Liga Escolar\n`;
-            text += `🔗 ${window.sportUrl || "https://www.ligaescolar.es/voleibol/"}`;
+            text += `📱 Generado con Marcador de Fútbol Sala - Liga Escolar\n`;
+            text += `🔗 ${window.sportUrl || "https://www.ligaescolar.es/futbol-sala/"}`;
         }
     } else {
         // Compartir partido actual
-        if (typeof window.generateShareText !== 'function') return;
-        text = window.generateShareText();
+        if (typeof window.generateShareText !== 'function') {
+            text = 'No hay información disponible para compartir.';
+        } else {
+            text = window.generateShareText();
+        }
     }
     
     const encodedText = encodeURIComponent(text);
@@ -301,26 +333,37 @@ function toggleShareContent() {
     }
 }
 
-// Inicializar event listeners comunes
+// CORRECCIÓN: Inicializar event listeners comunes (incluyendo el modal de nombres)
 function initCommonEventListeners() {
-    // Evitar inicialización duplicada
-    if (window.common && window.common.initialized) {
-        console.log('Common event listeners ya inicializados');
-        return;
-    }
-    
     console.log('Inicializando common event listeners...');
     
-    // Nombres de equipos (edición)
+    // Nombres de equipos (edición) - Asegurar que los listeners estén bien configurados
     const team1NameEl = document.getElementById('team1-name');
     const team2NameEl = document.getElementById('team2-name');
     const cancelEditBtn = document.getElementById('cancel-edit');
     const saveNameBtn = document.getElementById('save-name');
     
-    if (team1NameEl) team1NameEl.addEventListener('click', () => openTeamNameModal('team1'));
-    if (team2NameEl) team2NameEl.addEventListener('click', () => openTeamNameModal('team2'));
-    if (cancelEditBtn) cancelEditBtn.addEventListener('click', closeTeamNameModal);
-    if (saveNameBtn) saveNameBtn.addEventListener('click', saveTeamName);
+    // Remover listeners previos si existen
+    if (team1NameEl) {
+        team1NameEl.removeEventListener('click', () => openTeamNameModal('team1'));
+        team1NameEl.addEventListener('click', () => openTeamNameModal('team1'));
+    }
+    
+    if (team2NameEl) {
+        team2NameEl.removeEventListener('click', () => openTeamNameModal('team2'));
+        team2NameEl.addEventListener('click', () => openTeamNameModal('team2'));
+    }
+    
+    // CORRECCIÓN CRÍTICA: Asegurar que los botones del modal funcionen
+    if (cancelEditBtn) {
+        cancelEditBtn.removeEventListener('click', closeTeamNameModal);
+        cancelEditBtn.addEventListener('click', closeTeamNameModal);
+    }
+    
+    if (saveNameBtn) {
+        saveNameBtn.removeEventListener('click', saveTeamName);
+        saveNameBtn.addEventListener('click', saveTeamName);
+    }
     
     // Compartir
     const shareCurrentBtn = document.getElementById('share-results');
@@ -331,32 +374,82 @@ function initCommonEventListeners() {
     const closeShareBtn = document.getElementById('close-share');
     const shareHistoryModalBtn = document.getElementById('share-history-btn');
     
-    if (shareCurrentBtn) shareCurrentBtn.addEventListener('click', openShareCurrentModal);
-    if (shareHistoryBtn) shareHistoryBtn.addEventListener('click', openShareHistoryModal);
-    if (shareWhatsappBtn) shareWhatsappBtn.addEventListener('click', shareToWhatsapp);
-    if (copyTextBtn) copyTextBtn.addEventListener('click', copyShareText);
-    if (shareNativeBtn) shareNativeBtn.addEventListener('click', shareViaNative);
-    if (closeShareBtn) closeShareBtn.addEventListener('click', closeShareModal);
-    if (shareHistoryModalBtn) shareHistoryModalBtn.addEventListener('click', toggleShareContent);
+    if (shareCurrentBtn) {
+        shareCurrentBtn.removeEventListener('click', openShareCurrentModal);
+        shareCurrentBtn.addEventListener('click', openShareCurrentModal);
+    }
+    
+    if (shareHistoryBtn) {
+        shareHistoryBtn.removeEventListener('click', openShareHistoryModal);
+        shareHistoryBtn.addEventListener('click', openShareHistoryModal);
+    }
+    
+    if (shareWhatsappBtn) {
+        shareWhatsappBtn.removeEventListener('click', shareToWhatsapp);
+        shareWhatsappBtn.addEventListener('click', shareToWhatsapp);
+    }
+    
+    if (copyTextBtn) {
+        copyTextBtn.removeEventListener('click', copyShareText);
+        copyTextBtn.addEventListener('click', copyShareText);
+    }
+    
+    if (shareNativeBtn) {
+        shareNativeBtn.removeEventListener('click', shareViaNative);
+        shareNativeBtn.addEventListener('click', shareViaNative);
+    }
+    
+    if (closeShareBtn) {
+        closeShareBtn.removeEventListener('click', closeShareModal);
+        closeShareBtn.addEventListener('click', closeShareModal);
+    }
+    
+    if (shareHistoryModalBtn) {
+        shareHistoryModalBtn.removeEventListener('click', toggleShareContent);
+        shareHistoryModalBtn.addEventListener('click', toggleShareContent);
+    }
     
     // Ubicación
     const saveLocationBtn = document.getElementById('save-location');
     const matchLocationInput = document.getElementById('match-location-input');
     
     if (saveLocationBtn && typeof window.saveLocation === 'function') {
+        saveLocationBtn.removeEventListener('click', window.saveLocation);
         saveLocationBtn.addEventListener('click', window.saveLocation);
     }
     
     if (matchLocationInput && typeof window.saveLocation === 'function') {
+        matchLocationInput.removeEventListener('keypress', (e) => {
+            if (e.key === 'Enter') window.saveLocation();
+        });
         matchLocationInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                window.saveLocation();
-            }
+            if (e.key === 'Enter') window.saveLocation();
         });
     }
     
-    window.common.initialized = true; // Marcar como inicializado
-    console.log('Common event listeners inicializados');
+    // También permitir cerrar modales haciendo clic fuera de ellos
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+    });
+    
+    // Permitir cerrar con Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (modal.style.display === 'flex') {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+    });
+    
+    console.log('Common event listeners inicializados correctamente');
 }
 
 // Exportar funciones
@@ -376,6 +469,5 @@ window.common = {
     openShareCurrentModal,
     openShareHistoryModal,
     toggleShareContent,
-    initCommonEventListeners,
-    initialized: false // Bandera para evitar inicialización duplicada
+    initCommonEventListeners
 };
