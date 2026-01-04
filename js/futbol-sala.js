@@ -1,4 +1,4 @@
-// /js/futbol-sala.js
+// /js/futbol-sala.js - VERSIÓN CORREGIDA
 // Marcador completo para fútbol sala con cronómetro, prórroga y sistema de tarjetas
 
 // Variables globales específicas de fútbol sala
@@ -54,91 +54,118 @@ window.sportUrl = "https://www.ligaescolar.es/futbol-sala/";
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Inicializando fútbol sala con sistema de tarjetas...');
     
+    // Inicializar common.js primero
+    if (window.common && window.common.initCommonEventListeners) {
+        window.common.initCommonEventListeners();
+    }
+    
+    // Inicializar modal manager
+    if (window.modalManager && window.modalManager.initModalEventListeners) {
+        window.modalManager.initModalEventListeners();
+    }
+    
     // Cargar datos guardados
     loadFromCookies();
     
     // Inicializar la interfaz
     updateDisplay();
     
-    // Configurar event listeners
+    // Configurar event listeners específicos
     setupEventListeners();
     
     // Configurar funciones globales
     window.generateShareText = generateShareText;
+    window.generateHistoryText = generateHistoryText;
     window.saveToCookies = saveToCookies;
     window.loadFromCookies = loadFromCookies;
+    window.saveLocation = saveLocation;
     
     console.log("Fútbol sala inicializado correctamente");
 });
 
-// Configurar todos los event listeners
+// Configurar todos los event listeners específicos
 function setupEventListeners() {
+    console.log('Configurando event listeners de fútbol sala...');
+    
+    // Verificar que los elementos existen antes de agregar event listeners
+    const addEventListenerSafe = (id, event, handler) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener(event, handler);
+        } else {
+            console.warn(`Elemento ${id} no encontrado para event listener`);
+        }
+    };
+    
     // Controles de tiempo
-    document.getElementById('start-timer').addEventListener('click', startTimer);
-    document.getElementById('pause-timer').addEventListener('click', pauseTimer);
-    document.getElementById('reset-timer').addEventListener('click', resetTimer);
-    document.getElementById('next-period').addEventListener('click', nextPeriod);
+    addEventListenerSafe('start-timer', 'click', startTimer);
+    addEventListenerSafe('pause-timer', 'click', pauseTimer);
+    addEventListenerSafe('reset-timer', 'click', resetTimer);
+    addEventListenerSafe('next-period', 'click', nextPeriod);
+    addEventListenerSafe('finish-time', 'click', endPeriod);
     
     // Controles de goles
-    document.getElementById('team1-add-goal').addEventListener('click', () => addGoal('team1'));
-    document.getElementById('team1-remove-goal').addEventListener('click', () => removeGoal('team1'));
-    document.getElementById('team2-add-goal').addEventListener('click', () => addGoal('team2'));
-    document.getElementById('team2-remove-goal').addEventListener('click', () => removeGoal('team2'));
+    addEventListenerSafe('team1-add-goal', 'click', () => addGoal('team1'));
+    addEventListenerSafe('team1-remove-goal', 'click', () => removeGoal('team1'));
+    addEventListenerSafe('team2-add-goal', 'click', () => addGoal('team2'));
+    addEventListenerSafe('team2-remove-goal', 'click', () => removeGoal('team2'));
     
     // Controles de tarjetas amarillas
-    document.getElementById('team1-add-yellow').addEventListener('click', () => prepareCard('team1', 'yellow'));
-    document.getElementById('team2-add-yellow').addEventListener('click', () => prepareCard('team2', 'yellow'));
-    document.getElementById('team1-remove-yellow').addEventListener('click', () => removeLastCard('team1', 'yellow'));
-    document.getElementById('team2-remove-yellow').addEventListener('click', () => removeLastCard('team2', 'yellow'));
+    addEventListenerSafe('team1-add-yellow', 'click', () => prepareCard('team1', 'yellow'));
+    addEventListenerSafe('team2-add-yellow', 'click', () => prepareCard('team2', 'yellow'));
+    addEventListenerSafe('team1-remove-yellow', 'click', () => removeLastCard('team1', 'yellow'));
+    addEventListenerSafe('team2-remove-yellow', 'click', () => removeLastCard('team2', 'yellow'));
     
     // Controles de tarjetas azules
-    document.getElementById('team1-add-blue').addEventListener('click', () => prepareCard('team1', 'blue'));
-    document.getElementById('team2-add-blue').addEventListener('click', () => prepareCard('team2', 'blue'));
-    document.getElementById('team1-remove-blue').addEventListener('click', () => removeLastCard('team1', 'blue'));
-    document.getElementById('team2-remove-blue').addEventListener('click', () => removeLastCard('team2', 'blue'));
+    addEventListenerSafe('team1-add-blue', 'click', () => prepareCard('team1', 'blue'));
+    addEventListenerSafe('team2-add-blue', 'click', () => prepareCard('team2', 'blue'));
+    addEventListenerSafe('team1-remove-blue', 'click', () => removeLastCard('team1', 'blue'));
+    addEventListenerSafe('team2-remove-blue', 'click', () => removeLastCard('team2', 'blue'));
     
-    // Controles de faltas con corrección
-    document.getElementById('team1-add-foul').addEventListener('click', () => addFoul('team1'));
-    document.getElementById('team2-add-foul').addEventListener('click', () => addFoul('team2'));
-    document.getElementById('team1-remove-foul').addEventListener('click', () => removeFoul('team1'));
-    document.getElementById('team2-remove-foul').addEventListener('click', () => removeFoul('team2'));
+    // Controles de faltas
+    addEventListenerSafe('team1-add-foul', 'click', () => addFoul('team1'));
+    addEventListenerSafe('team2-add-foul', 'click', () => addFoul('team2'));
+    addEventListenerSafe('team1-remove-foul', 'click', () => removeFoul('team1'));
+    addEventListenerSafe('team2-remove-foul', 'click', () => removeFoul('team2'));
     
-    // Controles de timeouts con corrección
-    document.getElementById('team1-add-timeout').addEventListener('click', () => useTimeout('team1'));
-    document.getElementById('team2-add-timeout').addEventListener('click', () => useTimeout('team2'));
-    document.getElementById('team1-remove-timeout').addEventListener('click', () => removeTimeout('team1'));
-    document.getElementById('team2-remove-timeout').addEventListener('click', () => removeTimeout('team2'));
+    // Controles de timeouts
+    addEventListenerSafe('team1-add-timeout', 'click', () => useTimeout('team1'));
+    addEventListenerSafe('team2-add-timeout', 'click', () => useTimeout('team2'));
+    addEventListenerSafe('team1-remove-timeout', 'click', () => removeTimeout('team1'));
+    addEventListenerSafe('team2-remove-timeout', 'click', () => removeTimeout('team2'));
     
     // Controles del partido
-    document.getElementById('activate-overtime').addEventListener('click', activateOvertime);
-    document.getElementById('reset-match').addEventListener('click', resetMatch);
-    document.getElementById('save-match').addEventListener('click', () => window.modalManager.openSaveMatchModal());
+    addEventListenerSafe('activate-overtime', 'click', activateOvertime);
+    addEventListenerSafe('reset-match', 'click', resetMatch);
     
-    // Compartir
-    document.getElementById('share-results').addEventListener('click', window.common.openShareCurrentModal);
-    document.getElementById('share-history').addEventListener('click', window.common.openShareHistoryModal);
-    document.getElementById('share-whatsapp').addEventListener('click', window.common.shareToWhatsapp);
+    // Ya no necesitamos esto aquí, lo maneja modal-manager.js
+    // addEventListenerSafe('save-match', 'click', () => window.modalManager.openSaveMatchModal());
     
-    // Ubicación
-    document.getElementById('save-location').addEventListener('click', saveLocation);
-    document.getElementById('match-location-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') saveLocation();
-    });
+    // Borrar historial
+    const clearHistoryBtn = document.getElementById('clear-history');
+    if (clearHistoryBtn) {
+        clearHistoryBtn.addEventListener('click', function() {
+            if (confirm("¿Estás seguro de que quieres borrar todo el historial de fútbol sala?")) {
+                window.matchHistory = [];
+                saveToCookies();
+                renderHistory();
+                if (window.common && window.common.showNotification) {
+                    window.common.showNotification("Historial borrado correctamente");
+                }
+            }
+        });
+    }
     
-    // Nombres de equipos
-    document.getElementById('team1-name').addEventListener('click', () => window.common.openTeamNameModal('team1'));
-    document.getElementById('team2-name').addEventListener('click', () => window.common.openTeamNameModal('team2'));
-    
-    // Modal de tarjetas
-    document.getElementById('cancel-card').addEventListener('click', cancelCard);
-    document.getElementById('save-card').addEventListener('click', saveCard);
+    console.log('Event listeners configurados correctamente');
 }
 
 // Actualizar la interfaz
 function updateDisplay() {
     // Actualizar nombres de equipos
-    document.getElementById('team1-name').textContent = window.currentMatch.team1.name;
-    document.getElementById('team2-name').textContent = window.currentMatch.team2.name;
+    const team1Name = document.getElementById('team1-name');
+    const team2Name = document.getElementById('team2-name');
+    if (team1Name) team1Name.textContent = window.currentMatch.team1.name;
+    if (team2Name) team2Name.textContent = window.currentMatch.team2.name;
     
     // Actualizar marcador de goles
     document.getElementById('team1-score').textContent = window.currentMatch.team1.score;
@@ -158,6 +185,9 @@ function updateDisplay() {
     document.getElementById('team1-fouls').textContent = window.currentMatch.team1.fouls;
     document.getElementById('team2-fouls').textContent = window.currentMatch.team2.fouls;
     
+    // Actualizar ubicación
+    document.getElementById('current-location').textContent = window.currentMatch.location;
+    
     // Renderizar expulsiones
     renderExpulsions('team1');
     renderExpulsions('team2');
@@ -173,6 +203,9 @@ function updateDisplay() {
     
     // Actualizar historial de eventos
     renderEvents();
+    
+    // Actualizar historial de partidos
+    renderHistory();
     
     // Guardar cambios
     saveToCookies();
@@ -235,18 +268,6 @@ function updateTimerDisplay() {
     // Actualizar en todos los lugares
     document.getElementById('main-timer').textContent = timeString;
     document.getElementById('match-timer').textContent = timeString;
-    
-    // Aplicar estilos según el estado
-    const mainTimer = document.getElementById('main-timer');
-    mainTimer.classList.remove('timer-running', 'timer-paused', 'timer-finished');
-    
-    if (window.currentMatch.matchStatus === 'RUNNING') {
-        mainTimer.classList.add('timer-running');
-    } else if (window.currentMatch.matchStatus === 'PAUSED') {
-        mainTimer.classList.add('timer-paused');
-    } else if (window.currentMatch.matchStatus === 'FINISHED') {
-        mainTimer.classList.add('timer-finished');
-    }
 }
 
 // Iniciar cronómetro
@@ -264,6 +285,11 @@ function startTimer() {
         });
     } else {
         window.currentMatch.matchStatus = 'RUNNING';
+    }
+    
+    // Limpiar intervalo previo si existe
+    if (window.currentMatch.timerInterval) {
+        clearInterval(window.currentMatch.timerInterval);
     }
     
     window.currentMatch.timerInterval = setInterval(() => {
@@ -289,7 +315,11 @@ function startTimer() {
 function pauseTimer() {
     if (window.currentMatch.matchStatus !== 'RUNNING') return;
     
-    clearInterval(window.currentMatch.timerInterval);
+    if (window.currentMatch.timerInterval) {
+        clearInterval(window.currentMatch.timerInterval);
+        window.currentMatch.timerInterval = null;
+    }
+    
     window.currentMatch.matchStatus = 'PAUSED';
     
     window.currentMatch.events.push({
@@ -307,8 +337,9 @@ function pauseTimer() {
 
 // Reiniciar cronómetro del periodo actual
 function resetTimer() {
-    if (window.currentMatch.matchStatus === 'RUNNING') {
+    if (window.currentMatch.timerInterval) {
         clearInterval(window.currentMatch.timerInterval);
+        window.currentMatch.timerInterval = null;
     }
     
     // Restablecer tiempo según el periodo actual
@@ -335,8 +366,9 @@ function resetTimer() {
 
 // Pasar al siguiente periodo
 function nextPeriod() {
-    if (window.currentMatch.matchStatus === 'RUNNING') {
+    if (window.currentMatch.timerInterval) {
         clearInterval(window.currentMatch.timerInterval);
+        window.currentMatch.timerInterval = null;
     }
     
     if (window.currentMatch.currentPeriod < window.currentMatch.totalPeriods) {
@@ -395,7 +427,10 @@ function nextPeriod() {
 
 // Finalizar periodo automáticamente cuando el tiempo llega a 0
 function endPeriod() {
-    clearInterval(window.currentMatch.timerInterval);
+    if (window.currentMatch.timerInterval) {
+        clearInterval(window.currentMatch.timerInterval);
+        window.currentMatch.timerInterval = null;
+    }
     
     const periodName = window.currentMatch.isOvertime ? 
         `prórroga ${window.currentMatch.currentPeriod - window.currentMatch.totalPeriods}` : 
@@ -430,7 +465,11 @@ function endPeriod() {
 
 // Finalizar partido
 function endMatch() {
-    clearInterval(window.currentMatch.timerInterval);
+    if (window.currentMatch.timerInterval) {
+        clearInterval(window.currentMatch.timerInterval);
+        window.currentMatch.timerInterval = null;
+    }
+    
     window.currentMatch.matchStatus = 'FINISHED';
     
     // Determinar ganador
@@ -1123,6 +1162,57 @@ function renderEvents() {
     });
 }
 
+// Renderizar historial de partidos
+function renderHistory() {
+    const historyList = document.getElementById('history-list');
+    if (!historyList) return;
+    
+    historyList.innerHTML = '';
+    
+    if (window.matchHistory.length === 0) {
+        const emptyMessage = document.createElement('div');
+        emptyMessage.className = 'empty-history';
+        emptyMessage.innerHTML = '<i class="fas fa-clipboard-list fa-2x"></i><p>No hay partidos guardados. ¡Juega y guarda algunos partidos!</p>';
+        historyList.appendChild(emptyMessage);
+        return;
+    }
+    
+    window.matchHistory.forEach((match, index) => {
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        
+        const teamsDiv = document.createElement('div');
+        teamsDiv.className = 'history-teams';
+        teamsDiv.textContent = `${match.team1.name} vs ${match.team2.name}`;
+        
+        const scoreDiv = document.createElement('div');
+        scoreDiv.className = 'history-score';
+        scoreDiv.textContent = `${match.team1.score} - ${match.team2.score}`;
+        
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'history-info';
+        
+        let infoHTML = `<div>${match.date || 'Sin fecha'}</div>`;
+        if (match.location && match.location !== "No especificada") {
+            infoHTML += `<div class="history-location"><i class="fas fa-map-marker-alt"></i> ${match.location}</div>`;
+        }
+        if (match.duration) {
+            infoHTML += `<div class="history-duration"><i class="fas fa-clock"></i> ${match.duration} min</div>`;
+        }
+        if (match.isOvertime) {
+            infoHTML += `<div class="history-overtime"><i class="fas fa-plus-circle"></i> Con prórroga</div>`;
+        }
+        
+        infoDiv.innerHTML = infoHTML;
+        
+        historyItem.appendChild(teamsDiv);
+        historyItem.appendChild(scoreDiv);
+        historyItem.appendChild(infoDiv);
+        
+        historyList.appendChild(historyItem);
+    });
+}
+
 // Obtener hora actual formateada
 function getCurrentTime() {
     const now = new Date();
@@ -1320,6 +1410,3 @@ function generateHistoryText() {
     
     return text;
 }
-
-// Hacer funciones accesibles globalmente
-window.generateHistoryText = generateHistoryText;
