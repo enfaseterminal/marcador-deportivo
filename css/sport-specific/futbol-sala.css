@@ -639,3 +639,19 @@ body.theme-futbol-sala {
         font-size: 1rem;
     }
 }
+/* Botones de corrección */
+.btn-remove-foul {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    margin-top: 5px;
+}
+
+.btn-remove-timeout {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    margin-top: 5px;
+}
+
+.btn-remove-foul:hover, .btn-remove-timeout:hover {
+    opacity: 0.9;
+}
