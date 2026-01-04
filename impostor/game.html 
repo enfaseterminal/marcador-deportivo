@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego del Impostor | Partida en Curso</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/themes.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/sport-specific/impostor.css">
+    
+    <style>
+        body.theme-impostor {
+            --primary-color: #9c27b0;
+            --secondary-color: #673ab7;
+            --gradient: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            --accent-color: #ff4081;
+            background: var(--gradient);
+            background-attachment: fixed;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .game-screen {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .game-screen.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .player-role-screen {
+            text-align: center;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 3px solid var(--primary-color);
+        }
+        
+        .secret-word {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #4CAF50;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 2px dashed #4CAF50;
+        }
+        
+        .impostor-hint {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff4081;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 64, 129, 0.1);
+            border-radius: 10px;
+            border: 2px dashed #ff4081;
+        }
+        
+        .game-timer {
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border: 3px solid #FF5722;
+        }
+        
+        .players-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .player-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .player-card.impostor {
+            border: 2px solid #ff4081;
+            background: rgba(255, 64, 129, 0.1);
+        }
+        
+        .player-card.eliminated {
+            opacity: 0.5;
+            background: rgba(255, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="theme-impostor">
+    <div class="container">
+        <!-- Pantalla de asignación de roles -->
+        <section id="role-screen" class="game-screen active">
+            <div class="player-role-screen">
+                <div class="role-icon" id="role-icon">
+                    <i class="fas fa-user fa-4x"></i>
+                </div>
+                <h2 id="role-title">Jugador 1</h2>
+                <p id="role-subtitle" class="role-subtitle">Preparando tu rol...</p>
+                
+                <div id="secret-info">
+                    <div class="secret-word" id="word-value">Cargando palabra...</div>
+                    <div class="impostor-hint" id="hint-value" style="display: none;">Cargando pista...</div>
+                </div>
+                
+                <div class="player-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+                    </div>
+                    <p>Jugador <span id="current-player">1</span> de <span id="total-players">6</span></p>
+                </div>
+                
+                <div class="role-controls">
+                    <button id="prev-player" class="btn btn-secondary">
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </button>
+                    <button id="next-player" class="btn btn-primary">
+                        Siguiente <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button id="start-playing" class="btn btn-success">
+                        <i class="fas fa-play"></i> Comenzar Juego
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Pantalla de juego principal -->
+        <section id="game-screen" class="game-screen">
+            <div class="game-header">
+                <h2><i class="fas fa-gamepad"></i> Juego en Curso</h2>
+                <div class="game-timer" id="timer-display">05:00</div>
+                
+                <div class="game-stats">
+                    <div class="stat-badge">
+                        <i class="fas fa-user-secret"></i>
+                        <span id="impostors-count">1 impostor</span>
+                    </div>
+                    <div class="stat-badge">
+                        <i class="fas fa-users"></i>
+                        <span id="players-count">6 jugadores</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="word-reminder">
+                <h3><i class="fas fa-key"></i> Palabra secreta:</h3>
+                <div class="secret-word" id="current-word">Cargando...</div>
+                <p><small>Los inocentes ven esta palabra. El impostor no.</small></p>
+            </div>
+            
+            <div class="game-instructions">
+                <h3><i class="fas fa-bullhorn"></i> Instrucciones:</h3>
+                <ul>
+                    <li>Converse sobre la palabra secreta sin revelarla directamente</li>
+                    <li>Observe las reacciones de los demás jugadores</li>
+                    <li>Intente descubrir quién no parece conocer la palabra</li>
+                    <li>Tiene <span id="time-limit">5</span> minutos para decidir</li>
+                </ul>
+            </div>
+            
+            <div class="game-controls">
+                <button id="start-vote" class="btn btn-warning">
+                    <i class="fas fa-vote-yea"></i> Iniciar Votación
+                </button>
+                <button id="reveal-impostor" class="btn btn-error">
+                    <i class="fas fa-user-secret"></i> Revelar Impostor (Moderador)
+                </button>
+                <button id="end-game" class="btn btn-secondary">
+                    <i class="fas fa-stop"></i> Terminar Partida
+                </button>
+            </div>
+            
+            <div class="players-list" id="players-list">
+                <!-- Jugadores cargados dinámicamente -->
+            </div>
+        </section>
+        
+        <!-- Pantalla de votación -->
+        <section id="voting-screen" class="game-screen">
+            <div class="voting-container">
+                <h2><i class="fas fa-vote-yea"></i> Votación</h2>
+                <div class="voting-timer" id="voting-timer">00:30</div>
+                <p>Vota quién crees que es el impostor:</p>
+                
+                <div class="voting-options" id="voting-options">
+                    <!-- Opciones de votación cargadas dinámicamente -->
+                </div>
+                
+                <div class="voting-controls">
+                    <button id="submit-vote" class="btn btn-primary" disabled>
+                        <i class="fas fa-paper-plane"></i> Enviar Voto
+                    </button>
+                    <button id="skip-vote" class="btn btn-secondary">
+                        <i class="fas fa-forward"></i> Saltar Votación
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Pantalla de resultados -->
+        <section id="results-screen" class="game-screen">
+            <div class="results-container">
+                <h2 id="results-title"><i class="fas fa-trophy"></i> Resultados</h2>
+                <div id="results-message" class="results-message">
+                    <p>Cargando resultados...</p>
+                </div>
+                
+                <div class="results-details">
+                    <h3>Detalles de la partida:</h3>
+                    <ul>
+                        <li>Palabra secreta: <strong id="result-word">-</strong></li>
+                        <li>Pista del impostor: <strong id="result-hint">-</strong></li>
+                        <li>Impostor(es): <strong id="result-impostors">-</strong></li>
+                        <li>Duración: <strong id="result-duration">-</strong></li>
+                    </ul>
+                </div>
+                
+                <div class="results-controls">
+                    <button id="play-again" class="btn btn-primary">
+                        <i class="fas fa-redo"></i> Jugar Otra Vez
+                    </button>
+                    <button id="back-to-setup" class="btn btn-secondary">
+                        <i class="fas fa-home"></i> Volver a Configuración
+                    </button>
+                    <button id="share-results" class="btn btn-info">
+                        <i class="fas fa-share-alt"></i> Compartir Resultados
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="../js/clock.js"></script>
+    <script src="../js/celebrate.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/storage.js"></script>
+    <script src="../js/impostor-data.js"></script>
+    <script src="../js/impostor-storage.js"></script>
+    <script src="../js/impostor-game.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof impostorGame !== 'undefined') {
+                impostorGame.init();
+            }
+        });
+    </script>
+</body>
+</html>

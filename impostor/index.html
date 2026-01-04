@@ -4,34 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-    <title>Juego del Impostor | Liga Escolar - Juegos con Amigos</title>
-    <meta name="description" content="Juego del impostor para grupos. Descubre quién es el impostor antes de que se acabe el tiempo. Configura partidas personalizadas con palabras y pistas únicas.">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="mobile-web-app-capable" content="yes">
+    <title>Juego del Impostor</title>
+    <meta name="description" content="Configura tu partida del juego del impostor">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- ESTILOS BASE (comunes a todas las páginas) -->
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/themes.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="../css/header-with-bg.css">
-    
-    <!-- Estilos específicos del impostor -->
     <link rel="stylesheet" href="../css/sport-specific/impostor.css">
     
-    <!-- Favicons -->
-    <link rel="icon" href="/imagenes/favicon.ico" type="image/x-icon">
-    <link rel="icon" type="image/png" sizes="32x32" href="/imagenes/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/imagenes/favicon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/imagenes/apple-touch-icon-180x180.png">
-    
     <style>
-        /* ===== ESTILOS CRÍTICOS PARA VISUALIZACIÓN ===== */
-        
-        /* Tema impostor */
         body.theme-impostor {
             --primary-color: #9c27b0;
             --secondary-color: #673ab7;
@@ -44,212 +28,23 @@
             padding: 0;
         }
         
-        .theme-impostor {
-            --primary-color: #9c27b0;
-            --secondary-color: #673ab7;
-            --gradient: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            --accent-color: #ff4081;
-        }
-        
-        /* GESTIÓN DE PANTALLAS - CORRECCIÓN CRÍTICA */
-        /* Ocultar todas las pantallas por defecto */
-        .game-screen {
-            display: none !important;
-            opacity: 0;
-            visibility: hidden;
-            position: absolute;
-            width: 100%;
-            transition: opacity 0.3s ease;
-        }
-        
-        /* Solo mostrar la pantalla activa */
-        .game-screen.active {
-            display: block !important;
-            opacity: 1;
-            visibility: visible;
-            position: relative;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        /* Garantizar que setup-screen sea visible inicialmente */
-        #setup-screen.active {
-            display: block !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-            position: relative !important;
-        }
-        
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        /* Clases para resultados */
-        body.impostor-win {
-            animation: impostorPulse 2s infinite;
-        }
-        
-        body.innocent-win {
-            animation: innocentPulse 2s infinite;
-        }
-        
-        @keyframes impostorPulse {
-            0% { background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); }
-            50% { background: linear-gradient(135deg, #ff4081 0%, #9c27b0 100%); }
-            100% { background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); }
-        }
-        
-        @keyframes innocentPulse {
-            0% { background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); }
-            50% { background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%); }
-            100% { background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); }
-        }
-        
-        /* Botón flotante de ayuda */
-        .floating-help-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 56px;
-            height: 56px;
-            background: linear-gradient(135deg, var(--accent-color), #ff2a6d);
-            color: white;
-            border-radius: 50%;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            z-index: 9998;
-            transition: all 0.3s ease;
-        }
-        
-        .floating-help-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-        }
-        
-        /* Ajuste para móviles en vertical - ocultar botones flotantes */
-        @media (orientation: portrait) {
-            .floating-home-btn,
-            .floating-help-btn {
-                display: none !important;
-            }
-        }
-        
-        /* Estilos para la nueva opción de dificultad */
-        .config-group select.form-control {
-            width: 100%;
-            padding: 10px 15px;
-            background: rgba(255, 255, 255, 0.12);
-            border: 2px solid var(--primary-color);
-            border-radius: 8px;
-            color: white;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-        
-        .config-group select.form-control option {
-            background: #2c3e50;
-            color: white;
-            padding: 10px;
-        }
-        
-        .small {
-            font-size: 0.85rem;
-            opacity: 0.8;
-        }
-        
-        /* Mejoras en responsividad */
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .game-stats {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .stat-badge {
-                width: 100%;
-                justify-content: center;
-            }
-            
-            .config-grid {
-                grid-template-columns: 1fr !important;
-            }
-        }
-        
-        /* Forzar visibilidad del contenido principal */
-        .main-content {
-            position: relative;
-            z-index: 1;
-            min-height: 500px;
-        }
-        
-        /* Historial solo visible en pantalla de configuración */
-        #setup-screen .history-panel {
-            display: block;
-            margin-top: 30px;
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .game-screen:not(#setup-screen) .history-panel {
-            display: none !important;
-            opacity: 0;
-            visibility: hidden;
-        }
-        
-        /* Corrección para botones de configuración */
-        .number-input {
-            background: rgba(255, 255, 255, 0.15) !important;
-            border: 2px solid var(--primary-color) !important;
-        }
-        
-        .number-input:focus {
-            border-color: var(--accent-color) !important;
-            box-shadow: 0 0 0 3px rgba(255, 64, 129, 0.3) !important;
-            outline: none !important;
-        }
-        
-        /* Contenedor principal */
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            position: relative;
-            z-index: 10;
         }
         
-        /* Header mejorado */
-        .app-header {
-            position: relative;
-            z-index: 20;
-            margin-bottom: 20px;
+        .game-settings {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
     </style>
 </head>
 <body class="theme-impostor">
-    <!-- Botón flotante de inicio (solo visible en landscape) -->
-    <a href="/" class="floating-home-btn" title="Volver al inicio">
-        <i class="fas fa-home"></i>
-    </a>
-    
-    <!-- Botón flotante de ayuda (solo visible en landscape) -->
-    <button id="help-btn" class="floating-help-btn" title="Ayuda del juego">
-        <i class="fas fa-question-circle"></i>
-    </button>
-    
     <div class="container">
         <header class="app-header">
             <div class="header-bg">
@@ -259,7 +54,7 @@
             <div class="header-content">
                 <div class="header-left">
                     <h1><i class="fas fa-user-secret"></i> Juego del Impostor</h1>
-                    <p class="subtitle">¿Podrás descubrir quién es el impostor antes de que se acabe el tiempo?</p>
+                    <p class="subtitle">Configura tu partida</p>
                 </div>
                 <div class="header-right">
                     <div class="clock-container">
@@ -271,675 +66,158 @@
         </header>
 
         <main class="main-content">
-            <!-- Pantalla de configuración -->
-            <section id="setup-screen" class="game-screen active">
-                <div class="card">
-                    <h2><i class="fas fa-cogs"></i> Configuración de la partida</h2>
-                    <p class="subtitle">Personaliza los parámetros del juego</p>
-                    
-                    <div class="config-grid">
-                        <div class="config-group">
-                            <label for="playerCount">
-                                <i class="fas fa-users"></i> Número de jugadores
-                            </label>
-                            <div class="number-selector">
-                                <button id="decrease-players" class="btn btn-small btn-secondary">
-                                    <i class="fas fa-minus"></i>
-                                </button>
-                                <input type="number" id="playerCount" class="number-input" value="6" min="3" max="12">
-                                <button id="increase-players" class="btn btn-small btn-secondary">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-                            <div class="range-slider">
-                                <input type="range" id="playerRange" min="3" max="12" value="6">
-                            </div>
-                            <small>Mínimo 3, máximo 12 jugadores</small>
-                        </div>
-                        
-                        <div class="config-group">
-                            <label for="impostorCount">
-                                <i class="fas fa-user-secret"></i> Número de impostores
-                            </label>
-                            <div class="number-selector">
-                                <button id="decrease-impostors" class="btn btn-small btn-secondary">
-                                    <i class="fas fa-minus"></i>
-                                </button>
-                                <input type="number" id="impostorCount" class="number-input" value="1" min="1" max="3">
-                                <button id="increase-impostors" class="btn btn-small btn-secondary">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-                            <div class="range-slider">
-                                <input type="range" id="impostorRange" min="1" max="3" value="1">
-                            </div>
-                            <small id="impostor-ratio">Ratio: 1 impostor por cada 6 jugadores</small>
-                        </div>
-                        
-                        <div class="config-group">
-                            <label for="timeLimit">
-                                <i class="fas fa-clock"></i> Tiempo límite (minutos)
-                            </label>
-                            <div class="number-selector">
-                                <button id="decrease-time" class="btn btn-small btn-secondary">
-                                    <i class="fas fa-minus"></i>
-                                </button>
-                                <input type="number" id="timeLimit" class="number-input" value="5" min="1" max="15">
-                                <button id="increase-time" class="btn btn-small btn-secondary">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-                            <div class="range-slider">
-                                <input type="range" id="timeRange" min="1" max="15" value="5">
-                            </div>
-                            <small>Tiempo para descubrir al impostor</small>
-                        </div>
-                        
-                        <div class="config-group">
-                            <label for="wordCategory">
-                                <i class="fas fa-list"></i> Categoría de palabras
-                            </label>
-                            <select id="wordCategory" class="form-control">
-                                <option value="all">Todas las categorías</option>
-                                <option value="deportes">Deportes</option>
-                                <option value="profesiones">Profesiones</option>
-                                <option value="animales">Animales</option>
-                                <option value="comida">Comida</option>
-                                <option value="objetos">Objetos</option>
-                                <option value="lugares">Lugares</option>
-                                <option value="general">General</option>
-                            </select>
-                            <small id="word-count">Cargando palabras disponibles...</small>
-                        </div>
-                        
-                        <!-- NUEVA OPCIÓN: Dificultad -->
-                        <div class="config-group">
-                            <label for="difficulty">
-                                <i class="fas fa-chart-line"></i> Dificultad de palabras
-                            </label>
-                            <select id="difficulty" class="form-control">
-                                <option value="all">Todas las dificultades</option>
-                                <option value="facil">Fácil</option>
-                                <option value="dificil">Difícil</option>
-                                <option value="mixto">Mixto</option>
-                            </select>
-                            <small>Selecciona el nivel de dificultad de las palabras</small>
-                        </div>
-                    </div>
-                    
-                    <div class="config-section">
-                        <h3><i class="fas fa-gamepad"></i> Opciones avanzadas</h3>
-                        <div class="toggle-group">
-                            <label class="toggle-label">
-                                <input type="checkbox" id="enableHints" checked>
-                                <span class="toggle-slider"></span>
-                                <span>Mostrar pistas al impostor</span>
-                            </label>
-                            <small class="small">El impostor recibirá una pista sobre la palabra secreta</small>
-                        </div>
-                        <div class="toggle-group">
-                            <label class="toggle-label">
-                                <input type="checkbox" id="enableVoting" checked>
-                                <span class="toggle-slider"></span>
-                                <span>Habilitar votaciones</span>
-                            </label>
-                            <small class="small">Al final del tiempo, los jugadores votarán quién creen que es el impostor</small>
-                        </div>
-                        <div class="toggle-group">
-                            <label class="toggle-label">
-                                <input type="checkbox" id="randomRoles" checked>
-                                <span class="toggle-slider"></span>
-                                <span>Asignar roles aleatoriamente</span>
-                            </label>
-                            <small class="small">Los roles se asignarán al azar entre los jugadores</small>
-                        </div>
-                    </div>
-                    
-                    <div class="game-controls">
-                        <button id="start-game" class="btn btn-primary btn-lg">
-                            <i class="fas fa-play"></i> Iniciar partida
-                        </button>
-                        <button id="quick-start" class="btn btn-secondary">
-                            <i class="fas fa-bolt"></i> Inicio rápido (6 jugadores, 5 min)
-                        </button>
-                    </div>
-                </div>
+            <div class="game-settings">
+                <h2><i class="fas fa-cogs"></i> Configuración de la partida</h2>
                 
-                <div class="info-card">
-                    <h3><i class="fas fa-info-circle"></i> ¿Cómo jugar?</h3>
-                    <div class="fun-facts">
-                        <p><i class="fas fa-user-check"></i> <strong>Inocentes:</strong> Reciben una palabra secreta. Deben conversar y descubrir al impostor.</p>
-                        <p><i class="fas fa-user-secret"></i> <strong>Impostor:</strong> No conoce la palabra, solo una pista. Debe engañar a los demás sin ser descubierto.</p>
-                        <p><i class="fas fa-clock"></i> <strong>Tiempo límite:</strong> Los inocentes tienen tiempo limitado para descubrir al impostor.</p>
-                        <p><i class="fas fa-vote-yea"></i> <strong>Votación:</strong> Al final del tiempo, todos votan quién creen que es el impostor.</p>
-                        <p><i class="fas fa-chart-line"></i> <strong>Dificultad:</strong> Puedes elegir palabras fáciles, difíciles o mixtas.</p>
-                    </div>
-                </div>
-                
-                <!-- Historial de partidas (SOLO en pantalla de configuración) -->
-                <div class="history-panel">
-                    <h3><i class="fas fa-history"></i> Historial de partidas</h3>
-                    <div class="history-list" id="impostor-history-list">
-                        <div class="empty-history">
-                            <i class="fas fa-history fa-2x"></i>
-                            <p>No hay partidas guardadas todavía.</p>
-                            <p class="small">Juega una partida para comenzar el historial</p>
-                        </div>
-                    </div>
-                    <div class="history-controls">
-                        <button id="clear-impostor-history" class="btn btn-warning btn-small">
-                            <i class="fas fa-trash"></i> Limpiar historial
-                        </button>
-                        <small class="small">Se guardan las últimas 50 partidas</small>
-                    </div>
-                </div>
-            </section>
-            
-            <!-- Pantalla de asignación de roles -->
-            <section id="role-screen" class="game-screen">
-                <div class="card">
-                    <h2><i class="fas fa-user-tag"></i> Asignación de roles</h2>
-                    <p class="subtitle">Pasa el dispositivo a cada jugador para que vea su rol</p>
-                    
-                    <div class="role-container">
-                        <div class="current-role-display">
-                            <div class="role-icon" id="role-icon">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <h3 id="role-title">Jugador 1</h3>
-                            <p class="role-subtitle" id="role-subtitle">Preparando tu rol...</p>
-                            
-                            <div class="secret-info" id="secret-info">
-                                <div class="word-display" id="word-display">
-                                    <h4><i class="fas fa-key"></i> Palabra secreta:</h4>
-                                    <div class="word-value" id="word-value">Cargando...</div>
-                                </div>
-                                <div class="hint-display" id="hint-display">
-                                    <h4><i class="fas fa-lightbulb"></i> Pista para el impostor:</h4>
-                                    <div class="hint-value" id="hint-value">Cargando...</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="player-progress">
-                            <div class="progress-info">
-                                <span id="current-player">1</span> de <span id="total-players">6</span> jugadores
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="role-controls">
-                            <button id="prev-player" class="btn btn-secondary">
-                                <i class="fas fa-chevron-left"></i> Anterior
+                <div class="config-grid">
+                    <div class="config-group">
+                        <label for="playerCount">
+                            <i class="fas fa-users"></i> Número de jugadores
+                        </label>
+                        <div class="number-selector">
+                            <button id="decrease-players" class="btn btn-small btn-secondary">
+                                <i class="fas fa-minus"></i>
                             </button>
-                            <button id="next-player" class="btn btn-primary">
-                                Siguiente <i class="fas fa-chevron-right"></i>
-                            </button>
-                            <button id="all-done" class="btn btn-success">
-                                <i class="fas fa-check"></i> Todos listos
+                            <input type="number" id="playerCount" class="number-input" value="6" min="3" max="12">
+                            <button id="increase-players" class="btn btn-small btn-secondary">
+                                <i class="fas fa-plus"></i>
                             </button>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="info-card">
-                    <h3><i class="fas fa-exclamation-circle"></i> Instrucciones importantes</h3>
-                    <div class="fun-facts">
-                        <p><i class="fas fa-shush"></i> <strong>No reveles tu rol</strong> hasta que termine la asignación.</p>
-                        <p><i class="fas fa-mobile-alt"></i> <strong>Pasa el dispositivo</strong> a cada jugador individualmente.</p>
-                        <p><i class="fas fa-eye-slash"></i> <strong>Los inocentes no deben ver</strong> las pistas del impostor.</p>
-                        <p><i class="fas fa-volume-mute"></i> <strong>Mantén silencio</strong> mientras otros ven su rol.</p>
-                        <p><i class="fas fa-history"></i> <strong>Todos deben ver su rol</strong> antes de comenzar a jugar.</p>
-                    </div>
-                </div>
-            </section>
-            
-            <!-- Pantalla de juego principal -->
-            <section id="game-screen" class="game-screen">
-                <div class="card">
-                    <div class="game-header">
-                        <h2><i class="fas fa-gamepad"></i> En juego</h2>
-                        <div class="game-stats">
-                            <div class="stat-badge">
-                                <i class="fas fa-clock"></i>
-                                <span id="timer-display">05:00</span>
-                            </div>
-                            <div class="stat-badge">
-                                <i class="fas fa-user-secret"></i>
-                                <span id="impostors-remaining">1 impostor</span>
-                            </div>
-                            <div class="stat-badge">
-                                <i class="fas fa-users"></i>
-                                <span id="players-remaining">6 jugadores</span>
-                            </div>
-                        </div>
+                        <small>Mínimo 3, máximo 12 jugadores</small>
                     </div>
                     
-                    <div class="game-content">
-                        <div class="word-reminder">
-                            <h3><i class="fas fa-key"></i> Recuerda tu palabra:</h3>
-                            <div class="current-word" id="current-word">Cargando...</div>
-                            <small>Los inocentes tienen esta palabra, el impostor no</small>
-                        </div>
-                        
-                        <div class="game-instructions">
-                            <h3><i class="fas fa-bullhorn"></i> Instrucciones:</h3>
-                            <ul class="instructions-list">
-                                <li><i class="fas fa-comments"></i> <strong>Converse</strong> sobre la palabra secreta sin revelarla directamente</li>
-                                <li><i class="fas fa-search"></i> <strong>Observe</strong> las reacciones y respuestas de los demás</li>
-                                <li><i class="fas fa-user-secret"></i> <strong>Descubra</strong> quién no parece conocer la palabra</li>
-                                <li><i class="fas fa-clock"></i> <strong>Tenga en cuenta</strong> el tiempo restante</li>
-                                <li><i class="fas fa-lightbulb"></i> <strong>Pistas:</strong> El impostor solo conoce una pista sobre la palabra</li>
-                            </ul>
-                        </div>
-                        
-                        <div class="voting-section" id="voting-section">
-                            <h3><i class="fas fa-vote-yea"></i> Votación</h3>
-                            <p>Cuando creas saber quién es el impostor, puedes iniciar una votación anticipada:</p>
-                            <button id="start-vote" class="btn btn-warning">
-                                <i class="fas fa-hand-paper"></i> Iniciar votación ahora
+                    <div class="config-group">
+                        <label for="impostorCount">
+                            <i class="fas fa-user-secret"></i> Número de impostores
+                        </label>
+                        <div class="number-selector">
+                            <button id="decrease-impostors" class="btn btn-small btn-secondary">
+                                <i class="fas fa-minus"></i>
                             </button>
-                            <small>La votación automática comenzará cuando se acabe el tiempo</small>
+                            <input type="number" id="impostorCount" class="number-input" value="1" min="1" max="3">
+                            <button id="increase-impostors" class="btn btn-small btn-secondary">
+                                <i class="fas fa-plus"></i>
+                            </button>
                         </div>
+                        <small id="impostor-ratio">Ratio: 1 impostor por cada 6 jugadores</small>
                     </div>
                     
-                    <div class="game-controls">
-                        <button id="reveal-impostor" class="btn btn-error">
-                            <i class="fas fa-user-secret"></i> Revelar impostor (solo moderador)
-                        </button>
-                        <button id="end-game" class="btn btn-secondary">
-                            <i class="fas fa-stop"></i> Terminar partida
-                        </button>
+                    <div class="config-group">
+                        <label for="timeLimit">
+                            <i class="fas fa-clock"></i> Tiempo límite (minutos)
+                        </label>
+                        <div class="number-selector">
+                            <button id="decrease-time" class="btn btn-small btn-secondary">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" id="timeLimit" class="number-input" value="5" min="1" max="15">
+                            <button id="increase-time" class="btn btn-small btn-secondary">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <small>Tiempo para descubrir al impostor</small>
+                    </div>
+                    
+                    <div class="config-group">
+                        <label for="wordCategory">
+                            <i class="fas fa-list"></i> Categoría de palabras
+                        </label>
+                        <select id="wordCategory" class="form-control">
+                            <option value="all">Todas las categorías</option>
+                            <option value="deportes">Deportes</option>
+                            <option value="profesiones">Profesiones</option>
+                            <option value="animales">Animales</option>
+                            <option value="comida">Comida</option>
+                            <option value="objetos">Objetos</option>
+                            <option value="lugares">Lugares</option>
+                        </select>
+                        <small id="word-count">Cargando palabras...</small>
+                    </div>
+                    
+                    <div class="config-group">
+                        <label for="difficulty">
+                            <i class="fas fa-chart-line"></i> Dificultad
+                        </label>
+                        <select id="difficulty" class="form-control">
+                            <option value="all">Todas</option>
+                            <option value="facil">Fácil</option>
+                            <option value="dificil">Difícil</option>
+                            <option value="mixto">Mixto</option>
+                        </select>
+                        <small>Nivel de dificultad de las palabras</small>
                     </div>
                 </div>
                 
-                <div class="players-list-container">
-                    <h3><i class="fas fa-users"></i> Lista de jugadores</h3>
-                    <div class="players-list" id="players-list">
-                        <!-- Los jugadores se agregarán dinámicamente aquí -->
-                        <div class="empty-state">
-                            <i class="fas fa-users fa-2x"></i>
-                            <p>Los jugadores aparecerán aquí durante el juego</p>
-                        </div>
+                <div class="config-advanced">
+                    <h3><i class="fas fa-sliders-h"></i> Opciones avanzadas</h3>
+                    <div class="toggle-group">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="enableHints" checked>
+                            <span class="toggle-slider"></span>
+                            <span>Pistas para impostor</span>
+                        </label>
                     </div>
-                </div>
-            </section>
-            
-            <!-- Pantalla de votación -->
-            <section id="voting-screen" class="game-screen">
-                <div class="card">
-                    <h2><i class="fas fa-vote-yea"></i> Votación</h2>
-                    <p class="subtitle">Vota quién crees que es el impostor</p>
-                    
-                    <div class="timer-section">
-                        <div class="voting-timer">
-                            <i class="fas fa-clock"></i>
-                            <span id="voting-timer">00:30</span>
-                        </div>
-                        <p>Tiempo para votar</p>
-                    </div>
-                    
-                    <div class="voting-instructions">
-                        <p><i class="fas fa-info-circle"></i> Cada jugador debe votar por quien crea que es el impostor. El más votado será eliminado.</p>
-                        <p><i class="fas fa-exclamation-triangle"></i> Si hay empate o nadie vota, ¡el impostor gana!</p>
-                    </div>
-                    
-                    <div class="voting-options" id="voting-options">
-                        <!-- Las opciones de votación se agregarán dinámicamente aquí -->
-                    </div>
-                    
-                    <div class="voting-controls">
-                        <button id="skip-vote" class="btn btn-secondary">
-                            <i class="fas fa-forward"></i> Saltar votación
-                        </button>
-                        <button id="submit-votes" class="btn btn-primary" disabled>
-                            <i class="fas fa-paper-plane"></i> Enviar votos (0/6)
-                        </button>
+                    <div class="toggle-group">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="enableVoting" checked>
+                            <span class="toggle-slider"></span>
+                            <span>Habilitar votaciones</span>
+                        </label>
                     </div>
                 </div>
                 
-                <div class="current-votes" id="current-votes">
-                    <h3><i class="fas fa-chart-bar"></i> Votos actuales</h3>
-                    <div class="votes-list" id="votes-list">
-                        <p class="empty-votes">Aún no hay votos registrados</p>
-                    </div>
-                </div>
-            </section>
-            
-            <!-- Pantalla de resultados -->
-            <section id="results-screen" class="game-screen">
-                <div class="card">
-                    <h2 id="results-title"><i class="fas fa-trophy"></i> Resultados de la partida</h2>
-                    <p class="subtitle" id="results-subtitle">La partida ha concluido</p>
-                    
-                    <div class="results-summary">
-                        <div class="result-card impostor-win" id="impostor-win-card">
-                            <div class="result-icon">
-                                <i class="fas fa-user-secret"></i>
-                            </div>
-                            <h3>¡El impostor gana!</h3>
-                            <p id="impostor-win-details">El impostor no fue descubierto a tiempo</p>
-                        </div>
-                        
-                        <div class="result-card innocent-win" id="innocent-win-card">
-                            <div class="result-icon">
-                                <i class="fas fa-user-check"></i>
-                            </div>
-                            <h3>¡Los inocentes ganan!</h3>
-                            <p id="innocent-win-details">El impostor fue descubierto correctamente</p>
-                        </div>
-                    </div>
-                    
-                    <div class="results-details">
-                        <div class="result-info">
-                            <h3><i class="fas fa-info-circle"></i> Detalles de la partida</h3>
-                            <ul class="details-list">
-                                <li><strong>Duración:</strong> <span id="game-duration">5 minutos</span></li>
-                                <li><strong>Jugadores:</strong> <span id="game-players">6</span></li>
-                                <li><strong>Impostores:</strong> <span id="game-impostors">1</span></li>
-                                <li><strong>Palabra secreta:</strong> "<span id="game-word">Fútbol</span>"</li>
-                                <li><strong>Pista del impostor:</strong> "<span id="game-hint">Deporte con balón</span>"</li>
-                                <li><strong>Categoría:</strong> <span id="game-category">Deportes</span></li>
-                                <li><strong>Dificultad:</strong> <span id="game-difficulty">Fácil</span></li>
-                                <li><strong>Resultado:</strong> <span id="game-result">Inocentes ganan</span></li>
-                                <li><strong>Impostor(es):</strong> <span id="game-impostor-names">Jugador 3</span></li>
-                            </ul>
-                        </div>
-                        
-                        <div class="player-results">
-                            <h3><i class="fas fa-users"></i> Roles de los jugadores</h3>
-                            <div class="players-results-list" id="players-results-list">
-                                <!-- Los resultados por jugador se agregarán aquí -->
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="results-controls">
-                        <button id="play-again" class="btn btn-primary">
-                            <i class="fas fa-redo"></i> Jugar otra vez
-                        </button>
-                        <button id="save-game" class="btn btn-success">
-                            <i class="fas fa-save"></i> Guardar partida
-                        </button>
-                        <button id="share-results" class="btn btn-info">
-                            <i class="fas fa-share-alt"></i> Compartir resultados
-                        </button>
-                        <button id="back-to-setup" class="btn btn-secondary">
-                            <i class="fas fa-home"></i> Volver al inicio
-                        </button>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <!-- Modal de compartir -->
-        <div id="share-modal" class="modal">
-            <div class="modal-content">
-                <h2 id="share-modal-title">Compartir resultados</h2>
-                <div class="form-group">
-                    <textarea id="share-text" readonly rows="8">Resultados de la partida de Impostor...</textarea>
-                </div>
-                <div class="modal-buttons">
-                    <button id="copy-text" class="btn btn-secondary">
-                        <i class="fas fa-copy"></i> Copiar texto
+                <div class="action-buttons">
+                    <button id="start-game" class="btn btn-primary btn-lg">
+                        <i class="fas fa-play"></i> Iniciar Juego
                     </button>
-                    <button id="share-whatsapp" class="btn btn-success">
-                        <i class="fab fa-whatsapp"></i> WhatsApp
-                    </button>
-                    <button id="share-native" class="btn btn-primary">
-                        <i class="fas fa-share-alt"></i> Compartir
-                    </button>
-                    <button id="close-share" class="btn">
-                        <i class="fas fa-times"></i> Cerrar
+                    <button id="quick-start" class="btn btn-secondary">
+                        <i class="fas fa-bolt"></i> Inicio Rápido
                     </button>
                 </div>
             </div>
-        </div>
+            
+            <div class="info-card">
+                <h3><i class="fas fa-info-circle"></i> Instrucciones</h3>
+                <ol>
+                    <li>Configura el número de jugadores e impostores</li>
+                    <li>Selecciona categoría y dificultad de palabras</li>
+                    <li>Inicia el juego y pasa el dispositivo a cada jugador</li>
+                    <li>Los inocentes ven la palabra secreta</li>
+                    <li>El impostor solo ve una pista</li>
+                    <li>¡Conversen y descubran al impostor!</li>
+                </ol>
+            </div>
+            
+            <div class="history-panel">
+                <h3><i class="fas fa-history"></i> Historial Reciente</h3>
+                <div id="impostor-history-list" class="history-list">
+                    <!-- Historial cargado dinámicamente -->
+                </div>
+                <button id="clear-history" class="btn btn-warning">
+                    <i class="fas fa-trash"></i> Limpiar Historial
+                </button>
+            </div>
+        </main>
 
         <footer>
             <p>© 2025 Liga Escolar - Juego del Impostor</p>
-            <p class="footer-links">
-                <a href="/">Inicio</a> |
-                <a href="/privacidad.html">Privacidad</a> |
-                <a href="https://www.enfaseterminal.com/">Blog</a>
-            </p>
+            <p><a href="game.html" class="btn btn-small">Ver Juego en Curso</a></p>
         </footer>
     </div>
 
-    <!-- Notificación -->
-    <div id="notification" class="notification">
-        <i class="fas fa-check-circle"></i>
-        <span id="notification-text">Mensaje de notificación</span>
-    </div>
-
-    <!-- Scripts -->
     <script src="../js/clock.js"></script>
-    <script src="../js/celebrate.js"></script>
     <script src="../js/common.js"></script>
-    <script src="../js/storage.js"></script>
-    
-    <!-- Scripts específicos del impostor -->
     <script src="../js/impostor-data.js"></script>
     <script src="../js/impostor-storage.js"></script>
-    <script src="../js/impostor.js"></script>
+    <script src="../js/impostor-setup.js"></script>
     
-    <!-- INICIALIZACIÓN CORREGIDA - SIN CONFLICTOS -->
     <script>
-        (function() {
-            'use strict';
-            
-            console.log('=== INICIALIZACIÓN DEL JUEGO DEL IMPOSTOR ===');
-            
-            // 1. GARANTIZAR que setup-screen sea visible inicialmente
-            function forceSetupScreenVisible() {
-                console.log('Garantizando visibilidad de setup-screen...');
-                
-                // Ocultar TODAS las pantallas
-                const allScreens = document.querySelectorAll('.game-screen');
-                allScreens.forEach(screen => {
-                    screen.classList.remove('active');
-                    screen.style.display = 'none';
-                    screen.style.opacity = '0';
-                    screen.style.visibility = 'hidden';
-                });
-                
-                // Mostrar SOLO setup-screen
-                const setupScreen = document.getElementById('setup-screen');
-                if (setupScreen) {
-                    setupScreen.classList.add('active');
-                    setupScreen.style.display = 'block';
-                    setupScreen.style.opacity = '1';
-                    setupScreen.style.visibility = 'visible';
-                    console.log('setup-screen visible: OK');
-                } else {
-                    console.error('ERROR: No se encontró setup-screen');
-                }
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof impostorSetup !== 'undefined') {
+                impostorSetup.init();
             }
-            
-            // 2. EJECUTAR INMEDIATAMENTE
-            forceSetupScreenVisible();
-            
-            // 3. Cuando el DOM esté listo
-            document.addEventListener('DOMContentLoaded', function() {
-                console.log('DOMContentLoaded - Aplicando correcciones...');
-                
-                // Volver a forzar visibilidad
-                forceSetupScreenVisible();
-                
-                // Inicializar reloj si existe
-                if (typeof updateClock === 'function') {
-                    updateClock();
-                    setInterval(updateClock, 1000);
-                    console.log('Reloj inicializado');
-                }
-                
-                // Configurar botón de ayuda flotante
-                const helpBtn = document.getElementById('help-btn');
-                if (helpBtn) {
-                    helpBtn.addEventListener('click', function() {
-                        alert('AYUDA DEL JUEGO DEL IMPOSTOR\n\n' +
-                              '1. Configura número de jugadores e impostores\n' +
-                              '2. Selecciona categoría y dificultad de palabras\n' +
-                              '3. Pasa el dispositivo para asignar roles\n' +
-                              '4. Los inocentes reciben una palabra secreta\n' +
-                              '5. El impostor solo recibe una pista\n' +
-                              '6. ¡Conversen y descubran al impostor!\n' +
-                              '7. Al final del tiempo, voten\n\n' +
-                              '¡Diviértete! 🎮');
-                    });
-                }
-                
-                // Configurar botón de inicio flotante
-                const floatingHomeBtn = document.querySelector('.floating-home-btn');
-                if (floatingHomeBtn) {
-                    floatingHomeBtn.addEventListener('click', function(e) {
-                        // Si hay juego en curso, preguntar antes de salir
-                        if (window.impostorGame && window.impostorGame.gameState !== 'setup') {
-                            if (!confirm('Hay una partida en curso. ¿Seguro que quieres salir? Se perderá el progreso.')) {
-                                e.preventDefault();
-                                return false;
-                            }
-                        }
-                        return true;
-                    });
-                }
-                
-                // 4. Inicializar el juego con retardo para asegurar que todo esté listo
-                setTimeout(function() {
-                    if (typeof window.impostorGame !== 'undefined') {
-                        console.log('Inicializando impostorGame...');
-                        
-                        // GUARDAR la función original de showScreen
-                        const originalShowScreen = window.impostorGame.showScreen;
-                        
-                        // REEMPLAZAR TEMPORALMENTE showScreen con versión corregida
-                        window.impostorGame.showScreen = function(screenId) {
-                            console.log('[showScreen corregida] Pantalla solicitada:', screenId);
-                            
-                            // CORREGIR: Si viene 'setup', cambiar a 'setup-screen'
-                            if (screenId === 'setup') {
-                                screenId = 'setup-screen';
-                                console.log('[showScreen corregida] Corregido: setup -> setup-screen');
-                            }
-                            
-                            // Ocultar TODAS las pantallas
-                            const allScreens = document.querySelectorAll('.game-screen');
-                            allScreens.forEach(screen => {
-                                screen.classList.remove('active');
-                                screen.style.display = 'none';
-                                screen.style.opacity = '0';
-                                screen.style.visibility = 'hidden';
-                            });
-                            
-                            // Mostrar la pantalla solicitada
-                            const targetScreen = document.getElementById(screenId);
-                            if (targetScreen) {
-                                targetScreen.classList.add('active');
-                                targetScreen.style.display = 'block';
-                                targetScreen.style.opacity = '1';
-                                targetScreen.style.visibility = 'visible';
-                                console.log('[showScreen corregida] Pantalla ' + screenId + ' activada');
-                            } else {
-                                console.error('[showScreen corregida] ERROR: No existe pantalla con id:', screenId);
-                                // Fallback a setup-screen
-                                forceSetupScreenVisible();
-                            }
-                            
-                            // Actualizar estado del juego
-                            if (window.impostorGame) {
-                                window.impostorGame.gameState = screenId.replace('-screen', '');
-                                console.log('[showScreen corregida] gameState actualizado:', window.impostorGame.gameState);
-                            }
-                            
-                            return true;
-                        };
-                        
-                        // Ahora inicializar el juego
-                        try {
-                            window.impostorGame.init();
-                            console.log('impostorGame.init() ejecutado correctamente');
-                        } catch (error) {
-                            console.error('Error en impostorGame.init():', error);
-                            alert('Error al inicializar el juego. Por favor, recarga la página.');
-                        }
-                        
-                        // Restaurar función original después de 3 segundos
-                        setTimeout(function() {
-                            if (window.impostorGame && originalShowScreen) {
-                                window.impostorGame.showScreen = originalShowScreen;
-                                console.log('Función showScreen original restaurada');
-                            }
-                        }, 3000);
-                        
-                    } else {
-                        console.error('ERROR CRÍTICO: window.impostorGame no está definido');
-                        alert('Error grave: No se pudo cargar el juego. Verifica la consola para más detalles.');
-                    }
-                }, 300); // Pequeño retardo para asegurar que el DOM esté completamente listo
-                
-                console.log('Configuración inicial completada');
-            });
-            
-            // 5. También ejecutar en window.load por si acaso
-            window.addEventListener('load', function() {
-                console.log('window.load - Verificando visibilidad...');
-                forceSetupScreenVisible();
-            });
-            
-            // 6. Función de emergencia para debugging
-            window.debugImpostor = function() {
-                console.log('=== DEBUG IMPOSTOR ===');
-                console.log('Pantallas encontradas:', document.querySelectorAll('.game-screen').length);
-                console.log('Estado de cada pantalla:');
-                
-                document.querySelectorAll('.game-screen').forEach(screen => {
-                    console.log('- ' + screen.id + ':');
-                    console.log('  Clases:', screen.className);
-                    console.log('  Display:', window.getComputedStyle(screen).display);
-                    console.log('  Opacity:', window.getComputedStyle(screen).opacity);
-                    console.log('  Visibility:', window.getComputedStyle(screen).visibility);
-                });
-                
-                if (window.impostorGame) {
-                    console.log('Estado del juego:', window.impostorGame.gameState);
-                    console.log('Jugadores:', window.impostorGame.players.length);
-                }
-                
-                alert('Información de debug en consola');
-            };
-            
-            // 7. Función de reset de emergencia
-            window.resetImpostorView = function() {
-                console.log('RESET DE EMERGENCIA ACTIVADO');
-                forceSetupScreenVisible();
-                
-                if (window.impostorGame) {
-                    window.impostorGame.gameState = 'setup';
-                    window.impostorGame.players = [];
-                    window.impostorGame.impostors = [];
-                }
-                
-                // También recargar si es necesario
-                if (confirm('¿Quieres recargar completamente la página?')) {
-                    location.reload();
-                } else {
-                    alert('Vista resetada. La pantalla de configuración debería ser visible ahora.');
-                }
-            };
-            
-            console.log('=== INICIALIZACIÓN COMPLETADA ===');
-        })();
+        });
     </script>
-    
-    <!-- Botón de emergencia para debugging (eliminar en producción) -->
-    <button onclick="resetImpostorView()" 
-            style="position:fixed; bottom:80px; right:20px; z-index:99999; 
-                   background:#ff4081; color:white; border:none; border-radius:5px; 
-                   padding:8px 12px; font-size:11px; cursor:pointer; opacity:0.7;
-                   box-shadow:0 2px 5px rgba(0,0,0,0.3);">
-        ↻ Reset Vista
-    </button>
 </body>
 </html>
