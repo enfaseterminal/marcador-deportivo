@@ -29,7 +29,9 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/imagenes/apple-touch-icon-180x180.png">
     
     <style>
-        /* Estilos críticos y tema impostor */
+        /* ===== ESTILOS CRÍTICOS PARA VISUALIZACIÓN ===== */
+        
+        /* Tema impostor */
         body.theme-impostor {
             --primary-color: #9c27b0;
             --secondary-color: #673ab7;
@@ -38,6 +40,8 @@
             background: var(--gradient);
             background-attachment: fixed;
             min-height: 100vh;
+            margin: 0;
+            padding: 0;
         }
         
         .theme-impostor {
@@ -47,23 +51,43 @@
             --accent-color: #ff4081;
         }
         
-        /* Corrección: Historial solo visible en pantalla de configuración */
-        #setup-screen .history-panel {
-            display: block;
-            margin-top: 30px;
-        }
-        
-        .game-screen:not(#setup-screen) .history-panel {
-            display: none;
-        }
-        
-        /* Asegurar que solo una pantalla sea visible */
+        /* GESTIÓN DE PANTALLAS - CORRECCIÓN CRÍTICA */
+        /* Ocultar todas las pantallas por defecto */
         .game-screen {
             display: none !important;
+            opacity: 0;
+            visibility: hidden;
+            position: absolute;
+            width: 100%;
+            transition: opacity 0.3s ease;
         }
         
+        /* Solo mostrar la pantalla activa */
         .game-screen.active {
             display: block !important;
+            opacity: 1;
+            visibility: visible;
+            position: relative;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        /* Garantizar que setup-screen sea visible inicialmente */
+        #setup-screen.active {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            position: relative !important;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         /* Clases para resultados */
@@ -87,7 +111,7 @@
             100% { background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); }
         }
         
-        /* Botón flotante de ayuda adicional */
+        /* Botón flotante de ayuda */
         .floating-help-btn {
             position: fixed;
             bottom: 20px;
@@ -113,7 +137,7 @@
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
         }
         
-        /* Ajuste para móviles en vertical */
+        /* Ajuste para móviles en vertical - ocultar botones flotantes */
         @media (orientation: portrait) {
             .floating-home-btn,
             .floating-help-btn {
@@ -121,7 +145,7 @@
             }
         }
         
-        /* Estilos específicos para la nueva opción de dificultad */
+        /* Estilos para la nueva opción de dificultad */
         .config-group select.form-control {
             width: 100%;
             padding: 10px 15px;
@@ -159,12 +183,59 @@
                 width: 100%;
                 justify-content: center;
             }
+            
+            .config-grid {
+                grid-template-columns: 1fr !important;
+            }
         }
         
-        /* Asegurar que el contenido principal sea visible */
+        /* Forzar visibilidad del contenido principal */
         .main-content {
             position: relative;
             z-index: 1;
+            min-height: 500px;
+        }
+        
+        /* Historial solo visible en pantalla de configuración */
+        #setup-screen .history-panel {
+            display: block;
+            margin-top: 30px;
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .game-screen:not(#setup-screen) .history-panel {
+            display: none !important;
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        /* Corrección para botones de configuración */
+        .number-input {
+            background: rgba(255, 255, 255, 0.15) !important;
+            border: 2px solid var(--primary-color) !important;
+        }
+        
+        .number-input:focus {
+            border-color: var(--accent-color) !important;
+            box-shadow: 0 0 0 3px rgba(255, 64, 129, 0.3) !important;
+            outline: none !important;
+        }
+        
+        /* Contenedor principal */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* Header mejorado */
+        .app-header {
+            position: relative;
+            z-index: 20;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -653,114 +724,222 @@
     <script src="../js/impostor-data.js"></script>
     <script src="../js/impostor-storage.js"></script>
     <script src="../js/impostor.js"></script>
-    <script src="../js/impostor-fix.js"></script>
     
-    <!-- Inicialización mejorada y simplificada -->
+    <!-- INICIALIZACIÓN CORREGIDA - SIN CONFLICTOS -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM completamente cargado');
+        (function() {
+            'use strict';
             
-            // Inicializar reloj si existe
-            if (typeof updateClock === 'function') {
-                console.log('Inicializando reloj...');
-                updateClock();
-                setInterval(updateClock, 1000);
-            }
+            console.log('=== INICIALIZACIÓN DEL JUEGO DEL IMPOSTOR ===');
             
-            // Asegurar que solo la pantalla de configuración sea visible inicialmente
-            const gameScreens = document.querySelectorAll('.game-screen');
-            gameScreens.forEach(screen => {
-                screen.classList.remove('active');
-            });
-            
-            // Forzar que la pantalla de configuración sea visible
-            const setupScreen = document.getElementById('setup-screen');
-            if (setupScreen) {
-                setupScreen.classList.add('active');
-                console.log('Pantalla de configuración activada');
-            }
-            
-            // Inicializar juego con retardo para asegurar que el DOM esté listo
-            setTimeout(function() {
-                if (typeof window.impostorGame !== 'undefined') {
-                    console.log('Inicializando juego del impostor...');
-                    
-                    // Sobrescribir la función showScreen para debugging
-                    const originalShowScreen = window.impostorGame.showScreen;
-                    window.impostorGame.showScreen = function(screenId) {
-                        console.log('Mostrando pantalla:', screenId);
-                        
-                        // Ocultar todas las pantallas
-                        document.querySelectorAll('.game-screen').forEach(screen => {
-                            screen.classList.remove('active');
-                        });
-                        
-                        // Mostrar la pantalla solicitada
-                        const screen = document.getElementById(screenId);
-                        if (screen) {
-                            screen.classList.add('active');
-                            console.log('Pantalla ' + screenId + ' activada');
-                        } else {
-                            console.error('No se encontró la pantalla:', screenId);
-                        }
-                    };
-                    
-                    // Inicializar juego
-                    window.impostorGame.init();
-                    
-                    // Restaurar función original después de inicializar
-                    setTimeout(() => {
-                        window.impostorGame.showScreen = originalShowScreen;
-                    }, 1000);
+            // 1. GARANTIZAR que setup-screen sea visible inicialmente
+            function forceSetupScreenVisible() {
+                console.log('Garantizando visibilidad de setup-screen...');
+                
+                // Ocultar TODAS las pantallas
+                const allScreens = document.querySelectorAll('.game-screen');
+                allScreens.forEach(screen => {
+                    screen.classList.remove('active');
+                    screen.style.display = 'none';
+                    screen.style.opacity = '0';
+                    screen.style.visibility = 'hidden';
+                });
+                
+                // Mostrar SOLO setup-screen
+                const setupScreen = document.getElementById('setup-screen');
+                if (setupScreen) {
+                    setupScreen.classList.add('active');
+                    setupScreen.style.display = 'block';
+                    setupScreen.style.opacity = '1';
+                    setupScreen.style.visibility = 'visible';
+                    console.log('setup-screen visible: OK');
                 } else {
-                    console.error('Error: window.impostorGame no está definido');
-                    alert('Error al cargar el juego. Por favor, recarga la página.');
+                    console.error('ERROR: No se encontró setup-screen');
                 }
-            }, 500);
+            }
             
-            // Configurar botón de inicio flotante
-            const floatingBtn = document.querySelector('.floating-home-btn');
-            if (floatingBtn) {
-                floatingBtn.addEventListener('click', function(e) {
-                    if (window.impostorGame && window.impostorGame.gameState !== 'setup') {
-                        if (!confirm('¿Seguro que quieres salir? Se perderá el progreso de la partida actual.')) {
-                            e.preventDefault();
+            // 2. EJECUTAR INMEDIATAMENTE
+            forceSetupScreenVisible();
+            
+            // 3. Cuando el DOM esté listo
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('DOMContentLoaded - Aplicando correcciones...');
+                
+                // Volver a forzar visibilidad
+                forceSetupScreenVisible();
+                
+                // Inicializar reloj si existe
+                if (typeof updateClock === 'function') {
+                    updateClock();
+                    setInterval(updateClock, 1000);
+                    console.log('Reloj inicializado');
+                }
+                
+                // Configurar botón de ayuda flotante
+                const helpBtn = document.getElementById('help-btn');
+                if (helpBtn) {
+                    helpBtn.addEventListener('click', function() {
+                        alert('AYUDA DEL JUEGO DEL IMPOSTOR\n\n' +
+                              '1. Configura número de jugadores e impostores\n' +
+                              '2. Selecciona categoría y dificultad de palabras\n' +
+                              '3. Pasa el dispositivo para asignar roles\n' +
+                              '4. Los inocentes reciben una palabra secreta\n' +
+                              '5. El impostor solo recibe una pista\n' +
+                              '6. ¡Conversen y descubran al impostor!\n' +
+                              '7. Al final del tiempo, voten\n\n' +
+                              '¡Diviértete! 🎮');
+                    });
+                }
+                
+                // Configurar botón de inicio flotante
+                const floatingHomeBtn = document.querySelector('.floating-home-btn');
+                if (floatingHomeBtn) {
+                    floatingHomeBtn.addEventListener('click', function(e) {
+                        // Si hay juego en curso, preguntar antes de salir
+                        if (window.impostorGame && window.impostorGame.gameState !== 'setup') {
+                            if (!confirm('Hay una partida en curso. ¿Seguro que quieres salir? Se perderá el progreso.')) {
+                                e.preventDefault();
+                                return false;
+                            }
                         }
+                        return true;
+                    });
+                }
+                
+                // 4. Inicializar el juego con retardo para asegurar que todo esté listo
+                setTimeout(function() {
+                    if (typeof window.impostorGame !== 'undefined') {
+                        console.log('Inicializando impostorGame...');
+                        
+                        // GUARDAR la función original de showScreen
+                        const originalShowScreen = window.impostorGame.showScreen;
+                        
+                        // REEMPLAZAR TEMPORALMENTE showScreen con versión corregida
+                        window.impostorGame.showScreen = function(screenId) {
+                            console.log('[showScreen corregida] Pantalla solicitada:', screenId);
+                            
+                            // CORREGIR: Si viene 'setup', cambiar a 'setup-screen'
+                            if (screenId === 'setup') {
+                                screenId = 'setup-screen';
+                                console.log('[showScreen corregida] Corregido: setup -> setup-screen');
+                            }
+                            
+                            // Ocultar TODAS las pantallas
+                            const allScreens = document.querySelectorAll('.game-screen');
+                            allScreens.forEach(screen => {
+                                screen.classList.remove('active');
+                                screen.style.display = 'none';
+                                screen.style.opacity = '0';
+                                screen.style.visibility = 'hidden';
+                            });
+                            
+                            // Mostrar la pantalla solicitada
+                            const targetScreen = document.getElementById(screenId);
+                            if (targetScreen) {
+                                targetScreen.classList.add('active');
+                                targetScreen.style.display = 'block';
+                                targetScreen.style.opacity = '1';
+                                targetScreen.style.visibility = 'visible';
+                                console.log('[showScreen corregida] Pantalla ' + screenId + ' activada');
+                            } else {
+                                console.error('[showScreen corregida] ERROR: No existe pantalla con id:', screenId);
+                                // Fallback a setup-screen
+                                forceSetupScreenVisible();
+                            }
+                            
+                            // Actualizar estado del juego
+                            if (window.impostorGame) {
+                                window.impostorGame.gameState = screenId.replace('-screen', '');
+                                console.log('[showScreen corregida] gameState actualizado:', window.impostorGame.gameState);
+                            }
+                            
+                            return true;
+                        };
+                        
+                        // Ahora inicializar el juego
+                        try {
+                            window.impostorGame.init();
+                            console.log('impostorGame.init() ejecutado correctamente');
+                        } catch (error) {
+                            console.error('Error en impostorGame.init():', error);
+                            alert('Error al inicializar el juego. Por favor, recarga la página.');
+                        }
+                        
+                        // Restaurar función original después de 3 segundos
+                        setTimeout(function() {
+                            if (window.impostorGame && originalShowScreen) {
+                                window.impostorGame.showScreen = originalShowScreen;
+                                console.log('Función showScreen original restaurada');
+                            }
+                        }, 3000);
+                        
+                    } else {
+                        console.error('ERROR CRÍTICO: window.impostorGame no está definido');
+                        alert('Error grave: No se pudo cargar el juego. Verifica la consola para más detalles.');
                     }
-                });
-            }
-            
-            // Configurar botón de ayuda flotante
-            const helpBtn = document.getElementById('help-btn');
-            if (helpBtn) {
-                helpBtn.addEventListener('click', function() {
-                    alert('AYUDA DEL JUEGO DEL IMPOSTOR\n\n' +
-                          '1. Configura número de jugadores e impostores\n' +
-                          '2. Selecciona categoría y dificultad de palabras\n' +
-                          '3. Pasa el dispositivo para asignar roles\n' +
-                          '4. Los inocentes reciben una palabra secreta\n' +
-                          '5. El impostor solo recibe una pista\n' +
-                          '6. ¡Conversen y descubran al impostor!\n' +
-                          '7. Al final del tiempo, voten\n\n' +
-                          '¡Diviértete! 🎮');
-                });
-            }
-            
-            // Debug: Mostrar todas las pantallas para diagnóstico
-            console.log('Pantallas encontradas:', gameScreens.length);
-            gameScreens.forEach((screen, index) => {
-                console.log(index + ': ' + screen.id + ' - visible: ' + screen.classList.contains('active'));
+                }, 300); // Pequeño retardo para asegurar que el DOM esté completamente listo
+                
+                console.log('Configuración inicial completada');
             });
-        });
-        
-        // Forzar visibilidad de la pantalla de configuración al cargar
-        window.addEventListener('load', function() {
-            const setupScreen = document.getElementById('setup-screen');
-            if (setupScreen) {
-                setupScreen.classList.add('active');
-                setupScreen.style.display = 'block';
-            }
-        });
+            
+            // 5. También ejecutar en window.load por si acaso
+            window.addEventListener('load', function() {
+                console.log('window.load - Verificando visibilidad...');
+                forceSetupScreenVisible();
+            });
+            
+            // 6. Función de emergencia para debugging
+            window.debugImpostor = function() {
+                console.log('=== DEBUG IMPOSTOR ===');
+                console.log('Pantallas encontradas:', document.querySelectorAll('.game-screen').length);
+                console.log('Estado de cada pantalla:');
+                
+                document.querySelectorAll('.game-screen').forEach(screen => {
+                    console.log('- ' + screen.id + ':');
+                    console.log('  Clases:', screen.className);
+                    console.log('  Display:', window.getComputedStyle(screen).display);
+                    console.log('  Opacity:', window.getComputedStyle(screen).opacity);
+                    console.log('  Visibility:', window.getComputedStyle(screen).visibility);
+                });
+                
+                if (window.impostorGame) {
+                    console.log('Estado del juego:', window.impostorGame.gameState);
+                    console.log('Jugadores:', window.impostorGame.players.length);
+                }
+                
+                alert('Información de debug en consola');
+            };
+            
+            // 7. Función de reset de emergencia
+            window.resetImpostorView = function() {
+                console.log('RESET DE EMERGENCIA ACTIVADO');
+                forceSetupScreenVisible();
+                
+                if (window.impostorGame) {
+                    window.impostorGame.gameState = 'setup';
+                    window.impostorGame.players = [];
+                    window.impostorGame.impostors = [];
+                }
+                
+                // También recargar si es necesario
+                if (confirm('¿Quieres recargar completamente la página?')) {
+                    location.reload();
+                } else {
+                    alert('Vista resetada. La pantalla de configuración debería ser visible ahora.');
+                }
+            };
+            
+            console.log('=== INICIALIZACIÓN COMPLETADA ===');
+        })();
     </script>
+    
+    <!-- Botón de emergencia para debugging (eliminar en producción) -->
+    <button onclick="resetImpostorView()" 
+            style="position:fixed; bottom:80px; right:20px; z-index:99999; 
+                   background:#ff4081; color:white; border:none; border-radius:5px; 
+                   padding:8px 12px; font-size:11px; cursor:pointer; opacity:0.7;
+                   box-shadow:0 2px 5px rgba(0,0,0,0.3);">
+        ↻ Reset Vista
+    </button>
 </body>
 </html>

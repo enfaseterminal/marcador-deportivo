@@ -1,5 +1,5 @@
 /* [file name]: impostor/css/impostor.css */
-/* Estilos específicos para el juego del impostor */
+/* Estilos específicos para el juego del impostor - VERSIÓN CORREGIDA */
 
 :root {
     --impostor-color: #9c27b0;
@@ -8,14 +8,45 @@
     --voting-color: #FF9800;
 }
 
-/* Pantallas del juego */
+/* ===== CORRECCIONES CRÍTICAS PARA VISUALIZACIÓN ===== */
+
+/* GESTIÓN DE PANTALLAS - Ocultar todas por defecto */
 .game-screen {
-    display: none;
-    animation: fadeIn 0.5s ease;
+    display: none !important;
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+    width: 100%;
+    transition: opacity 0.3s ease;
+    min-height: 100px;
 }
 
+/* Solo mostrar la pantalla activa */
 .game-screen.active {
-    display: block;
+    display: block !important;
+    opacity: 1;
+    visibility: visible;
+    position: relative;
+    animation: fadeInScreen 0.5s ease;
+}
+
+@keyframes fadeInScreen {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Asegurar que setup-screen sea visible cuando esté activa */
+#setup-screen.active {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: relative !important;
 }
 
 /* Configuración */
@@ -55,10 +86,16 @@
     text-align: center;
     font-size: 1.2rem;
     font-weight: bold;
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.15);
     border: 2px solid var(--primary-color);
     border-radius: 8px;
     color: white;
+}
+
+.number-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(255, 64, 129, 0.3);
+    outline: none;
 }
 
 .range-slider {
@@ -543,6 +580,76 @@
     margin-top: 30px;
 }
 
+/* Historial de partidas */
+.history-panel {
+    margin-top: 30px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.history-list {
+    margin: 15px 0;
+}
+
+.history-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.history-teams {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.history-score {
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.history-score.impostor-win {
+    background: rgba(255, 64, 129, 0.2);
+    color: #ff4081;
+}
+
+.history-score.innocent-win {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+}
+
+.history-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.empty-history {
+    text-align: center;
+    padding: 30px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.empty-history i {
+    margin-bottom: 15px;
+}
+
+.history-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
 /* Animaciones */
 @keyframes pulse {
     0% { transform: scale(1); }
@@ -589,6 +696,10 @@
     .current-word {
         font-size: 2rem;
     }
+    
+    .voting-options {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
 }
 
 @media (orientation: landscape) and (max-height: 600px) {
@@ -605,130 +716,4 @@
         padding: 10px;
         min-height: 50px;
     }
-}
-/* ===== CORRECCIONES CRÍTICAS ===== */
-
-/* Asegurar que las pantallas se oculten correctamente */
-.game-screen {
-    display: none !important;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.game-screen.active {
-    display: block !important;
-    opacity: 1;
-}
-
-/* Historial solo visible en pantalla de configuración */
-#setup-screen .history-panel {
-    display: block;
-    margin-top: 30px;
-    animation: fadeIn 0.5s ease 0.3s both;
-}
-
-.game-screen:not(#setup-screen) .history-panel {
-    display: none !important;
-}
-
-/* Asegurar que el contenido principal sea visible */
-.main-content {
-    position: relative;
-    z-index: 10;
-}
-
-/* Evitar que elementos se superpongan */
-.card {
-    position: relative;
-    z-index: 20;
-}
-
-/* Corrección para el botón flotante en landscape */
-@media (orientation: landscape) {
-    .floating-home-btn,
-    .floating-help-btn {
-        display: flex !important;
-    }
-    
-    .main-content {
-        padding-top: 20px;
-    }
-}
-
-/* Asegurar que los botones de configuración funcionen */
-.config-group .number-input {
-    background: rgba(255, 255, 255, 0.15);
-    border: 2px solid var(--primary-color);
-    color: white;
-    font-weight: bold;
-    text-align: center;
-}
-
-.config-group .number-input:focus {
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(255, 64, 129, 0.3);
-    outline: none;
-}
-
-/* Mejoras en la visibilidad del historial */
-.history-panel {
-    background: rgba(0, 0, 0, 0.25);
-    border-radius: 12px;
-    padding: 20px;
-    margin-top: 30px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.empty-history {
-    text-align: center;
-    padding: 30px;
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.empty-history i {
-    margin-bottom: 15px;
-    opacity: 0.5;
-}
-
-/* Animación para la transición entre pantallas */
-@keyframes screenTransition {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.game-screen.active {
-    animation: screenTransition 0.5s ease;
-}
-
-/* Asegurar que los botones sean accesibles */
-.btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* Corrección para móviles pequeños */
-@media (max-width: 480px) {
-    .container {
-        padding: 10px 5px;
-    }
-    
-    .game-screen {
-        padding: 5px;
-    }
-    
-    .card {
-        padding: 15px;
-    }
-}
-
-/* Forzar visibilidad inicial de la pantalla de configuración */
-#setup-screen.active {
-    display: block !important;
-    visibility: visible !important;
 }

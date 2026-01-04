@@ -1,5 +1,5 @@
 // [file name]: impostor/js/impostor.js
-// Lógica principal del juego del impostor
+// Lógica principal del juego del impostor - VERSIÓN CORREGIDA
 
 const impostorGame = {
     // Estado del juego
@@ -26,255 +26,283 @@ const impostorGame = {
     gameResult: '',
     resultMessage: '',
     
-    // Inicialización
-init() {
-    console.log('Inicializando Juego del Impostor - Versión corregida');
+    // Inicialización CORREGIDA
+    init() {
+        console.log('[impostor.js] Inicializando Juego del Impostor');
+        
+        // PRIMERO: Forzar que setup-screen sea visible
+        this.forceSetupVisible();
+        
+        // Cargar datos
+        this.loadGameData();
+        
+        // Cargar historial
+        this.loadHistory();
+        
+        // Configurar event listeners
+        this.setupEventListeners();
+        
+        // MOSTRAR pantalla de configuración (usando ID CORRECTO)
+        this.showScreen('setup-screen');
+        
+        // Actualizar contador de palabras
+        this.updateWordCount();
+        
+        // Inicializar controles
+        this.initializeConfigControls();
+        
+        console.log('[impostor.js] Juego inicializado correctamente');
+        return true;
+    },
     
-    // Forzar visibilidad de la pantalla de configuración
-    this.forceSetupScreenVisibility();
-    
-    // Cargar datos
-    this.loadGameData();
-    
-    // Cargar historial
-    this.loadHistory();
-    
-    // Configurar event listeners
-    this.setupEventListeners();
-    
-    // Mostrar pantalla de configuración
-    this.showScreen('setup');
-    
-    // Actualizar contador de palabras
-    this.updateWordCount();
-    
-    // Inicializar controles
-    this.initializeConfigControls();
-    
-    console.log('Juego inicializado correctamente');
-},
-
-// Nueva función para forzar visibilidad
-forceSetupScreenVisibility() {
-    // Ocultar todas las pantallas
-    document.querySelectorAll('.game-screen').forEach(screen => {
-        screen.classList.remove('active');
-        screen.style.display = 'none';
-    });
-    
-    // Mostrar solo la pantalla de configuración
-    const setupScreen = document.getElementById('setup-screen');
-    if (setupScreen) {
-        setupScreen.classList.add('active');
-        setupScreen.style.display = 'block';
-        console.log('Pantalla de configuración forzada a ser visible');
-    }
-},    
-    // Asegurar que los datos estén cargados
-    async ensureDataLoaded() {
-        return new Promise((resolve, reject) => {
-            if (window.impostorData && window.impostorData.gameData) {
-                console.log('Datos ya cargados');
-                resolve();
-                return;
-            }
-            
-            // Intentar cargar datos
-            if (window.impostorData && typeof window.impostorData.loadGameData === 'function') {
-                window.impostorData.loadGameData().then(() => {
-                    console.log('Datos cargados después de esperar');
-                    resolve();
-                }).catch(reject);
-            } else {
-                // Esperar un momento y reintentar
-                setTimeout(() => {
-                    if (window.impostorData && window.impostorData.gameData) {
-                        resolve();
-                    } else {
-                        reject(new Error('No se pudieron cargar los datos del juego'));
-                    }
-                }, 1000);
-            }
+    // Función para forzar visibilidad de setup-screen
+    forceSetupVisible() {
+        console.log('[impostor.js] Forzando visibilidad de setup-screen');
+        
+        // Ocultar todas las pantallas
+        const allScreens = document.querySelectorAll('.game-screen');
+        allScreens.forEach(screen => {
+            screen.classList.remove('active');
+            screen.style.display = 'none';
+            screen.style.opacity = '0';
+            screen.style.visibility = 'hidden';
         });
+        
+        // Mostrar solo setup-screen
+        const setupScreen = document.getElementById('setup-screen');
+        if (setupScreen) {
+            setupScreen.classList.add('active');
+            setupScreen.style.display = 'block';
+            setupScreen.style.opacity = '1';
+            setupScreen.style.visibility = 'visible';
+        }
+        
+        // Actualizar estado del juego
+        this.gameState = 'setup';
+    },
+    
+    // Cargar datos del juego
+    loadGameData() {
+        console.log('[impostor.js] Cargando datos del juego');
+        
+        // Esto se cargará desde impostor-data.js
+        if (typeof window.impostorData !== 'undefined') {
+            this.gameData = window.impostorData.getGameData();
+            if (this.gameData && this.gameData.palabras) {
+                console.log('[impostor.js] Datos cargados:', this.gameData.palabras.length, 'palabras disponibles');
+            } else {
+                console.warn('[impostor.js] Datos cargados pero sin palabras');
+            }
+        } else {
+            console.error('[impostor.js] ERROR: window.impostorData no está definido');
+            // Datos de emergencia
+            this.gameData = {
+                palabras: [
+                    { palabra: "Fútbol", pista: "Deporte con balón", categoria: "deportes", dificultad: "facil" },
+                    { palabra: "Baloncesto", pista: "Deporte con canasta", categoria: "deportes", dificultad: "facil" },
+                    { palabra: "Perro", pista: "Animal que ladra", categoria: "animales", dificultad: "facil" },
+                    { palabra: "Gato", pista: "Animal que maúlla", categoria: "animales", dificultad: "facil" }
+                ]
+            };
+            console.log('[impostor.js] Usando datos de emergencia:', this.gameData.palabras.length, 'palabras');
+        }
     },
     
     // Inicializar controles de configuración
     initializeConfigControls() {
-        // Configurar valores iniciales
-        this.updatePlayerCount(this.gameSettings.playerCount);
-        this.updateImpostorCount(this.gameSettings.impostorCount);
-        this.updateTimeLimit(this.gameSettings.timeLimit);
+        console.log('[impostor.js] Inicializando controles de configuración');
         
-        // Actualizar categorías disponibles
-        this.updateCategoryOptions();
-    },
-    
-    // Actualizar opciones de categoría
-    updateCategoryOptions() {
-        if (window.impostorData && typeof window.impostorData.getCategories === 'function') {
-            const categories = window.impostorData.getCategories();
-            const select = document.getElementById('wordCategory');
+        // Configurar valores iniciales
+        if (document.getElementById('playerCount')) {
+            this.updatePlayerCount(this.gameSettings.playerCount);
+            this.updateImpostorCount(this.gameSettings.impostorCount);
+            this.updateTimeLimit(this.gameSettings.timeLimit);
             
-            // Guardar selección actual
-            const currentValue = select.value;
+            // Actualizar categorías disponibles
+            this.updateCategoryOptions();
             
-            // Limpiar opciones (excepto la primera "all")
-            while (select.options.length > 1) {
-                select.remove(1);
-            }
-            
-            // Añadir categorías
-            categories.filter(cat => cat !== 'all').forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = this.capitalizeFirstLetter(category);
-                select.appendChild(option);
-            });
-            
-            // Restaurar selección si existe
-            if (categories.includes(currentValue)) {
-                select.value = currentValue;
-            }
+            console.log('[impostor.js] Controles de configuración inicializados');
+        } else {
+            console.error('[impostor.js] ERROR: Controles de configuración no encontrados');
         }
-    },
-    
-    // Capitalizar primera letra
-    capitalizeFirstLetter(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
     },
     
     // Configurar event listeners
     setupEventListeners() {
-        // Configuración básica
-        this.setupNumberInput('playerCount', 'playerRange', 
-            (value) => this.updatePlayerCount(value));
-        this.setupNumberInput('impostorCount', 'impostorRange', 
-            (value) => this.updateImpostorCount(value));
-        this.setupNumberInput('timeLimit', 'timeRange', 
-            (value) => this.updateTimeLimit(value));
+        console.log('[impostor.js] Configurando event listeners');
         
-        // Botones de incremento/decremento
-        this.setupIncrementButtons('playerCount', 'decrease-players', 'increase-players', 3, 12);
-        this.setupIncrementButtons('impostorCount', 'decrease-impostors', 'increase-impostors', 1, 3);
-        this.setupIncrementButtons('timeLimit', 'decrease-time', 'increase-time', 1, 15);
-        
-        // Categoría y dificultad
-        document.getElementById('wordCategory').addEventListener('change', (e) => {
-            this.gameSettings.category = e.target.value;
-            this.updateWordCount();
-        });
-        
-        // Añadir event listener para dificultad si existe
-        const difficultySelect = document.getElementById('difficulty');
-        if (difficultySelect) {
-            difficultySelect.addEventListener('change', (e) => {
-                this.gameSettings.difficulty = e.target.value;
-                this.updateWordCount();
-            });
-        }
-        
-        // Opciones avanzadas
-        document.getElementById('enableHints').addEventListener('change', (e) => {
-            this.gameSettings.enableHints = e.target.checked;
-        });
-        
-        document.getElementById('enableVoting').addEventListener('change', (e) => {
-            this.gameSettings.enableVoting = e.target.checked;
-        });
-        
-        document.getElementById('randomRoles').addEventListener('change', (e) => {
-            this.gameSettings.randomRoles = e.target.checked;
-        });
-        
-        // Botones de control del juego
-        this.setupGameControls();
-        
-        // Botón de ayuda flotante
-        const helpBtn = document.getElementById('help-btn');
-        if (helpBtn) {
-            helpBtn.addEventListener('click', () => this.showHelp());
-        }
-    },
-    
-    // Configurar controles numéricos
-    setupNumberInput(inputId, rangeId, callback) {
-        const input = document.getElementById(inputId);
-        const range = document.getElementById(rangeId);
-        
-        if (!input || !range) return;
-        
-        input.addEventListener('input', (e) => {
-            let value = parseInt(e.target.value);
-            value = this.clampValue(value, parseInt(input.min), parseInt(input.max));
-            input.value = value;
-            range.value = value;
-            callback(value);
-        });
-        
-        range.addEventListener('input', (e) => {
-            const value = parseInt(e.target.value);
-            input.value = value;
-            callback(value);
-        });
-    },
-    
-    // Configurar botones de incremento/decremento
-    setupIncrementButtons(inputId, decBtnId, incBtnId, min, max) {
-        const input = document.getElementById(inputId);
-        const decBtn = document.getElementById(decBtnId);
-        const incBtn = document.getElementById(incBtnId);
-        
-        if (!input || !decBtn || !incBtn) return;
-        
-        decBtn.addEventListener('click', () => {
-            let value = parseInt(input.value) - 1;
-            if (value < min) value = min;
-            input.value = value;
-            this.updateRangeValue(inputId, value);
-            this.handleSettingChange(inputId, value);
-        });
-        
-        incBtn.addEventListener('click', () => {
-            let value = parseInt(input.value) + 1;
-            if (value > max) value = max;
-            input.value = value;
-            this.updateRangeValue(inputId, value);
-            this.handleSettingChange(inputId, value);
-        });
-    },
-    
-    // Actualizar valor del range correspondiente
-    updateRangeValue(inputId, value) {
-        const rangeMap = {
-            'playerCount': 'playerRange',
-            'impostorCount': 'impostorRange',
-            'timeLimit': 'timeRange'
-        };
-        
-        const rangeId = rangeMap[inputId];
-        if (rangeId) {
-            const range = document.getElementById(rangeId);
-            if (range) range.value = value;
-        }
-    },
-    
-    // Manejar cambio de configuración
-    handleSettingChange(settingId, value) {
-        switch(settingId) {
-            case 'playerCount':
-                this.updatePlayerCount(value);
-                break;
-            case 'impostorCount':
-                this.updateImpostorCount(value);
-                break;
-            case 'timeLimit':
-                this.updateTimeLimit(value);
-                break;
+        try {
+            // Configuración básica - jugadores
+            const playerCountInput = document.getElementById('playerCount');
+            const playerRangeInput = document.getElementById('playerRange');
+            
+            if (playerCountInput && playerRangeInput) {
+                playerCountInput.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value) || 6;
+                    this.updatePlayerCount(value);
+                });
+                
+                playerRangeInput.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value) || 6;
+                    playerCountInput.value = value;
+                    this.updatePlayerCount(value);
+                });
+            }
+            
+            // Botones de incremento/decremento jugadores
+            const decreasePlayersBtn = document.getElementById('decrease-players');
+            const increasePlayersBtn = document.getElementById('increase-players');
+            
+            if (decreasePlayersBtn && increasePlayersBtn && playerCountInput) {
+                decreasePlayersBtn.addEventListener('click', () => {
+                    let value = parseInt(playerCountInput.value) - 1;
+                    if (value < 3) value = 3;
+                    playerCountInput.value = value;
+                    if (playerRangeInput) playerRangeInput.value = value;
+                    this.updatePlayerCount(value);
+                });
+                
+                increasePlayersBtn.addEventListener('click', () => {
+                    let value = parseInt(playerCountInput.value) + 1;
+                    if (value > 12) value = 12;
+                    playerCountInput.value = value;
+                    if (playerRangeInput) playerRangeInput.value = value;
+                    this.updatePlayerCount(value);
+                });
+            }
+            
+            // Configuración básica - impostores
+            const impostorCountInput = document.getElementById('impostorCount');
+            const impostorRangeInput = document.getElementById('impostorRange');
+            
+            if (impostorCountInput && impostorRangeInput) {
+                impostorCountInput.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value) || 1;
+                    this.updateImpostorCount(value);
+                });
+                
+                impostorRangeInput.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value) || 1;
+                    impostorCountInput.value = value;
+                    this.updateImpostorCount(value);
+                });
+            }
+            
+            // Botones de incremento/decremento impostores
+            const decreaseImpostorsBtn = document.getElementById('decrease-impostors');
+            const increaseImpostorsBtn = document.getElementById('increase-impostors');
+            
+            if (decreaseImpostorsBtn && increaseImpostorsBtn && impostorCountInput) {
+                decreaseImpostorsBtn.addEventListener('click', () => {
+                    let value = parseInt(impostorCountInput.value) - 1;
+                    if (value < 1) value = 1;
+                    impostorCountInput.value = value;
+                    if (impostorRangeInput) impostorRangeInput.value = value;
+                    this.updateImpostorCount(value);
+                });
+                
+                increaseImpostorsBtn.addEventListener('click', () => {
+                    let value = parseInt(impostorCountInput.value) + 1;
+                    if (value > 3) value = 3;
+                    impostorCountInput.value = value;
+                    if (impostorRangeInput) impostorRangeInput.value = value;
+                    this.updateImpostorCount(value);
+                });
+            }
+            
+            // Configuración básica - tiempo
+            const timeLimitInput = document.getElementById('timeLimit');
+            const timeRangeInput = document.getElementById('timeRange');
+            
+            if (timeLimitInput && timeRangeInput) {
+                timeLimitInput.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value) || 5;
+                    this.updateTimeLimit(value);
+                });
+                
+                timeRangeInput.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value) || 5;
+                    timeLimitInput.value = value;
+                    this.updateTimeLimit(value);
+                });
+            }
+            
+            // Botones de incremento/decremento tiempo
+            const decreaseTimeBtn = document.getElementById('decrease-time');
+            const increaseTimeBtn = document.getElementById('increase-time');
+            
+            if (decreaseTimeBtn && increaseTimeBtn && timeLimitInput) {
+                decreaseTimeBtn.addEventListener('click', () => {
+                    let value = parseInt(timeLimitInput.value) - 1;
+                    if (value < 1) value = 1;
+                    timeLimitInput.value = value;
+                    if (timeRangeInput) timeRangeInput.value = value;
+                    this.updateTimeLimit(value);
+                });
+                
+                increaseTimeBtn.addEventListener('click', () => {
+                    let value = parseInt(timeLimitInput.value) + 1;
+                    if (value > 15) value = 15;
+                    timeLimitInput.value = value;
+                    if (timeRangeInput) timeRangeInput.value = value;
+                    this.updateTimeLimit(value);
+                });
+            }
+            
+            // Categoría de palabras
+            const wordCategorySelect = document.getElementById('wordCategory');
+            if (wordCategorySelect) {
+                wordCategorySelect.addEventListener('change', (e) => {
+                    this.gameSettings.category = e.target.value;
+                    this.updateWordCount();
+                });
+            }
+            
+            // Dificultad (nueva opción)
+            const difficultySelect = document.getElementById('difficulty');
+            if (difficultySelect) {
+                difficultySelect.addEventListener('change', (e) => {
+                    this.gameSettings.difficulty = e.target.value;
+                    this.updateWordCount();
+                });
+            }
+            
+            // Opciones avanzadas
+            const enableHintsCheckbox = document.getElementById('enableHints');
+            if (enableHintsCheckbox) {
+                enableHintsCheckbox.addEventListener('change', (e) => {
+                    this.gameSettings.enableHints = e.target.checked;
+                });
+            }
+            
+            const enableVotingCheckbox = document.getElementById('enableVoting');
+            if (enableVotingCheckbox) {
+                enableVotingCheckbox.addEventListener('change', (e) => {
+                    this.gameSettings.enableVoting = e.target.checked;
+                });
+            }
+            
+            const randomRolesCheckbox = document.getElementById('randomRoles');
+            if (randomRolesCheckbox) {
+                randomRolesCheckbox.addEventListener('change', (e) => {
+                    this.gameSettings.randomRoles = e.target.checked;
+                });
+            }
+            
+            // Botones de control del juego
+            this.setupGameControls();
+            
+            console.log('[impostor.js] Event listeners configurados correctamente');
+            
+        } catch (error) {
+            console.error('[impostor.js] ERROR al configurar event listeners:', error);
         }
     },
     
     // Configurar controles del juego
     setupGameControls() {
+        console.log('[impostor.js] Configurando controles del juego');
+        
         const controls = [
             ['start-game', () => this.startGame()],
             ['quick-start', () => this.quickStart()],
@@ -298,20 +326,25 @@ forceSetupScreenVisibility() {
         ];
         
         controls.forEach(([id, handler]) => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.addEventListener('click', handler);
+            try {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('click', handler);
+                } else {
+                    console.warn('[impostor.js] Control no encontrado:', id);
+                }
+            } catch (error) {
+                console.error('[impostor.js] Error al configurar control', id, ':', error);
             }
         });
-    },
-    
-    // Limitar valor entre mínimo y máximo
-    clampValue(value, min, max) {
-        return Math.min(Math.max(value, min), max);
+        
+        console.log('[impostor.js] Controles del juego configurados');
     },
     
     // Actualizar contador de jugadores
     updatePlayerCount(count) {
+        console.log('[impostor.js] Actualizando jugadores:', count);
+        
         this.gameSettings.playerCount = count;
         
         // Ajustar número máximo de impostores
@@ -319,21 +352,23 @@ forceSetupScreenVisibility() {
         const impostorInput = document.getElementById('impostorCount');
         const impostorRange = document.getElementById('impostorRange');
         
-        if (this.gameSettings.impostorCount > maxImpostors) {
-            this.gameSettings.impostorCount = maxImpostors;
-            impostorInput.value = maxImpostors;
-            impostorRange.value = maxImpostors;
+        if (impostorInput && impostorRange) {
+            if (this.gameSettings.impostorCount > maxImpostors) {
+                this.gameSettings.impostorCount = maxImpostors;
+                impostorInput.value = maxImpostors;
+                impostorRange.value = maxImpostors;
+            }
+            
+            impostorRange.max = maxImpostors;
+            impostorInput.max = maxImpostors;
         }
         
-        impostorRange.max = maxImpostors;
-        impostorInput.max = maxImpostors;
-        
         this.updateImpostorRatio();
-        this.updateSubmitButton();
     },
     
     // Actualizar contador de impostores
     updateImpostorCount(count) {
+        console.log('[impostor.js] Actualizando impostores:', count);
         this.gameSettings.impostorCount = count;
         this.updateImpostorRatio();
     },
@@ -344,78 +379,78 @@ forceSetupScreenVisibility() {
         const impostorCount = this.gameSettings.impostorCount;
         const ratioElement = document.getElementById('impostor-ratio');
         
-        if (ratioElement) {
-            const ratio = playerCount / impostorCount;
-            ratioElement.textContent = 
-                `Ratio: 1 impostor por cada ${Math.round(ratio)} jugadores`;
+        if (ratioElement && playerCount > 0 && impostorCount > 0) {
+            const ratio = Math.round(playerCount / impostorCount);
+            ratioElement.textContent = `Ratio: 1 impostor por cada ${ratio} jugadores`;
         }
     },
     
     // Actualizar límite de tiempo
     updateTimeLimit(minutes) {
+        console.log('[impostor.js] Actualizando tiempo límite:', minutes);
         this.gameSettings.timeLimit = minutes;
+    },
+    
+    // Actualizar opciones de categoría
+    updateCategoryOptions() {
+        // Esta función se implementaría si hay un sistema dinámico de categorías
+        // Por ahora, las categorías están definidas en el HTML
     },
     
     // Actualizar contador de palabras disponibles
     updateWordCount() {
-        if (!window.impostorData || typeof window.impostorData.countWords !== 'function') {
-            document.getElementById('word-count').textContent = 
-                'Cargando palabras...';
+        const wordCountElement = document.getElementById('word-count');
+        if (!wordCountElement) return;
+        
+        if (!this.gameData || !this.gameData.palabras) {
+            wordCountElement.textContent = 'Error cargando palabras';
             return;
         }
         
-        const category = this.gameSettings.category;
-        const difficulty = this.gameSettings.difficulty || 'all';
-        const count = window.impostorData.countWords(category, difficulty);
+        let palabrasFiltradas = this.gameData.palabras;
         
+        // Filtrar por categoría
+        if (this.gameSettings.category !== 'all') {
+            palabrasFiltradas = palabrasFiltradas.filter(word => 
+                word.categoria === this.gameSettings.category
+            );
+        }
+        
+        // Filtrar por dificultad
+        if (this.gameSettings.difficulty !== 'all') {
+            if (this.gameSettings.difficulty === 'mixto') {
+                // Para mixto, no filtrar por dificultad
+            } else {
+                palabrasFiltradas = palabrasFiltradas.filter(word => 
+                    word.dificultad === this.gameSettings.difficulty
+                );
+            }
+        }
+        
+        const count = palabrasFiltradas.length;
         let message = `${count} palabras disponibles`;
         
-        if (category !== 'all') {
-            message += ` en categoría: ${this.capitalizeFirstLetter(category)}`;
+        if (this.gameSettings.category !== 'all') {
+            message += ` en ${this.capitalizeFirstLetter(this.gameSettings.category)}`;
         }
         
-        if (difficulty !== 'all') {
-            message += ` (${difficulty})`;
+        if (this.gameSettings.difficulty !== 'all') {
+            message += ` (${this.gameSettings.difficulty})`;
         }
         
-        document.getElementById('word-count').textContent = message;
+        wordCountElement.textContent = message;
     },
     
-    // Mostrar ayuda
-    showHelp() {
-        const helpText = `
-            AYUDA DEL JUEGO DEL IMPOSTOR 🕵️‍♂️
-            
-            1️⃣ CONFIGURACIÓN:
-               • Número de jugadores: 3-12
-               • Número de impostores: 1-3
-               • Tiempo límite: 1-15 minutos
-               • Categoría: Elige el tema de las palabras
-               • Dificultad: Fácil o Difícil
-            
-            2️⃣ ASIGNACIÓN DE ROLES:
-               • Los INOCENTES reciben una palabra secreta
-               • El IMPOSTOR recibe solo una pista
-               • Pasa el dispositivo a cada jugador
-            
-            3️⃣ JUEGO:
-               • Los inocentes deben descubrir al impostor
-               • El impostor debe engañar a los demás
-               • Tienen tiempo limitado
-            
-            4️⃣ VOTACIÓN:
-               • Al final del tiempo, todos votan
-               • El más votado es eliminado
-               • Si es el impostor, ganan los inocentes
-            
-            ¡Diviértete! 🎮
-        `;
-        
-        alert(helpText);
+    // Capitalizar primera letra
+    capitalizeFirstLetter(string) {
+        if (!string) return '';
+        return string.charAt(0).toUpperCase() + string.slice(1);
     },
     
     // Inicio rápido
     quickStart() {
+        console.log('[impostor.js] Inicio rápido activado');
+        
         this.gameSettings = {
             playerCount: 6,
             impostorCount: 1,
@@ -428,27 +463,14 @@ forceSetupScreenVisibility() {
         };
         
         // Actualizar UI
-        const updates = {
-            'playerCount': 6,
-            'impostorCount': 1,
-            'timeLimit': 5,
-            'wordCategory': 'all'
-        };
-        
-        Object.entries(updates).forEach(([id, value]) => {
-            const element = document.getElementById(id);
-            if (element) element.value = value;
-            this.updateRangeValue(id, value);
-        });
-        
-        // Actualizar dificultad si existe
-        const difficultySelect = document.getElementById('difficulty');
-        if (difficultySelect) {
-            difficultySelect.value = 'all';
-            this.gameSettings.difficulty = 'all';
-        }
-        
-        // Actualizar checkboxes
+        document.getElementById('playerCount').value = 6;
+        document.getElementById('playerRange').value = 6;
+        document.getElementById('impostorCount').value = 1;
+        document.getElementById('impostorRange').value = 1;
+        document.getElementById('timeLimit').value = 5;
+        document.getElementById('timeRange').value = 5;
+        document.getElementById('wordCategory').value = 'all';
+        document.getElementById('difficulty').value = 'all';
         document.getElementById('enableHints').checked = true;
         document.getElementById('enableVoting').checked = true;
         document.getElementById('randomRoles').checked = true;
@@ -461,23 +483,23 @@ forceSetupScreenVisibility() {
     
     // Iniciar juego
     startGame() {
-        console.log('Iniciando juego con configuración:', this.gameSettings);
+        console.log('[impostor.js] Iniciando juego...');
         
         // Validar configuración
         if (this.gameSettings.playerCount < 3) {
             this.showNotification('Se necesitan al menos 3 jugadores', 'error');
-            return;
+            return false;
         }
         
         if (this.gameSettings.impostorCount >= this.gameSettings.playerCount) {
             this.showNotification('Debe haber más jugadores que impostores', 'error');
-            return;
+            return false;
         }
         
         // Seleccionar palabra aleatoria
         if (!this.selectRandomWord()) {
             this.showNotification('No hay palabras disponibles con los filtros seleccionados', 'error');
-            return;
+            return false;
         }
         
         // Crear lista de jugadores
@@ -494,43 +516,58 @@ forceSetupScreenVisibility() {
         this.updateRoleDisplay(this.currentPlayerIndex);
         
         this.showNotification('Partida configurada. Comienza la asignación de roles.', 'success');
+        return true;
     },
     
     // Seleccionar palabra aleatoria
     selectRandomWord() {
-        if (!window.impostorData || typeof window.impostorData.getWords !== 'function') {
-            console.error('Datos del juego no disponibles');
+        console.log('[impostor.js] Seleccionando palabra aleatoria');
+        
+        if (!this.gameData || !this.gameData.palabras) {
+            console.error('[impostor.js] No hay datos de palabras');
             this.currentWord = 'Error';
             this.currentHint = 'No hay datos disponibles';
             return false;
         }
         
-        const category = this.gameSettings.category;
-        const difficulty = this.gameSettings.difficulty || 'all';
+        let palabrasFiltradas = this.gameData.palabras;
         
-        const availableWords = window.impostorData.getWords(category, difficulty);
+        // Filtrar por categoría
+        if (this.gameSettings.category !== 'all') {
+            palabrasFiltradas = palabrasFiltradas.filter(word => 
+                word.categoria === this.gameSettings.category
+            );
+        }
         
-        if (availableWords.length === 0) {
-            console.error('No hay palabras disponibles con los filtros:', category, difficulty);
+        // Filtrar por dificultad
+        if (this.gameSettings.difficulty !== 'all' && this.gameSettings.difficulty !== 'mixto') {
+            palabrasFiltradas = palabrasFiltradas.filter(word => 
+                word.dificultad === this.gameSettings.difficulty
+            );
+        }
+        
+        if (palabrasFiltradas.length === 0) {
+            console.error('[impostor.js] No hay palabras después de filtrar');
             return false;
         }
         
-        const randomIndex = Math.floor(Math.random() * availableWords.length);
-        const selectedWord = availableWords[randomIndex];
+        const randomIndex = Math.floor(Math.random() * palabrasFiltradas.length);
+        const selectedWord = palabrasFiltradas[randomIndex];
         
         this.currentWord = selectedWord.palabra;
         this.currentHint = selectedWord.pista;
         
-        console.log('Palabra seleccionada:', this.currentWord, 'Pista:', this.currentHint);
+        console.log('[impostor.js] Palabra seleccionada:', this.currentWord, 'Pista:', this.currentHint);
         return true;
     },
     
     // Crear lista de jugadores
     createPlayers() {
-        this.players = [];
-        const playerCount = this.gameSettings.playerCount;
+        console.log('[impostor.js] Creando jugadores:', this.gameSettings.playerCount);
         
-        for (let i = 1; i <= playerCount; i++) {
+        this.players = [];
+        
+        for (let i = 1; i <= this.gameSettings.playerCount; i++) {
             this.players.push({
                 id: i,
                 name: `Jugador ${i}`,
@@ -542,12 +579,12 @@ forceSetupScreenVisibility() {
             });
         }
         
-        console.log('Jugadores creados:', this.players.length);
+        console.log('[impostor.js] Jugadores creados:', this.players.length);
     },
     
     // Asignar roles
     assignRoles() {
-        console.log('Asignando roles...');
+        console.log('[impostor.js] Asignando roles...');
         
         // Reiniciar todos a inocentes
         this.players.forEach(player => {
@@ -560,11 +597,18 @@ forceSetupScreenVisibility() {
         // Seleccionar impostores aleatorios
         this.impostors = [];
         const impostorCount = this.gameSettings.impostorCount;
-        const playerCount = this.players.length;
         
         // Crear array de índices aleatorios
-        const indices = Array.from({length: playerCount}, (_, i) => i);
-        this.shuffleArray(indices);
+        const indices = [];
+        for (let i = 0; i < this.players.length; i++) {
+            indices.push(i);
+        }
+        
+        // Barajar índices
+        for (let i = indices.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [indices[i], indices[j]] = [indices[j], indices[i]];
+        }
         
         // Asignar primeros n índices como impostores
         for (let i = 0; i < impostorCount && i < indices.length; i++) {
@@ -573,20 +617,12 @@ forceSetupScreenVisibility() {
             this.impostors.push(this.players[playerIndex]);
         }
         
-        console.log('Impostores asignados:', this.impostors.map(p => p.name));
-    },
-    
-    // Barajar array
-    shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
+        console.log('[impostor.js] Impostores asignados:', this.impostors.map(p => p.name));
     },
     
     // Mostrar pantalla de roles
     showRoleScreen() {
+        console.log('[impostor.js] Mostrando pantalla de roles');
         this.gameState = 'roles';
         this.showScreen('role-screen');
         
@@ -601,14 +637,14 @@ forceSetupScreenVisibility() {
     // Actualizar pantalla de roles
     updateRoleDisplay(playerIndex) {
         if (playerIndex < 0 || playerIndex >= this.players.length) {
-            console.error('Índice de jugador inválido:', playerIndex);
+            console.error('[impostor.js] Índice de jugador inválido:', playerIndex);
             return;
         }
         
         this.currentPlayerIndex = playerIndex;
         const player = this.players[playerIndex];
         
-        console.log('Mostrando rol para:', player.name, 'Rol:', player.role);
+        console.log('[impostor.js] Mostrando rol para:', player.name, 'Rol:', player.role);
         
         // Actualizar información del jugador
         document.getElementById('role-title').textContent = player.name;
@@ -618,11 +654,6 @@ forceSetupScreenVisibility() {
         this.updateProgressBar(playerIndex);
         
         // Configurar según el rol
-        this.setupRoleDisplay(player);
-    },
-    
-    // Configurar display según rol
-    setupRoleDisplay(player) {
         const roleIcon = document.getElementById('role-icon');
         const roleSubtitle = document.getElementById('role-subtitle');
         const wordValue = document.getElementById('word-value');
@@ -643,9 +674,9 @@ forceSetupScreenVisibility() {
             if (this.gameSettings.enableHints) {
                 hintValue.textContent = this.currentHint;
                 hintValue.style.color = '#ff4081';
-                hintDisplay.style.display = 'block';
+                if (hintDisplay) hintDisplay.style.display = 'block';
             } else {
-                hintDisplay.style.display = 'none';
+                if (hintDisplay) hintDisplay.style.display = 'none';
             }
         } else {
             // Configurar para inocente
@@ -659,12 +690,15 @@ forceSetupScreenVisibility() {
             wordValue.style.fontStyle = 'normal';
             
             // Los inocentes no ven la pista
-            hintDisplay.style.display = 'none';
+            if (hintDisplay) hintDisplay.style.display = 'none';
         }
         
         // Actualizar botones de navegación
-        document.getElementById('prev-player').disabled = playerIndex === 0;
-        document.getElementById('next-player').disabled = playerIndex === this.players.length - 1;
+        const prevBtn = document.getElementById('prev-player');
+        const nextBtn = document.getElementById('next-player');
+        
+        if (prevBtn) prevBtn.disabled = playerIndex === 0;
+        if (nextBtn) nextBtn.disabled = playerIndex === this.players.length - 1;
     },
     
     // Actualizar barra de progreso
@@ -693,7 +727,7 @@ forceSetupScreenVisibility() {
     
     // Todos listos - comenzar a jugar
     startPlaying() {
-        console.log('Comenzando juego...');
+        console.log('[impostor.js] Comenzando juego...');
         this.gameState = 'playing';
         this.showScreen('game-screen');
         
@@ -790,7 +824,7 @@ forceSetupScreenVisibility() {
     startVoting() {
         if (this.gameState !== 'playing') return;
         
-        console.log('Iniciando votación...');
+        console.log('[impostor.js] Iniciando votación...');
         this.gameState = 'voting';
         clearInterval(this.timer);
         this.showScreen('voting-screen');
@@ -850,11 +884,10 @@ forceSetupScreenVisibility() {
     
     // Seleccionar opción de voto
     selectVoteOption(playerId) {
-        console.log('Votando por jugador:', playerId);
+        console.log('[impostor.js] Votando por jugador:', playerId);
         
         // En esta versión simplificada, asumimos que el jugador actual es el primero
-        // En una versión completa, cada jugador votaría desde su dispositivo
-        const currentPlayer = this.players[0]; // Simplificación
+        const currentPlayer = this.players[0];
         currentPlayer.votedFor = playerId;
         
         // Actualizar UI
@@ -914,13 +947,17 @@ forceSetupScreenVisibility() {
     
     // Saltar votación
     skipVoting() {
-        console.log('Saltando votación...');
+        console.log('[impostor.js] Saltando votación...');
         this.endGame();
     },
     
     // Enviar votos
     submitVotes() {
-        console.log('Enviando votos...');
+        console.log('[impostor.js] Enviando votos...');
+        
+        if (this.votingTimer) {
+            clearInterval(this.votingTimer);
+        }
         
         // Contar votos
         this.players.forEach(player => {
@@ -994,7 +1031,7 @@ forceSetupScreenVisibility() {
     
     // Terminar juego
     endGame() {
-        console.log('Terminando juego...');
+        console.log('[impostor.js] Terminando juego...');
         
         if (this.gameState === 'playing') {
             // Si se termina sin votación, el impostor gana
@@ -1007,15 +1044,18 @@ forceSetupScreenVisibility() {
     
     // Mostrar resultados
     showResults() {
-        console.log('Mostrando resultados...');
+        console.log('[impostor.js] Mostrando resultados...');
         this.gameState = 'results';
         
         // Detener todos los temporizadores
         if (this.timer) {
             clearInterval(this.timer);
+            this.timer = null;
         }
+        
         if (this.votingTimer) {
             clearInterval(this.votingTimer);
+            this.votingTimer = null;
         }
         
         this.showScreen('results-screen');
@@ -1030,6 +1070,7 @@ forceSetupScreenVisibility() {
         if (impostorCard) {
             impostorCard.style.display = impostorsWon ? 'block' : 'none';
         }
+        
         if (innocentCard) {
             innocentCard.style.display = impostorsWon ? 'none' : 'block';
         }
@@ -1043,25 +1084,29 @@ forceSetupScreenVisibility() {
         // Efectos visuales
         this.applyResultEffects(impostorsWon);
         
-        console.log('Resultados mostrados. Ganador:', impostorsWon ? 'Impostor' : 'Inocentes');
+        console.log('[impostor.js] Resultados mostrados. Ganador:', impostorsWon ? 'Impostor' : 'Inocentes');
     },
     
     // Actualizar detalles del juego
     updateGameDetails() {
-        document.getElementById('game-duration').textContent = 
-            `${this.gameSettings.timeLimit} minutos`;
-        document.getElementById('game-players').textContent = this.players.length;
-        document.getElementById('game-impostors').textContent = this.impostors.length;
-        document.getElementById('game-word').textContent = this.currentWord;
-        document.getElementById('game-hint').textContent = this.currentHint;
-        document.getElementById('game-result').textContent = 
-            this.gameResult === 'impostor_win' ? 'Impostor gana' : 'Inocentes ganan';
-        document.getElementById('game-impostor-names').textContent = 
-            this.impostors.map(i => i.name).join(', ');
+        const updateElement = (id, value) => {
+            const element = document.getElementById(id);
+            if (element) element.textContent = value;
+        };
+        
+        updateElement('game-duration', `${this.gameSettings.timeLimit} minutos`);
+        updateElement('game-players', this.players.length);
+        updateElement('game-impostors', this.impostors.length);
+        updateElement('game-word', this.currentWord);
+        updateElement('game-hint', this.currentHint);
+        updateElement('game-category', this.capitalizeFirstLetter(this.gameSettings.category));
+        updateElement('game-difficulty', this.capitalizeFirstLetter(this.gameSettings.difficulty));
+        updateElement('game-result', this.gameResult === 'impostor_win' ? 'Impostor gana' : 'Inocentes ganan');
+        updateElement('game-impostor-names', this.impostors.map(i => i.name).join(', '));
         
         // Actualizar mensajes de resultado
-        document.getElementById('impostor-win-details').textContent = this.resultMessage;
-        document.getElementById('innocent-win-details').textContent = this.resultMessage;
+        updateElement('impostor-win-details', this.resultMessage);
+        updateElement('innocent-win-details', this.resultMessage);
     },
     
     // Actualizar resultados por jugador
@@ -1129,7 +1174,7 @@ forceSetupScreenVisibility() {
     
     // Jugar otra vez
     playAgain() {
-        console.log('Jugando otra vez...');
+        console.log('[impostor.js] Jugar otra vez...');
         
         // Reiniciar estado
         this.gameState = 'setup';
@@ -1143,6 +1188,7 @@ forceSetupScreenVisibility() {
             clearInterval(this.timer);
             this.timer = null;
         }
+        
         if (this.votingTimer) {
             clearInterval(this.votingTimer);
             this.votingTimer = null;
@@ -1163,7 +1209,7 @@ forceSetupScreenVisibility() {
     
     // Guardar partida
     saveGame() {
-        console.log('Guardando partida...');
+        console.log('[impostor.js] Guardando partida...');
         
         if (typeof window.impostorStorage !== 'undefined') {
             const gameData = {
@@ -1190,7 +1236,7 @@ forceSetupScreenVisibility() {
     
     // Cargar historial
     loadHistory() {
-        console.log('Cargando historial...');
+        console.log('[impostor.js] Cargando historial...');
         
         if (typeof window.impostorStorage !== 'undefined') {
             this.gameHistory = window.impostorStorage.getHistory();
@@ -1259,7 +1305,7 @@ forceSetupScreenVisibility() {
     
     // Volver a configuración
     backToSetup() {
-        console.log('Volviendo a configuración...');
+        console.log('[impostor.js] Volviendo a configuración...');
         
         // Preguntar si hay partida en curso
         if (this.gameState !== 'setup' && this.gameState !== 'results') {
@@ -1283,7 +1329,7 @@ forceSetupScreenVisibility() {
     
     // Compartir resultados
     openShareModal() {
-        console.log('Abriendo modal de compartir...');
+        console.log('[impostor.js] Abriendo modal de compartir...');
         
         const modal = document.getElementById('share-modal');
         const textArea = document.getElementById('share-text');
@@ -1387,39 +1433,89 @@ forceSetupScreenVisibility() {
         }
     },
     
-    // Mostrar pantalla específica
+    // ===== FUNCIÓN CRÍTICA CORREGIDA =====
+    // Mostrar pantalla específica (VERSIÓN CORREGIDA)
     showScreen(screenId) {
-        console.log('Mostrando pantalla:', screenId);
+        console.log('[impostor.js] showScreen llamada con:', screenId);
         
-        // Ocultar todas las pantallas
-        document.querySelectorAll('.game-screen').forEach(screen => {
+        // CORRECCIÓN CRÍTICA: 'setup' -> 'setup-screen'
+        if (screenId === 'setup') {
+            screenId = 'setup-screen';
+            console.log('[impostor.js] Corregido: setup -> setup-screen');
+        }
+        
+        // Ocultar TODAS las pantallas
+        const allScreens = document.querySelectorAll('.game-screen');
+        allScreens.forEach(screen => {
             screen.classList.remove('active');
+            screen.style.display = 'none';
+            screen.style.opacity = '0';
+            screen.style.visibility = 'hidden';
         });
         
         // Mostrar la pantalla solicitada
-        const screen = document.getElementById(screenId);
-        if (screen) {
-            screen.classList.add('active');
+        const targetScreen = document.getElementById(screenId);
+        if (targetScreen) {
+            targetScreen.classList.add('active');
+            targetScreen.style.display = 'block';
+            targetScreen.style.opacity = '1';
+            targetScreen.style.visibility = 'visible';
             
-            // Asegurarse de que la pantalla sea visible
-            screen.style.display = 'block';
+            console.log('[impostor.js] Pantalla ' + screenId + ' activada correctamente');
+        } else {
+            console.error('[impostor.js] ERROR: No existe pantalla con id:', screenId);
+            
+            // Fallback: mostrar setup-screen
+            const setupScreen = document.getElementById('setup-screen');
+            if (setupScreen) {
+                setupScreen.classList.add('active');
+                setupScreen.style.display = 'block';
+                setupScreen.style.opacity = '1';
+                setupScreen.style.visibility = 'visible';
+                console.log('[impostor.js] Fallback a setup-screen');
+            }
         }
+        
+        // Actualizar estado del juego
+        this.gameState = screenId.replace('-screen', '');
+        console.log('[impostor.js] gameState actualizado a:', this.gameState);
+        
+        return true;
     },
     
     // Mostrar notificación
     showNotification(message, type = 'success') {
-        console.log('Notificación:', type, message);
+        console.log('[impostor.js] Notificación:', type, '-', message);
         
         // Intentar usar la función común si existe
         if (typeof window.common !== 'undefined' && 
             typeof window.common.showNotification === 'function') {
             window.common.showNotification(message, type);
         } else {
-            // Fallback: alert simple
-            alert(`${type.toUpperCase()}: ${message}`);
+            // Fallback: alert simple para debugging
+            const types = {
+                'success': '✅',
+                'error': '❌',
+                'warning': '⚠️',
+                'info': 'ℹ️'
+            };
+            
+            const icon = types[type] || '💬';
+            alert(`${icon} ${message}`);
         }
     }
 };
 
 // Hacer el juego accesible globalmente
 window.impostorGame = impostorGame;
+
+// Función de inicialización global para compatibilidad
+window.initImpostorGame = function() {
+    if (window.impostorGame && typeof window.impostorGame.init === 'function') {
+        console.log('Inicializando impostorGame desde initImpostorGame()');
+        return window.impostorGame.init();
+    } else {
+        console.error('ERROR: No se puede inicializar impostorGame');
+        return false;
+    }
+};
