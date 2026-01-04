@@ -234,3 +234,86 @@ h1, h2, h3, h4, h5, h6 {
         display: none !important;
     }
 }
+/* AÑADIR AL FINAL DEL ARCHIVO base.css EXISTENTE */
+
+/* ===== ESTILOS ADICIONALES PARA SISTEMA DE TARJETAS ===== */
+
+/* Modal para tarjetas */
+.modal-content {
+    max-width: 400px;
+    width: 90%;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: var(--dark-color);
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+    font-size: 1rem;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* Estilos para botones de corrección */
+.btn-small {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    min-width: auto;
+    height: auto;
+}
+
+/* Animación para notificaciones de expulsión */
+@keyframes flashRed {
+    0%, 100% { background-color: rgba(231, 76, 60, 0.1); }
+    50% { background-color: rgba(231, 76, 60, 0.3); }
+}
+
+.expulsion-flash {
+    animation: flashRed 1s 3;
+}
+
+/* Colores de texto para tarjetas */
+.text-warning {
+    color: #f39c12 !important;
+}
+
+.text-info {
+    color: #3498db !important;
+}
+
+/* Ajustes para responsive en modales */
+@media (max-width: 480px) {
+    .modal-content {
+        width: 95%;
+        padding: 15px;
+    }
+    
+    .form-group input {
+        padding: 6px 10px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Mejoras de accesibilidad para botones de tarjetas */
+.btn-yellow:focus, .btn-blue:focus,
+.btn-remove-yellow:focus, .btn-remove-blue:focus {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
