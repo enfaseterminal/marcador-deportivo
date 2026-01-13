@@ -1,4 +1,4 @@
-// /js/futbol-sala.js - VERSIÓN CORREGIDA COMPLETA
+// /js/futbol-sala.js - VERSIÓN CORREGIDA
 // Marcador completo para fútbol sala con cronómetro, prórroga y sistema de tarjetas
 
 // Variables globales específicas de fútbol sala
@@ -73,9 +73,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Configurar event listeners específicos
     setupEventListeners();
     
-    // Configurar event listeners del modal de tarjetas
-    setupCardModalListeners();
-    
     // Configurar funciones globales
     window.generateShareText = generateShareText;
     window.generateHistoryText = generateHistoryText;
@@ -141,6 +138,9 @@ function setupEventListeners() {
     addEventListenerSafe('activate-overtime', 'click', activateOvertime);
     addEventListenerSafe('reset-match', 'click', resetMatch);
     
+    // Ya no necesitamos esto aquí, lo maneja modal-manager.js
+    // addEventListenerSafe('save-match', 'click', () => window.modalManager.openSaveMatchModal());
+    
     // Borrar historial
     const clearHistoryBtn = document.getElementById('clear-history');
     if (clearHistoryBtn) {
@@ -157,45 +157,6 @@ function setupEventListeners() {
     }
     
     console.log('Event listeners configurados correctamente');
-}
-
-// Configurar event listeners del modal de tarjetas
-function setupCardModalListeners() {
-    console.log('Configurando event listeners del modal de tarjetas...');
-    
-    const cancelCardBtn = document.getElementById('cancel-card');
-    const saveCardBtn = document.getElementById('save-card');
-    
-    if (cancelCardBtn) {
-        // Remover event listeners previos para evitar duplicados
-        const newCancelBtn = cancelCardBtn.cloneNode(true);
-        cancelCardBtn.parentNode.replaceChild(newCancelBtn, cancelCardBtn);
-        newCancelBtn.addEventListener('click', cancelCard);
-        console.log('Event listener para cancel-card configurado');
-    } else {
-        console.warn('Botón cancel-card no encontrado');
-    }
-    
-    if (saveCardBtn) {
-        // Remover event listeners previos para evitar duplicados
-        const newSaveBtn = saveCardBtn.cloneNode(true);
-        saveCardBtn.parentNode.replaceChild(newSaveBtn, saveCardBtn);
-        newSaveBtn.addEventListener('click', saveCard);
-        console.log('Event listener para save-card configurado');
-    } else {
-        console.warn('Botón save-card no encontrado');
-    }
-    
-    // También agregar event listener para cerrar el modal haciendo clic fuera
-    const cardModal = document.getElementById('card-modal');
-    if (cardModal) {
-        cardModal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                cancelCard();
-            }
-        });
-        console.log('Event listener para cerrar modal al hacer clic fuera configurado');
-    }
 }
 
 // Actualizar la interfaz
@@ -762,18 +723,12 @@ function removeTimeout(team) {
     updateDisplay();
 }
 
-// Preparar tarjeta (abrir modal) - FUNCIÓN CORREGIDA
+// Preparar tarjeta (abrir modal)
 function prepareCard(team, type) {
-    console.log(`Preparando tarjeta para ${team}, tipo: ${type}`);
     window.pendingCard = { team: team, type: type };
     
     const cardModal = document.getElementById('card-modal');
     const modalTitle = document.getElementById('card-modal-title');
-    
-    if (!cardModal || !modalTitle) {
-        console.error('Modal de tarjetas no encontrado');
-        return;
-    }
     
     if (type === 'yellow') {
         modalTitle.textContent = `Registrar Tarjeta Amarilla - ${window.currentMatch[team].name}`;
@@ -786,27 +741,17 @@ function prepareCard(team, type) {
     document.getElementById('card-reason').value = '';
     
     cardModal.style.display = 'flex';
-    
-    console.log('Modal de tarjeta abierto');
 }
 
-// Cancelar tarjeta - FUNCIÓN CORREGIDA
+// Cancelar tarjeta
 function cancelCard() {
-    console.log('Cancelando tarjeta');
     window.pendingCard = null;
-    const cardModal = document.getElementById('card-modal');
-    if (cardModal) {
-        cardModal.style.display = 'none';
-    }
+    document.getElementById('card-modal').style.display = 'none';
 }
 
-// Guardar tarjeta - FUNCIÓN CORREGIDA
+// Guardar tarjeta
 function saveCard() {
-    console.log('Guardando tarjeta');
-    if (!window.pendingCard) {
-        console.warn('No hay tarjeta pendiente');
-        return;
-    }
+    if (!window.pendingCard) return;
     
     const playerNumber = document.getElementById('player-number').value.trim();
     const reason = document.getElementById('card-reason').value.trim();
@@ -933,7 +878,6 @@ function saveCard() {
     cancelCard();
     updateDisplay();
     saveToCookies();
-    console.log('Tarjeta guardada exitosamente');
 }
 
 // Remover última tarjeta
