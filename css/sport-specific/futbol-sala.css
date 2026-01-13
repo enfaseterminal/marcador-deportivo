@@ -1,6 +1,13 @@
 /* ESTILOS MUY ESPECÍFICOS PARA FÚTBOL SALA */
 
 /* Tema específico */
+   body {
+       background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+       color: #ecf0f1;
+       min-height: 100vh;
+       margin: 0;
+       padding: 10px;
+   }
 body.theme-futbol-sala {
     background: var(--gradient);
 }
@@ -793,4 +800,43 @@ body.theme-futbol-sala {
     .btn-icon i {
         font-size: 1.4rem;
     }
+/* SOLUCIÓN: Quitar marco blanco de las tarjetas */
+.card-yellow, .card-blue, .card-red {
+  border: none !important; 
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-appearance: none;
+}
+
+.events-list {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  padding: 15px;
+  margin-top: 20px;
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.event-item {
+  padding: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.9em;
+  display: flex;
+  justify-content: space-between;
+}
+
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-whatsapp { background-color: #25D366 !important; color: white !important; }
+.btn-share-alt { background-color: #3498db !important; color: white !important; }
+
+@media (max-width: 600px) {
+  .action-buttons { grid-template-columns: 1fr; }
+}
 
