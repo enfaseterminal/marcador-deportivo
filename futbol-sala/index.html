@@ -4,10 +4,7 @@
     <script src="../js/ads-analytics.js"></script>     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-    <title>Marcador de Fútbol Sala con Cronómetro | Liga Escolar</title>
-    <meta name="description" content="Marcador digital para fútbol sala con cronómetro, tiempos, prórroga y control de goles. Ideal para torneos escolares.">
-    <link rel="canonical" href="https://www.ligaescolar.es/futbol-sala/">
+    <title>Marcador de Fútbol Sala | Liga Escolar</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/themes.css">
@@ -16,8 +13,9 @@
     <link rel="stylesheet" href="../css/header-with-bg.css">
     <link rel="stylesheet" href="../css/sport-specific/futbol-sala.css">
     <style>
-        body { background: linear-gradient(135deg, #1a5276, #27ae60); color: #ecf0f1; min-height: 100vh; margin: 0; padding: 20px; }
+        body { background: linear-gradient(135deg, #1a5276, #27ae60); color: #ecf0f1; min-height: 100vh; margin: 0; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .container { max-width: 1200px; margin: 0 auto; }
+        .card-emoji { font-size: 1.4em; vertical-align: middle; }
     </style>
 </head>
 <body class="theme-futbol-sala">
@@ -30,16 +28,9 @@
                 <div class="header-left">
                     <h1><i class="fas fa-futbol"></i> Marcador de Fútbol Sala</h1>
                     <p class="subtitle">Liga Escolar - <span id="current-location">No especificada</span></p>
-                    <div class="input-group">
-                        <input type="text" id="match-location-input" placeholder="Ubicación">
-                        <button class="btn btn-small" id="save-location"><i class="fas fa-check"></i></button>
-                    </div>
                 </div>
                 <div class="header-right">
-                    <div class="clock-container clock-container-futbol-sala">
-                        <div id="clock">00:00:00</div>
-                        <div id="date">--/--/----</div>
-                    </div>
+                    <div class="clock-container"><div id="clock">00:00:00</div><div id="date">--/--/----</div></div>
                 </div>
             </div>
         </header>
@@ -48,6 +39,7 @@
             <div class="match-info-item"><span class="info-label">Periodo:</span> <span class="info-value" id="current-period">1° Tiempo</span></div>
             <div class="match-info-item"><span class="info-label">Tiempo:</span> <span class="info-value" id="match-timer">20:00</span></div>
             <div class="match-info-item"><span class="info-label">Estado:</span> <span class="info-value" id="match-status">No iniciado</span></div>
+            <div class="match-info-item"><span class="info-label">Prórroga:</span> <span class="info-value" id="overtime-status">No</span></div>
         </div>
 
         <div class="timer-container">
@@ -61,7 +53,6 @@
                 <button class="btn-icon btn-timer-pause" id="pause-timer"><i class="fas fa-pause"></i><span>Pausar</span></button>
                 <button class="btn-icon btn-timer-reset" id="reset-timer"><i class="fas fa-redo-alt"></i><span>Reiniciar</span></button>
                 <button class="btn-icon btn-next-period" id="next-period"><i class="fas fa-forward"></i><span>Siguiente</span></button>
-                <button class="btn-icon btn-finish-time" id="finish-time"><i class="fas fa-stop"></i><span>Finalizar</span></button>
             </div>
         </div>
 
@@ -72,22 +63,18 @@
                 <div class="cards-info">
                     <div class="cards-section">
                         <span>A: <span id="team1-yellow-cards">0</span></span>
-                        <button class="btn btn-small btn-yellow" id="team1-add-yellow"><i class="fas fa-square"></i></button>
+                        <button class="btn btn-small" id="team1-add-yellow"><span class="card-emoji">🟨</span></button>
                         <button class="btn btn-small" id="team1-remove-yellow"><i class="fas fa-minus"></i></button>
                     </div>
                     <div class="cards-section">
                         <span>Az: <span id="team1-blue-cards">0</span></span>
-                        <button class="btn btn-small btn-blue" id="team1-add-blue"><i class="fas fa-square"></i></button>
+                        <button class="btn btn-small" id="team1-add-blue"><span class="card-emoji">🟦</span></button>
                         <button class="btn btn-small" id="team1-remove-blue"><i class="fas fa-minus"></i></button>
                     </div>
                 </div>
                 <div class="team-info">
-                    <div class="fouls-info">Faltas: <span id="team1-fouls">0</span> 
-                        <button class="btn btn-small" id="team1-add-foul">+</button>
-                    </div>
-                    <div class="timeouts-info">T.O: <span id="team1-timeouts">1</span>
-                        <button class="btn btn-small" id="team1-add-timeout">+</button>
-                    </div>
+                    <div>Faltas: <span id="team1-fouls">0</span> <button class="btn btn-small" id="team1-add-foul">+</button></div>
+                    <div>T.O: <span id="team1-timeouts">1</span> <button class="btn btn-small" id="team1-add-timeout">+</button></div>
                 </div>
                 <div class="score-controls"><button class="btn btn-primary" id="team1-add-goal">+ GOL</button></div>
                 <div class="expulsions-list" id="team1-expulsions"></div>
@@ -99,29 +86,25 @@
                 <div class="cards-info">
                     <div class="cards-section">
                         <span>A: <span id="team2-yellow-cards">0</span></span>
-                        <button class="btn btn-small btn-yellow" id="team2-add-yellow"><i class="fas fa-square"></i></button>
+                        <button class="btn btn-small" id="team2-add-yellow"><span class="card-emoji">🟨</span></button>
                         <button class="btn btn-small" id="team2-remove-yellow"><i class="fas fa-minus"></i></button>
                     </div>
                     <div class="cards-section">
                         <span>Az: <span id="team2-blue-cards">0</span></span>
-                        <button class="btn btn-small btn-blue" id="team2-add-blue"><i class="fas fa-square"></i></button>
+                        <button class="btn btn-small" id="team2-add-blue"><span class="card-emoji">🟦</span></button>
                         <button class="btn btn-small" id="team2-remove-blue"><i class="fas fa-minus"></i></button>
                     </div>
                 </div>
                 <div class="team-info">
-                    <div class="fouls-info">Faltas: <span id="team2-fouls">0</span> 
-                        <button class="btn btn-small" id="team2-add-foul">+</button>
-                    </div>
-                    <div class="timeouts-info">T.O: <span id="team2-timeouts">1</span>
-                        <button class="btn btn-small" id="team2-add-timeout">+</button>
-                    </div>
+                    <div>Faltas: <span id="team2-fouls">0</span> <button class="btn btn-small" id="team2-add-foul">+</button></div>
+                    <div>T.O: <span id="team2-timeouts">1</span> <button class="btn btn-small" id="team2-add-timeout">+</button></div>
                 </div>
                 <div class="score-controls"><button class="btn btn-primary" id="team2-add-goal">+ GOL</button></div>
                 <div class="expulsions-list" id="team2-expulsions"></div>
             </div>
         </div>
 
-        <div class="modal" id="card-modal">
+        <div class="modal" id="card-modal" style="display:none;">
             <div class="modal-content">
                 <h2 id="card-modal-title">Registrar Tarjeta</h2>
                 <div class="form-group">
@@ -140,23 +123,11 @@
         </div>
 
         <div class="match-history-section">
-            <div class="history-header">
-                <h2><i class="fas fa-list-ul"></i> Eventos del Partido</h2>
-            </div>
             <div id="events-list" class="events-list"></div>
-        </div>
-
-        <div class="match-history-section">
-            <div class="history-header">
-                <h2><i class="fas fa-history"></i> Últimos Partidos</h2>
-                <button class="btn btn-small btn-danger" id="clear-history">Borrar Todo</button>
-            </div>
-            <div id="history-list"></div>
         </div>
 
         <div class="action-buttons">
             <button class="btn btn-success" id="save-match">Guardar Partido</button>
-            <button class="btn btn-info" onclick="copyShareText()">Compartir Resultado</button>
             <button class="btn btn-warning" id="reset-match">Reiniciar Todo</button>
         </div>
     </div>

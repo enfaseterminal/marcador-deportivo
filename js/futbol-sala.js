@@ -1,4 +1,4 @@
-// /js/futbol-sala.js - VERSIÓN CORREGIDA
+// /js/futbol-sala.js - VERSIÓN CORREGIDA Y ROBUSTA
 window.currentMatch = {
     team1: { name: "Equipo Local", score: 0, timeouts: 1, fouls: 0, yellowCards: [], blueCards: [], expulsions: [] },
     team2: { name: "Equipo Visitante", score: 0, timeouts: 1, fouls: 0, yellowCards: [], blueCards: [], expulsions: [] },
@@ -6,20 +6,22 @@ window.currentMatch = {
     timeRemaining: 20 * 60,
     timerRunning: false,
     isOvertime: false,
-    startTime: new Date(),
     matchStatus: 'NOT_STARTED',
     location: "No especificada",
     events: []
 };
 
 window.pendingCard = null;
-window.matchHistory = window.matchHistory || [];
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Inicializando fútbol sala...');
+    
     if (window.common && window.common.initCommonEventListeners) window.common.initCommonEventListeners();
     if (window.modalManager && window.modalManager.initModalEventListeners) window.modalManager.initModalEventListeners();
     
+    // Configurar listeners primero
     setupEventListeners();
+    // Luego actualizar pantalla (con seguridad)
     updateDisplay();
 });
 
@@ -33,19 +35,17 @@ function setupEventListeners() {
     addListener('start-timer', 'click', startTimer);
     addListener('pause-timer', 'click', pauseTimer);
     addListener('reset-timer', 'click', resetTimer);
-    addListener('finish-time', 'click', endPeriod);
-
+    
     // Goles
     addListener('team1-add-goal', 'click', () => addGoal('team1'));
     addListener('team2-add-goal', 'click', () => addGoal('team2'));
 
-    // TARJETAS (CORRECCIÓN AQUÍ)
+    // Tarjetas con modal
     addListener('team1-add-yellow', 'click', () => prepareCard('team1', 'yellow'));
     addListener('team2-add-yellow', 'click', () => prepareCard('team2', 'yellow'));
     addListener('team1-add-blue', 'click', () => prepareCard('team1', 'blue'));
     addListener('team2-add-blue', 'click', () => prepareCard('team2', 'blue'));
     
-    // Botones del Modal de Tarjetas (Lo que faltaba)
     addListener('save-card', 'click', saveCard);
     addListener('cancel-card', 'click', closeCardModal);
 
@@ -55,113 +55,98 @@ function setupEventListeners() {
     addListener('team1-add-timeout', 'click', () => useTimeout('team1'));
     addListener('team2-add-timeout', 'click', () => useTimeout('team2'));
 
-    // Otros
-    addListener('save-location', 'click', saveLocation);
-    addListener('reset-match', 'click', resetMatch);
+    addListener('reset-match', 'click', () => { if(confirm("¿Reiniciar?")) location.reload(); });
 }
 
-// --- GESTIÓN DE TARJETAS ---
+function updateDisplay() {
+    const safeSetText = (id, text) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+    };
+
+    safeSetText('team1-name', window.currentMatch.team1.name);
+    safeSetText('team2-name', window.currentMatch.team2.name);
+    safeSetText('team1-score', window.currentMatch.team1.score);
+    safeSetText('team2-score', window.currentMatch.team2.score);
+    safeSetText('team1-yellow-cards', window.currentMatch.team1.yellowCards.length);
+    safeSetText('team2-yellow-cards', window.currentMatch.team2.yellowCards.length);
+    safeSetText('team1-blue-cards', window.currentMatch.team1.blueCards.length);
+    safeSetText('team2-blue-cards', window.currentMatch.team2.blueCards.length);
+    safeSetText('team1-fouls', window.currentMatch.team1.fouls);
+    safeSetText('team2-fouls', window.currentMatch.team2.fouls);
+    safeSetText('team1-timeouts', window.currentMatch.team1.timeouts);
+    safeSetText('team2-timeouts', window.currentMatch.team2.timeouts);
+    
+    updatePeriodDisplay();
+    updateTimerDisplay();
+}
+
+function updatePeriodDisplay() {
+    let pText = window.currentMatch.isOvertime ? 'Prórroga' : `${window.currentMatch.currentPeriod}° Tiempo`;
+    const el1 = document.getElementById('current-period');
+    const el2 = document.getElementById('period-info');
+    const el3 = document.getElementById('overtime-status');
+    
+    if (el1) el1.textContent = pText;
+    if (el2) el2.textContent = pText;
+    if (el3) el3.textContent = window.currentMatch.isOvertime ? 'Sí' : 'No';
+}
+
+function updateTimerDisplay() {
+    const m = Math.floor(window.currentMatch.timeRemaining / 60);
+    const s = window.currentMatch.timeRemaining % 60;
+    const timeStr = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    
+    const el1 = document.getElementById('main-timer');
+    const el2 = document.getElementById('match-timer');
+    if (el1) el1.textContent = timeStr;
+    if (el2) el2.textContent = timeStr;
+}
 
 function prepareCard(team, type) {
     window.pendingCard = { team, type };
     const modal = document.getElementById('card-modal');
-    const title = document.getElementById('card-modal-title');
-    const teamName = window.currentMatch[team].name;
-    const typeName = type === 'yellow' ? 'AMARILLA' : 'AZUL';
-    
-    if (title) title.textContent = `Tarjeta ${typeName} - ${teamName}`;
     if (modal) modal.style.display = 'flex';
 }
 
 function closeCardModal() {
     const modal = document.getElementById('card-modal');
     if (modal) modal.style.display = 'none';
-    window.pendingCard = null;
-    document.getElementById('card-player-number').value = '';
-    document.getElementById('card-reason').value = '';
 }
 
 function saveCard() {
     if (!window.pendingCard) return;
-    
-    const playerNum = document.getElementById('card-player-number').value || 'S/N';
-    const reason = document.getElementById('card-reason').value || 'Falta reglamentaria';
     const { team, type } = window.pendingCard;
-    const teamObj = window.currentMatch[team];
-    const time = document.getElementById('match-timer').textContent;
-
-    const card = { player: playerNum, reason, time, period: window.currentMatch.currentPeriod };
-
-    if (type === 'yellow') {
-        // Lógica de doble amarilla
-        const prevYellow = teamObj.yellowCards.find(c => c.player === playerNum);
-        teamObj.yellowCards.push(card);
-        if (prevYellow) {
-            registerExpulsion(team, playerNum, "Doble Amarilla", time);
-        }
-    } else {
-        teamObj.blueCards.push(card);
-        registerExpulsion(team, playerNum, "Tarjeta Azul", time);
-    }
-
-    logEvent(team, `Tarjeta ${type === 'yellow'?'Amarilla':'Azul'} - Jugador #${playerNum} (${reason})`);
+    const player = document.getElementById('card-player-number').value || 'S/N';
+    
+    if (type === 'yellow') window.currentMatch[team].yellowCards.push({ player });
+    else window.currentMatch[team].blueCards.push({ player });
+    
     updateDisplay();
     closeCardModal();
 }
 
-function registerExpulsion(team, player, reason, time) {
-    window.currentMatch[team].expulsions.push({ player, reason, time });
+function addGoal(team) { window.currentMatch[team].score++; updateDisplay(); }
+function addFoul(team) { window.currentMatch[team].fouls++; updateDisplay(); }
+function useTimeout(team) { if(window.currentMatch[team].timeouts > 0) { window.currentMatch[team].timeouts--; updateDisplay(); } }
+
+function startTimer() { 
+    if(window.timerInterval) return;
+    window.currentMatch.matchStatus = 'RUNNING';
+    window.timerInterval = setInterval(() => {
+        if(window.currentMatch.timeRemaining > 0) {
+            window.currentMatch.timeRemaining--;
+            updateTimerDisplay();
+        } else {
+            clearInterval(window.timerInterval);
+            window.timerInterval = null;
+        }
+    }, 1000);
+    document.getElementById('match-status').textContent = "En juego";
 }
 
-// --- FUNCIONES DE APOYO ---
-
-function addGoal(team) {
-    window.currentMatch[team].score++;
-    logEvent(team, `¡GOL! (${window.currentMatch.team1.score} - ${window.currentMatch.team2.score})`);
-    updateDisplay();
-}
-
-function addFoul(team) {
-    window.currentMatch[team].fouls++;
-    logEvent(team, `Falta cometida (${window.currentMatch[team].fouls})`);
-    updateDisplay();
-}
-
-function logEvent(team, desc) {
-    const time = document.getElementById('match-timer').textContent;
-    window.currentMatch.events.unshift({ time, team, description: desc });
-}
-
-function updateDisplay() {
-    document.getElementById('team1-score').textContent = window.currentMatch.team1.score;
-    document.getElementById('team2-score').textContent = window.currentMatch.team2.score;
-    document.getElementById('team1-yellow-cards').textContent = window.currentMatch.team1.yellowCards.length;
-    document.getElementById('team2-yellow-cards').textContent = window.currentMatch.team2.yellowCards.length;
-    document.getElementById('team1-blue-cards').textContent = window.currentMatch.team1.blueCards.length;
-    document.getElementById('team2-blue-cards').textContent = window.currentMatch.team2.blueCards.length;
-    document.getElementById('team1-fouls').textContent = window.currentMatch.team1.fouls;
-    document.getElementById('team2-fouls').textContent = window.currentMatch.team2.fouls;
-    renderEvents();
-}
-
-function renderEvents() {
-    const list = document.getElementById('events-list');
-    if (!list) return;
-    list.innerHTML = window.currentMatch.events.map(e => `
-        <div class="event-item">
-            <strong>${e.time}</strong> - ${e.description}
-        </div>
-    `).join('');
-}
-
-// Lógica de Cronómetro Simplificada
-function startTimer() { window.currentMatch.timerRunning = true; updateMatchStatus(); }
-function pauseTimer() { window.currentMatch.timerRunning = false; updateMatchStatus(); }
-function updateMatchStatus() { document.getElementById('match-status').textContent = window.currentMatch.timerRunning ? "En juego" : "Pausado"; }
-function resetMatch() { if(confirm("¿Reiniciar partido?")) location.reload(); }
-function endPeriod() { alert("Fin del periodo"); }
-function saveLocation() { 
-    const val = document.getElementById('match-location-input').value;
-    window.currentMatch.location = val || "No especificada";
-    document.getElementById('current-location').textContent = window.currentMatch.location;
+function pauseTimer() {
+    clearInterval(window.timerInterval);
+    window.timerInterval = null;
+    document.getElementById('match-status').textContent = "Pausado";
 }
