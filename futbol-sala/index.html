@@ -5,18 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Marcador Fútbol Sala Pro | Liga Escolar</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/themes.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/header-with-bg.css">
     <link rel="stylesheet" href="../css/sport-specific/futbol-sala.css">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/imagenes/favicon.ico">
 </head>
 <body class="theme-futbol-sala">
+    <!-- Botón flotante de inicio -->
+    <a href="/" class="floating-home-btn" title="Volver al inicio">
+        <i class="fas fa-home"></i>
+    </a>
+
+    <!-- Botón flotante de ayuda -->
+    <a href="ayuda.html" class="floating-help-btn" title="Ayuda y reglas">
+        <i class="fas fa-question-circle"></i>
+    </a>
+
     <div class="container">
+        <!-- HEADER CON IMAGEN DE FONDO -->
         <header class="app-header">
-            <div class="location-badge" id="location-display">
-                <i class="fas fa-map-marker-alt"></i> <span id="current-location">Pabellón Municipal</span>
-                <button onclick="editLocation()"><i class="fas fa-edit"></i></button>
+            <div class="header-bg">
+                <img src="/imagenes/pizarra.png" alt="Fondo pizarra deportiva" class="header-bg-image">
             </div>
-            <div class="period-badge" id="period-text">1º TIEMPO</div>
+            
+            <div class="header-content">
+                <div class="header-left">
+                    <h1><i class="fas fa-futbol"></i> Marcador de Fútbol Sala</h1>
+                    <p class="subtitle">Liga Escolar - <span id="current-location">No especificada</span></p>
+                    <p class="game-rules-futbol-sala">
+                        <i class="fas fa-info-circle"></i> 
+                        2 tiempos de 20 min | Prórroga 2x5 min | Timeouts: 1 por equipo
+                    </p>
+                    <div class="input-group">
+                        <input type="text" id="match-location-input" placeholder="Ingresa la ubicación del partido">
+                        <button class="btn btn-small" id="save-location">
+                            <i class="fas fa-check"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="clock-container clock-container-futbol-sala">
+                        <div id="clock">00:00:00</div>
+                        <div id="date">--/--/----</div>
+                    </div>
+                </div>
+            </div>
         </header>
 
+        <!-- CONTENIDO PRINCIPAL -->
         <div class="timer-section">
             <div class="main-timer" id="main-timer">20:00</div>
             <div class="timer-controls">
@@ -87,23 +127,52 @@
         <section class="events-section">
             <h3>Sucesos del Partido</h3>
             <div id="events-list" class="events-list">
-                </div>
+                <!-- Los eventos se cargan dinámicamente -->
+            </div>
         </section>
 
+        <!-- SECCIÓN DE HISTORIAL -->
+        <section class="history">
+            <h2><i class="fas fa-history"></i> Historial de Partidos</h2>
+            <div id="history-list" class="history-list">
+                <!-- El historial se carga dinámicamente -->
+            </div>
+            <div class="export-controls">
+                <button class="btn btn-primary" onclick="openShareHistoryModal()">
+                    <i class="fas fa-share-alt"></i> Compartir Historial
+                </button>
+                <button class="btn btn-warning" onclick="clearMatchHistory()">
+                    <i class="fas fa-trash"></i> Borrar Historial
+                </button>
+            </div>
+        </section>
+
+        <!-- BOTONES DE ACCIÓN -->
         <footer class="action-footer">
-            <button class="btn-action share" onclick="shareResult()">
-                <i class="fab fa-whatsapp"></i> Compartir
+            <button class="btn-action share" onclick="openShareModal()">
+                <i class="fab fa-whatsapp"></i> Compartir Resultado
             </button>
             <button class="btn-action save" onclick="forceSave()">
-                <i class="fas fa-save"></i> Guardar Historial
+                <i class="fas fa-save"></i> Guardar Partido
             </button>
+        </footer>
+
+        <!-- FOOTER -->
+        <footer>
+            <p>© 2025 Liga Escolar - Todos los derechos reservados</p>
+            <p class="footer-links">
+                <a href="https://www.ligaescolar.es/privacidad.html">Política de privacidad</a> |
+                <a href="#">Términos de uso</a> |
+                <a href="https://www.enfaseterminal.com/">Blog EnFaseTerminal</a>
+            </p>
         </footer>
     </div>
 
+    <!-- MODAL PARA TARJETAS -->
     <div id="card-modal" class="modal">
         <div class="modal-content">
             <h2 id="card-modal-title">Registrar Tarjeta</h2>
-            <input type="number" id="card-player-number" placeholder="Dorsal del jugador">
+            <input type="number" id="card-player-number" placeholder="Dorsal del jugador" min="1" max="99">
             <div class="modal-buttons">
                 <button class="btn-cancel" onclick="closeModal('card-modal')">Cancelar</button>
                 <button class="btn-confirm" onclick="processCard()">Confirmar</button>
@@ -111,10 +180,57 @@
         </div>
     </div>
 
-    <div id="notification" class="notification"></div>
+    <!-- MODAL PARA COMPARTIR -->
+    <div id="share-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="share-modal-title">Compartir Resultado</h2>
+            <p id="share-preview-title">Vista previa del resultado:</p>
+            <div id="share-text" class="share-text"></div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="copyShareText()">
+                    <i class="fas fa-copy"></i> Copiar Texto
+                </button>
+                <button class="btn btn-success" onclick="shareViaNative()">
+                    <i class="fas fa-share-alt"></i> Compartir
+                </button>
+                <button class="btn btn-primary" onclick="shareToWhatsapp()">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </button>
+                <button class="btn btn-warning" onclick="closeShareModal()">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
 
+    <!-- MODAL PARA GUARDAR PARTIDO -->
+    <div id="save-match-modal" class="modal">
+        <div class="modal-content">
+            <h2>Guardar Partido en Historial</h2>
+            <p>Resultado: <span id="save-match-result"></span></p>
+            <p>Ubicación: <span id="save-match-location"></span></p>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" id="cancel-save">Cancelar</button>
+                <button class="btn btn-success" id="confirm-save">Guardar Partido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICACIÓN -->
+    <div id="notification" class="notification">
+        <i class="fas fa-info-circle"></i>
+        <span id="notification-text"></span>
+    </div>
+
+    <!-- Google Analytics y Publicidad con consentimiento -->
+    <script src="../js/ads-analytics.js"></script>
+    <!-- End Google Analytics y Publicidad con consentimiento -->
+
+    <script src="../js/clock.js"></script>
     <script src="../js/celebrate.js"></script>
     <script src="../js/storage.js"></script>
+    <script src="../js/match-core.js"></script>
+    <script src="../js/modal-manager.js"></script>
     <script src="../js/futbol-sala.js"></script>
 </body>
 </html>
