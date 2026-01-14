@@ -84,17 +84,30 @@
                     <div class="stat-item">
                         <span>Faltas</span>
                         <div class="stat-counter" id="team1-fouls">0</div>
-                        <button class="btn-stat" onclick="addFoul('team1')">+</button>
+                        <div class="correction-buttons">
+                            <button class="btn-stat add" onclick="addFoul('team1')">+</button>
+                            <button class="btn-stat remove btn-remove-foul" data-team="team1" title="Quitar falta">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="stat-item">
                         <span>T. Muertos</span>
                         <div class="stat-counter" id="team1-timeouts">1</div>
-                        <button class="btn-stat" id="btn-timeout-team1" onclick="useTimeout('team1')">Uso</button>
+                        <div class="correction-buttons">
+                            <button class="btn-stat" id="btn-timeout-team1" onclick="useTimeout('team1')">Uso</button>
+                            <button class="btn-stat recover btn-recover-timeout" data-team="team1" title="Recuperar timeout">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="card-buttons">
                     <button class="btn-card yellow" onclick="openCardModal('team1', 'yellow')">🟨</button>
                     <button class="btn-card blue" onclick="openCardModal('team1', 'blue')">🟦</button>
+                    <button class="btn-card remove btn-remove-card" data-team="team1" title="Eliminar última tarjeta">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
 
@@ -109,17 +122,30 @@
                     <div class="stat-item">
                         <span>Faltas</span>
                         <div class="stat-counter" id="team2-fouls">0</div>
-                        <button class="btn-stat" onclick="addFoul('team2')">+</button>
+                        <div class="correction-buttons">
+                            <button class="btn-stat add" onclick="addFoul('team2')">+</button>
+                            <button class="btn-stat remove btn-remove-foul" data-team="team2" title="Quitar falta">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="stat-item">
                         <span>T. Muertos</span>
                         <div class="stat-counter" id="team2-timeouts">1</div>
-                        <button class="btn-stat" id="btn-timeout-team2" onclick="useTimeout('team2')">Uso</button>
+                        <div class="correction-buttons">
+                            <button class="btn-stat" id="btn-timeout-team2" onclick="useTimeout('team2')">Uso</button>
+                            <button class="btn-stat recover btn-recover-timeout" data-team="team2" title="Recuperar timeout">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="card-buttons">
                     <button class="btn-card yellow" onclick="openCardModal('team2', 'yellow')">🟨</button>
                     <button class="btn-card blue" onclick="openCardModal('team2', 'blue')">🟦</button>
+                    <button class="btn-card remove btn-remove-card" data-team="team2" title="Eliminar última tarjeta">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
         </main>
@@ -150,7 +176,7 @@
         <!-- BOTONES DE ACCIÓN -->
         <footer class="action-footer">
             <button class="btn-action share" onclick="openShareModal()">
-                <i class="fab fa-whatsapp"></i> Compartir Resultado
+                <i class="fas fa-share-alt"></i> Compartir Resultado
             </button>
             <button class="btn-action save" onclick="forceSave()">
                 <i class="fas fa-save"></i> Guardar Partido
@@ -191,10 +217,13 @@
                     <i class="fas fa-copy"></i> Copiar Texto
                 </button>
                 <button class="btn btn-success" onclick="shareViaNative()">
-                    <i class="fas fa-share-alt"></i> Compartir
+                    <i class="fas fa-share-alt"></i> Compartir (App)
                 </button>
                 <button class="btn btn-primary" onclick="shareToWhatsapp()">
                     <i class="fab fa-whatsapp"></i> WhatsApp
+                </button>
+                <button class="btn btn-info" onclick="shareText(shareText.textContent)">
+                    <i class="fas fa-share"></i> Más opciones...
                 </button>
                 <button class="btn btn-warning" onclick="closeShareModal()">
                     <i class="fas fa-times"></i> Cerrar

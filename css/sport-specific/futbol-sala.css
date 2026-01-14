@@ -4,6 +4,10 @@
     --local: #e74c3c;
     --visitor: #3498db;
     --bg: #121212;
+    --success: #27ae60;
+    --warning: #f39c12;
+    --error: #e74c3c;
+    --info: #3498db;
 }
 
 body.theme-futbol-sala {
@@ -185,7 +189,7 @@ body.theme-futbol-sala .container {
     transform: scale(0.95);
 }
 
-/* TEAM STATS */
+/* TEAM STATS MEJORADO CON BOTONES DE CORRECCIÓN */
 .team-stats {
     margin: 20px 0;
     background: rgba(0, 0, 0, 0.2);
@@ -208,34 +212,65 @@ body.theme-futbol-sala .container {
     font-weight: bold;
     min-width: 40px;
     text-align: center;
+    margin: 0 10px;
+}
+
+.correction-buttons {
+    display: flex;
+    gap: 5px;
 }
 
 .btn-stat {
     background: var(--primary);
     color: white;
     border: none;
-    padding: 8px 15px;
+    padding: 8px 12px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.9rem;
     transition: background 0.3s ease;
+    min-width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.btn-stat:hover {
-    background: var(--accent);
+.btn-stat.add {
+    background: var(--success);
 }
 
-/* CARD BUTTONS */
+.btn-stat.remove {
+    background: var(--error);
+}
+
+.btn-stat.recover {
+    background: var(--warning);
+    color: #000;
+}
+
+.btn-stat:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: scale(1.05);
+}
+
+.btn-stat:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* CARD BUTTONS MEJORADO */
 .card-buttons {
     display: flex;
     justify-content: center;
-    gap: 15px;
+    gap: 10px;
     margin-top: 15px;
+    flex-wrap: wrap;
 }
 
 .btn-card {
-    font-size: 1.8rem;
-    padding: 12px 24px;
+    font-size: 1.5rem;
+    padding: 10px 20px;
     border-radius: 10px;
     border: none;
     cursor: pointer;
@@ -243,25 +278,42 @@ body.theme-futbol-sala .container {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 100px;
+    min-width: 60px;
 }
 
 .btn-card.yellow {
     background: #f1c40f;
     color: #000;
+    flex: 1;
 }
 
 .btn-card.blue {
     background: #3498db;
     color: white;
+    flex: 1;
 }
 
-.btn-card:hover {
+.btn-card.remove {
+    background: #7f8c8d;
+    color: white;
+    font-size: 1rem;
+    padding: 10px;
+    min-width: 40px;
+    flex: 0.5;
+}
+
+.btn-card:hover:not(:disabled) {
     transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* EVENTS SECTION */
+.btn-card:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* EVENTS SECTION MEJORADO */
 .events-section {
     margin: 30px 0;
     padding: 20px;
@@ -273,6 +325,19 @@ body.theme-futbol-sala .container {
     color: var(--accent);
     margin-bottom: 15px;
     font-size: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.events-section h3 .btn-clear-events {
+    background: var(--error);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
 }
 
 .events-list {
@@ -291,6 +356,11 @@ body.theme-futbol-sala .container {
     display: flex;
     align-items: center;
     gap: 10px;
+    transition: background 0.2s ease;
+}
+
+.event-item:hover {
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .event-item:last-child {
@@ -301,10 +371,163 @@ body.theme-futbol-sala .container {
     color: var(--accent);
     font-weight: bold;
     min-width: 70px;
+    font-family: monospace;
 }
 
 .event-desc {
     flex: 1;
+}
+
+.btn-remove-event {
+    background: transparent;
+    border: none;
+    color: #e74c3c;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 3px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.btn-remove-event:hover {
+    opacity: 1;
+    background: rgba(231, 76, 60, 0.2);
+}
+
+.empty-events {
+    text-align: center;
+    padding: 20px;
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+}
+
+/* HISTORY SECTION MEJORADO */
+.history {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 30px 0;
+}
+
+.history h2 {
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+.history-list {
+    max-height: 300px;
+    overflow-y: auto;
+    background: #1e1e1e;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.history-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--accent);
+    transition: transform 0.2s ease;
+}
+
+.history-item:hover {
+    transform: translateX(5px);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.history-teams {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.winner-badge {
+    background: #27ae60;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: normal;
+}
+
+.draw-badge {
+    background: #f39c12;
+    color: #000;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: normal;
+}
+
+.history-score {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--accent);
+    margin: 10px 0;
+    text-align: center;
+}
+
+.history-info {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 5px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.history-actions {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.btn-small {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: opacity 0.2s;
+}
+
+.btn-small:hover {
+    opacity: 0.9;
+}
+
+.btn-small.btn-danger {
+    background: var(--error);
+}
+
+.empty-history {
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.empty-history i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+/* EXPORT CONTROLS */
+.export-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
 /* ACTION FOOTER */
@@ -343,80 +566,6 @@ body.theme-futbol-sala .container {
 .btn-action:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-}
-
-/* HISTORY SECTION */
-.history {
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 15px;
-    padding: 20px;
-    margin: 30px 0;
-}
-
-.history h2 {
-    color: var(--accent);
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 1.8rem;
-}
-
-.history-list {
-    max-height: 300px;
-    overflow-y: auto;
-    background: #1e1e1e;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-
-.history-item {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-left: 4px solid var(--accent);
-}
-
-.history-teams {
-    font-weight: bold;
-    font-size: 1.1rem;
-    margin-bottom: 5px;
-}
-
-.history-score {
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: var(--accent);
-    margin: 10px 0;
-}
-
-.history-info {
-    font-size: 0.9rem;
-    opacity: 0.8;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 5px;
-}
-
-.empty-history {
-    text-align: center;
-    padding: 40px 20px;
-    color: rgba(255, 255, 255, 0.5);
-}
-
-.empty-history i {
-    font-size: 3rem;
-    margin-bottom: 15px;
-    opacity: 0.5;
-}
-
-/* EXPORT CONTROLS */
-.export-controls {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    flex-wrap: wrap;
 }
 
 /* NOTIFICACIONES - SUPERIOR DERECHA */
@@ -471,6 +620,12 @@ body.theme-futbol-sala .container {
 @keyframes slideOutRight {
     from { transform: translateX(0); opacity: 1; }
     to { transform: translateX(100%); opacity: 0; }
+}
+
+/* TIMEOUT DISPLAY */
+#timeout-display {
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 0 10px rgba(52, 152, 219, 0.8);
 }
 
 /* FOOTER GENERAL */
@@ -534,6 +689,26 @@ footer {
         flex-direction: column;
         align-items: center;
     }
+    
+    .stat-item {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .correction-buttons {
+        justify-content: center;
+    }
+    
+    .card-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-card {
+        width: 100%;
+        max-width: 200px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -563,5 +738,11 @@ footer {
     .btn-action {
         width: 100%;
         max-width: 300px;
+    }
+    
+    .notification {
+        left: 20px;
+        right: 20px;
+        max-width: none;
     }
 }

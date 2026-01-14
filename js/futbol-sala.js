@@ -1,6 +1,6 @@
 /**
- * /js/futbol-sala.js - VERSIÓN MEJORADA COMPLETA
- * Marcador Profesional con todas las mejoras solicitadas
+ * /js/futbol-sala.js - VERSIÓN FINAL MEJORADA
+ * Marcador Profesional con todas las correcciones solicitadas
  */
 
 // 1. ESTADO INICIAL MEJORADO
@@ -12,7 +12,8 @@ const INITIAL_STATE = {
         timeouts: 1, 
         yellowCards: {},
         blueCards: {},
-        timeoutsUsed: 0
+        timeoutsUsed: 0,
+        foulsHistory: []  // Para seguimiento de faltas
     },
     team2: { 
         name: "EQUIPO VISITANTE", 
@@ -21,7 +22,8 @@ const INITIAL_STATE = {
         timeouts: 1, 
         yellowCards: {},
         blueCards: {},
-        timeoutsUsed: 0
+        timeoutsUsed: 0,
+        foulsHistory: []
     },
     currentPeriod: 1, // 1: T1, 2: T2, 3: P1, 4: P2, 5: FINAL
     timeRemaining: 20 * 60, // 20 minutos en segundos
@@ -33,7 +35,8 @@ const INITIAL_STATE = {
     timeoutTeam: null,
     startTime: null,
     endTime: null,
-    totalDuration: 0
+    totalDuration: 0,
+    cardHistory: []  // Historial detallado de tarjetas
 };
 
 // 2. VARIABLES GLOBALES
@@ -51,6 +54,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!window.currentMatch.startTime) {
         window.currentMatch.startTime = new Date().toISOString();
     }
+    
+    // Inicializar arrays si no existen
+    if (!window.currentMatch.team1.foulsHistory) window.currentMatch.team1.foulsHistory = [];
+    if (!window.currentMatch.team2.foulsHistory) window.currentMatch.team2.foulsHistory = [];
+    if (!window.currentMatch.cardHistory) window.currentMatch.cardHistory = [];
     
     // Inicializar event listeners
     initEventListeners();
@@ -113,6 +121,9 @@ function renderAll() {
     
     // Lista de eventos
     renderEvents();
+    
+    // Actualizar botones de corrección
+    updateCorrectionButtons();
 }
 
 function renderPeriodText() {
@@ -192,8 +203,10 @@ function startTimer() {
                 showNotification('¡Queda 1 minuto!', 'warning');
             }
         } else {
-            // Tiempo agotado
+            // Tiempo agotado - LLEGAR A CERO Y FINALIZAR
             clearInterval(timerInterval);
+            m.timeRemaining = 0;
+            updateTimerDisplay();
             handlePeriodEnd();
         }
     }, 1000);
@@ -235,8 +248,16 @@ function handlePeriodEnd() {
         }, 1000);
         
     } else if (m.currentPeriod === 2) {
-        // Fin del segundo tiempo - verificar empate
-        if (m.team1.score === m.team2.score) {
+        // Fin del segundo tiempo - verificar si hay ganador
+        const scoreDiff = Math.abs(m.team1.score - m.team2.score);
+        
+        if (scoreDiff > 0) {
+            // Hay un ganador - FINALIZAR PARTIDO INMEDIATAMENTE
+            setTimeout(() => {
+                finishMatch();
+            }, 1000);
+        } else {
+            // Empate - preguntar por prórroga
             setTimeout(() => {
                 if (confirm('¡Empate! ¿Deseas comenzar la prórroga?')) {
                     m.currentPeriod = 3;
@@ -250,16 +271,16 @@ function handlePeriodEnd() {
                     finishMatch();
                 }
             }, 1500);
-        } else {
-            finishMatch();
         }
     } else if (m.currentPeriod < 5) {
         // Prórroga
         m.currentPeriod++;
         
         if (m.currentPeriod === 5) {
-            // Segunda prórroga terminada
-            finishMatch();
+            // Segunda prórroga terminada - verificar si hay ganador
+            setTimeout(() => {
+                finishMatch();
+            }, 1000);
         } else {
             // Segunda parte de la prórroga
             m.timeRemaining = 5 * 60;
@@ -367,6 +388,24 @@ function useTimeout(team) {
     }
 }
 
+function recoverTimeout(team) {
+    const m = window.currentMatch;
+    const teamObj = m[team];
+    
+    // Verificar si se pueden recuperar tiempos muertos (máximo 1 por periodo)
+    if (teamObj.timeoutsUsed > 0 && teamObj.timeouts < 1) {
+        teamObj.timeouts++;
+        teamObj.timeoutsUsed--;
+        
+        logEvent("TIMEOUT_RECUPERADO", `Tiempo muerto recuperado: ${teamObj.name}`, team);
+        saveState();
+        renderAll();
+        showNotification(`Tiempo muerto recuperado para ${teamObj.name}`, 'success');
+    } else {
+        showNotification(`No se puede recuperar tiempo muerto para ${teamObj.name}`, 'warning');
+    }
+}
+
 function endTimeout() {
     const m = window.currentMatch;
     
@@ -391,53 +430,19 @@ function endTimeout() {
     renderAll();
 }
 
-// 7. ACCIONES DE JUEGO
-function addGoal(team) {
-    const m = window.currentMatch;
-    const teamObj = m[team];
-    
-    teamObj.score++;
-    
-    // Registrar evento
-    logEvent("GOL", `⚽ Gol de ${teamObj.name}`, team);
-    
-    // Efecto visual en el marcador
-    const scoreEl = document.getElementById(`${team}-score`);
-    if (scoreEl) {
-        scoreEl.style.transform = 'scale(1.2)';
-        setTimeout(() => scoreEl.style.transform = 'scale(1)', 300);
-    }
-    
-    // Verificar si es un gol de la victoria
-    if (m.currentPeriod >= 5) { // En final o prórroga
-        checkForWinner();
-    }
-    
-    saveState();
-    renderAll();
-}
-
-function changeScore(team, val) {
-    const m = window.currentMatch;
-    const teamObj = m[team];
-    
-    teamObj.score = Math.max(0, teamObj.score + val);
-    
-    if (val > 0) {
-        logEvent("GOL", `⚽ Gol de ${teamObj.name}`, team);
-    } else {
-        logEvent("GOL_ANULADO", `❌ Gol anulado de ${teamObj.name}`, team);
-    }
-    
-    saveState();
-    renderAll();
-}
-
+// 7. SISTEMA DE FALTAS MEJORADO (CON CORRECCIÓN)
 function addFoul(team) {
     const m = window.currentMatch;
     const teamObj = m[team];
     
     teamObj.fouls++;
+    
+    // Guardar en historial de faltas
+    teamObj.foulsHistory.push({
+        time: document.getElementById('main-timer').textContent,
+        period: m.currentPeriod,
+        timestamp: new Date().toISOString()
+    });
     
     // Registrar evento
     logEvent("FALTA", `⚠️ Falta de ${teamObj.name} (Total: ${teamObj.fouls})`, team);
@@ -451,7 +456,28 @@ function addFoul(team) {
     renderAll();
 }
 
-// 8. SISTEMA DE TARJETAS MEJORADO
+function removeFoul(team) {
+    const m = window.currentMatch;
+    const teamObj = m[team];
+    
+    if (teamObj.fouls > 0) {
+        teamObj.fouls--;
+        
+        // Quitar del historial si existe
+        if (teamObj.foulsHistory.length > 0) {
+            teamObj.foulsHistory.pop();
+        }
+        
+        logEvent("FALTA_CORREGIDA", `Falta eliminada de ${teamObj.name}`, team);
+        saveState();
+        renderAll();
+        showNotification(`Falta eliminada de ${teamObj.name}`, 'info');
+    } else {
+        showNotification(`${teamObj.name} no tiene faltas para eliminar`, 'warning');
+    }
+}
+
+// 8. SISTEMA DE TARJETAS MEJORADO (CON CORRECCIÓN)
 function openCardModal(team, type) {
     pendingCard = { team, type };
     
@@ -485,9 +511,22 @@ function processCard() {
     const m = window.currentMatch;
     const teamObj = m[team];
     
+    const cardData = {
+        id: Date.now(),
+        team: team,
+        type: type,
+        player: playerNum,
+        period: m.currentPeriod,
+        time: document.getElementById('main-timer').textContent,
+        timestamp: new Date().toISOString()
+    };
+    
     if (type === 'yellow') {
         // Contar amarillas por jugador
         teamObj.yellowCards[playerNum] = (teamObj.yellowCards[playerNum] || 0) + 1;
+        
+        // Guardar en historial
+        m.cardHistory.push(cardData);
         
         if (teamObj.yellowCards[playerNum] === 2) {
             // Segunda amarilla = azul y expulsión
@@ -501,6 +540,10 @@ function processCard() {
     } else {
         // Tarjeta azul directa
         teamObj.blueCards[playerNum] = (teamObj.blueCards[playerNum] || 0) + 1;
+        
+        // Guardar en historial
+        m.cardHistory.push(cardData);
+        
         logEvent("EXPULSIÓN", `🟦 Tarjeta azul para dorsal ${playerNum}`, team);
         showNotification(`🟦 Tarjeta azul (expulsión) para dorsal ${playerNum}`, 'error');
     }
@@ -510,9 +553,53 @@ function processCard() {
     renderAll();
 }
 
+function removeLastCard(team) {
+    const m = window.currentMatch;
+    const teamObj = m[team];
+    
+    // Buscar la última tarjeta del equipo
+    const lastCardIndex = m.cardHistory.findIndex(card => 
+        card.team === team && card.timestamp
+    );
+    
+    if (lastCardIndex !== -1) {
+        const lastCard = m.cardHistory[lastCardIndex];
+        const playerNum = lastCard.player;
+        
+        if (lastCard.type === 'yellow') {
+            if (teamObj.yellowCards[playerNum] > 0) {
+                teamObj.yellowCards[playerNum]--;
+                if (teamObj.yellowCards[playerNum] <= 0) {
+                    delete teamObj.yellowCards[playerNum];
+                }
+                logEvent("TARJETA_ELIMINADA", `Amarilla eliminada del dorsal ${playerNum}`, team);
+                showNotification(`🟨 Tarjeta amarilla eliminada del dorsal ${playerNum}`, 'info');
+            }
+        } else if (lastCard.type === 'blue') {
+            if (teamObj.blueCards[playerNum] > 0) {
+                teamObj.blueCards[playerNum]--;
+                if (teamObj.blueCards[playerNum] <= 0) {
+                    delete teamObj.blueCards[playerNum];
+                }
+                logEvent("TARJETA_ELIMINADA", `Azul eliminada del dorsal ${playerNum}`, team);
+                showNotification(`🟦 Tarjeta azul eliminada del dorsal ${playerNum}`, 'info');
+            }
+        }
+        
+        // Eliminar del historial
+        m.cardHistory.splice(lastCardIndex, 1);
+        
+        saveState();
+        renderAll();
+    } else {
+        showNotification(`${teamObj.name} no tiene tarjetas registradas`, 'warning');
+    }
+}
+
 // 9. SISTEMA DE EVENTOS
 function logEvent(type, description, team) {
     const event = {
+        id: Date.now(),
         timestamp: new Date().toISOString(),
         gameTime: document.getElementById('main-timer').textContent,
         period: window.currentMatch.currentPeriod,
@@ -546,11 +633,30 @@ function renderEvents() {
         <div class="event-item ${e.team}">
             <span class="event-time">[${e.gameTime}]</span>
             <span class="event-desc">${e.description}</span>
+            <button class="btn-remove-event" onclick="removeEvent(${e.id})" title="Eliminar evento">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
     `).join('');
 }
 
-// 10. FINALIZACIÓN DE PARTIDO Y CELEBRACIÓN
+function removeEvent(eventId) {
+    const eventIndex = window.currentMatch.events.findIndex(e => e.id === eventId);
+    
+    if (eventIndex !== -1) {
+        const event = window.currentMatch.events[eventIndex];
+        
+        // Preguntar confirmación
+        if (confirm(`¿Eliminar evento: "${event.description}"?`)) {
+            window.currentMatch.events.splice(eventIndex, 1);
+            saveState();
+            renderEvents();
+            showNotification('Evento eliminado', 'info');
+        }
+    }
+}
+
+// 10. FINALIZACIÓN DE PARTIDO Y CELEBRACIÓN MEJORADA
 function finishMatch() {
     const m = window.currentMatch;
     
@@ -571,20 +677,26 @@ function finishMatch() {
     
     // Determinar ganador
     let winner = null;
+    let winnerTeam = null;
+    
     if (m.team1.score > m.team2.score) {
-        winner = { team: 'team1', name: m.team1.name };
+        winner = { team: 'team1', name: m.team1.name, score: m.team1.score };
+        winnerTeam = 'team1';
     } else if (m.team2.score > m.team1.score) {
-        winner = { team: 'team2', name: m.team2.name };
+        winner = { team: 'team2', name: m.team2.name, score: m.team2.score };
+        winnerTeam = 'team2';
     }
     
     if (winner) {
         // Mostrar notificación de victoria
-        showNotification(`🏆 ¡${winner.name} GANA EL PARTIDO!`, 'success');
+        showNotification(`🏆 ¡${winner.name} GANA EL PARTIDO! ${m.team1.score}-${m.team2.score}`, 'success');
         
         // Lanzar celebración
-        if (typeof showCelebration === 'function') {
-            setTimeout(() => showCelebration(), 500);
-        }
+        setTimeout(() => {
+            if (typeof showCelebration === 'function') {
+                showCelebration();
+            }
+        }, 500);
         
         // Preguntar si guardar en historial
         setTimeout(() => {
@@ -594,21 +706,17 @@ function finishMatch() {
         }, 2000);
     } else {
         showNotification('⚖️ ¡EMPATE!', 'info');
+        
+        // Preguntar si guardar empate
+        setTimeout(() => {
+            if (confirm('¿Guardar partido empatado en el historial?')) {
+                saveMatchToHistory();
+            }
+        }, 2000);
     }
     
     saveState();
     renderAll();
-}
-
-function checkForWinner() {
-    const m = window.currentMatch;
-    
-    // Solo verificar ganador en periodos finales
-    if (m.currentPeriod >= 5 && !m.matchEnded) {
-        if (m.team1.score !== m.team2.score) {
-            finishMatch();
-        }
-    }
 }
 
 // 11. SISTEMA DE HISTORIAL MEJORADO
@@ -617,8 +725,18 @@ function saveMatchToHistory() {
     
     const matchData = {
         id: Date.now(),
-        team1: { ...m.team1 },
-        team2: { ...m.team2 },
+        team1: { 
+            name: m.team1.name,
+            score: m.team1.score,
+            fouls: m.team1.fouls,
+            timeoutsUsed: m.team1.timeoutsUsed || 0
+        },
+        team2: { 
+            name: m.team2.name,
+            score: m.team2.score,
+            fouls: m.team2.fouls,
+            timeoutsUsed: m.team2.timeoutsUsed || 0
+        },
         score: `${m.team1.score}-${m.team2.score}`,
         location: m.location,
         date: new Date().toLocaleString('es-ES', {
@@ -631,7 +749,9 @@ function saveMatchToHistory() {
         timestamp: new Date().toISOString(),
         duration: m.totalDuration || 0,
         period: m.currentPeriod,
-        events: [...m.events].slice(0, 10) // Solo primeros 10 eventos
+        events: [...m.events].slice(0, 10), // Solo primeros 10 eventos
+        winner: m.team1.score > m.team2.score ? m.team1.name : 
+                m.team2.score > m.team1.score ? m.team2.name : 'Empate'
     };
     
     window.matchHistory.unshift(matchData);
@@ -667,9 +787,10 @@ function renderMatchHistory() {
     }
     
     list.innerHTML = history.map(match => `
-        <div class="history-item" onclick="loadMatchFromHistory(${match.id})">
+        <div class="history-item">
             <div class="history-teams">
                 ${match.team1.name} vs ${match.team2.name}
+                ${match.winner !== 'Empate' ? `<span class="winner-badge">🏆 ${match.winner}</span>` : '<span class="draw-badge">⚖️ Empate</span>'}
             </div>
             <div class="history-score">
                 ${match.score}
@@ -678,41 +799,45 @@ function renderMatchHistory() {
                 <div><i class="fas fa-calendar"></i> ${match.date}</div>
                 <div class="history-location"><i class="fas fa-map-marker-alt"></i> ${match.location}</div>
                 ${match.duration ? `<div class="history-duration"><i class="fas fa-clock"></i> ${match.duration} min</div>` : ''}
+                <div class="history-actions">
+                    <button class="btn-small" onclick="shareMatchFromHistory(${match.id})" title="Compartir">
+                        <i class="fas fa-share"></i>
+                    </button>
+                    <button class="btn-small btn-danger" onclick="deleteMatchFromHistory(${match.id})" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
             </div>
         </div>
     `).join('');
 }
 
-function loadMatchFromHistory(matchId) {
+function shareMatchFromHistory(matchId) {
     const match = window.matchHistory.find(m => m.id === matchId);
     if (!match) return;
     
-    if (confirm('¿Cargar este partido? Se perderá el progreso actual.')) {
-        window.currentMatch = {
-            ...INITIAL_STATE,
-            team1: { ...match.team1 },
-            team2: { ...match.team2 },
-            location: match.location,
-            events: [...match.events]
-        };
-        
-        saveState();
-        renderAll();
-        showNotification('Partido cargado desde historial', 'success');
-    }
+    const text = `📅 ${match.date}
+🏟️ ${match.team1.name} ${match.score} ${match.team2.name}
+📍 ${match.location}
+${match.duration ? `⏱️ ${match.duration} minutos\n` : ''}
+${match.winner !== 'Empate' ? `🏆 Ganador: ${match.winner}\n` : '⚖️ Resultado: Empate\n'}
+📱 Liga Escolar - Fútbol Sala`;
+    
+    shareText(text);
 }
 
-function clearMatchHistory() {
-    if (window.matchHistory.length === 0) {
-        showNotification('El historial ya está vacío', 'info');
-        return;
-    }
+function deleteMatchFromHistory(matchId) {
+    const matchIndex = window.matchHistory.findIndex(m => m.id === matchId);
     
-    if (confirm('¿Estás seguro de borrar todo el historial? Esta acción no se puede deshacer.')) {
-        window.matchHistory = [];
-        localStorage.removeItem('futsal_history');
-        renderMatchHistory();
-        showNotification('Historial borrado', 'success');
+    if (matchIndex !== -1) {
+        const match = window.matchHistory[matchIndex];
+        
+        if (confirm(`¿Eliminar partido: ${match.team1.name} ${match.score} ${match.team2.name}?`)) {
+            window.matchHistory.splice(matchIndex, 1);
+            localStorage.setItem('futsal_history', JSON.stringify(window.matchHistory));
+            renderMatchHistory();
+            showNotification('Partido eliminado del historial', 'success');
+        }
     }
 }
 
@@ -857,12 +982,129 @@ function shareToWhatsapp() {
     window.open(url, '_blank');
 }
 
+function shareText(text) {
+    const encodedText = encodeURIComponent(text);
+    
+    // Usar Web Share API si está disponible
+    if (navigator.share) {
+        navigator.share({
+            title: 'Resultado Fútbol Sala',
+            text: text,
+            url: window.location.href
+        }).catch(err => {
+            console.error('Error al compartir:', err);
+            // Fallback a WhatsApp
+            window.open(`https://wa.me/?text=${encodedText}`, '_blank');
+        });
+    } else {
+        // Fallback: abrir menú con opciones
+        const shareModal = document.createElement('div');
+        shareModal.id = 'share-options-modal';
+        shareModal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        `;
+        
+        shareModal.innerHTML = `
+            <div style="background: #2c3e50; padding: 30px; border-radius: 15px; max-width: 400px; width: 100%;">
+                <h3 style="color: white; margin-bottom: 20px;">Compartir en:</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <button onclick="shareToApp('whatsapp', '${encodedText}')" style="background: #25D366; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer;">
+                        <i class="fab fa-whatsapp"></i> WhatsApp
+                    </button>
+                    <button onclick="shareToApp('telegram', '${encodedText}')" style="background: #0088cc; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer;">
+                        <i class="fab fa-telegram"></i> Telegram
+                    </button>
+                    <button onclick="shareToApp('twitter', '${encodedText}')" style="background: #1DA1F2; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer;">
+                        <i class="fab fa-twitter"></i> Twitter
+                    </button>
+                    <button onclick="shareToApp('email', '${encodedText}')" style="background: #EA4335; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer;">
+                        <i class="fas fa-envelope"></i> Email
+                    </button>
+                </div>
+                <button onclick="closeShareOptions()" style="margin-top: 20px; background: #7f8c8d; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; width: 100%;">
+                    Cancelar
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(shareModal);
+    }
+}
+
+function shareToApp(app, encodedText) {
+    let url = '';
+    
+    switch(app) {
+        case 'whatsapp':
+            url = `https://wa.me/?text=${encodedText}`;
+            break;
+        case 'telegram':
+            url = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodedText}`;
+            break;
+        case 'twitter':
+            url = `https://twitter.com/intent/tweet?text=${encodedText}`;
+            break;
+        case 'email':
+            url = `mailto:?subject=Resultado%20F%C3%BAtbol%20Sala&body=${encodedText}`;
+            break;
+    }
+    
+    if (url) {
+        window.open(url, '_blank');
+        closeShareOptions();
+    }
+}
+
+function closeShareOptions() {
+    const modal = document.getElementById('share-options-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
 function closeShareModal() {
     const modal = document.getElementById('share-modal');
     if (modal) modal.style.display = 'none';
 }
 
-// 13. FUNCIONES DE UTILIDAD
+// 13. FUNCIONES DE CORRECCIÓN Y UTILIDAD
+function updateCorrectionButtons() {
+    // Mostrar/ocultar botones de corrección según el estado
+    const m = window.currentMatch;
+    
+    // Actualizar botones de faltas
+    document.querySelectorAll('.btn-remove-foul').forEach(btn => {
+        const team = btn.dataset.team;
+        btn.disabled = m[team].fouls <= 0;
+    });
+    
+    // Actualizar botones de tiempos muertos
+    document.querySelectorAll('.btn-recover-timeout').forEach(btn => {
+        const team = btn.dataset.team;
+        const timeoutsUsed = m[team].timeoutsUsed || 0;
+        btn.disabled = timeoutsUsed <= 0 || m[team].timeouts >= 1;
+    });
+    
+    // Actualizar botones de tarjetas
+    document.querySelectorAll('.btn-remove-card').forEach(btn => {
+        const team = btn.dataset.team;
+        const hasYellowCards = Object.keys(m[team].yellowCards || {}).length > 0;
+        const hasBlueCards = Object.keys(m[team].blueCards || {}).length > 0;
+        btn.disabled = !hasYellowCards && !hasBlueCards;
+    });
+}
+
 function editTeamName(teamKey) {
     const currentName = window.currentMatch[teamKey].name;
     const newName = prompt('Nuevo nombre del equipo:', currentName);
@@ -980,6 +1222,24 @@ function initEventListeners() {
         });
     }
     
+    // Botones de corrección dinámicos
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-remove-foul')) {
+            const team = e.target.dataset.team;
+            removeFoul(team);
+        }
+        
+        if (e.target.classList.contains('btn-recover-timeout')) {
+            const team = e.target.dataset.team;
+            recoverTimeout(team);
+        }
+        
+        if (e.target.classList.contains('btn-remove-card')) {
+            const team = e.target.dataset.team;
+            removeLastCard(team);
+        }
+    });
+    
     // Botón flotante de ayuda
     const helpBtn = document.querySelector('.floating-help-btn');
     if (helpBtn) {
@@ -998,9 +1258,12 @@ window.nextPeriod = nextPeriod;
 window.addGoal = addGoal;
 window.changeScore = changeScore;
 window.addFoul = addFoul;
+window.removeFoul = removeFoul;
+window.recoverTimeout = recoverTimeout;
 window.useTimeout = useTimeout;
 window.openCardModal = openCardModal;
 window.processCard = processCard;
+window.removeLastCard = removeLastCard;
 window.closeModal = closeModal;
 window.editTeamName = editTeamName;
 window.openShareModal = openShareModal;
@@ -1008,11 +1271,16 @@ window.openShareHistoryModal = openShareHistoryModal;
 window.copyShareText = copyShareText;
 window.shareViaNative = shareViaNative;
 window.shareToWhatsapp = shareToWhatsapp;
+window.shareText = shareText;
+window.shareToApp = shareToApp;
+window.closeShareOptions = closeShareOptions;
 window.closeShareModal = closeShareModal;
 window.clearMatchHistory = clearMatchHistory;
 window.forceSave = forceSave;
 window.saveMatchToHistory = saveMatchToHistory;
-window.loadMatchFromHistory = loadMatchFromHistory;
+window.shareMatchFromHistory = shareMatchFromHistory;
+window.deleteMatchFromHistory = deleteMatchFromHistory;
+window.removeEvent = removeEvent;
 
 // Inicializar cuando se carga la página
 if (document.readyState === 'loading') {

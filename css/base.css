@@ -124,3 +124,74 @@
         top: 100px;
     }
 }
+/* ===== MEJORAS PARA PWA ===== */
+@media (display-mode: standalone) {
+    body {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+    
+    .floating-home-btn,
+    .floating-help-btn {
+        top: calc(20px + env(safe-area-inset-top));
+    }
+    
+    .floating-help-btn {
+        top: calc(90px + env(safe-area-inset-top));
+    }
+}
+
+/* ===== ESTILOS PARA INSTALACIÓN PWA ===== */
+#pwa-install-prompt {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    color: #333;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    z-index: 10001;
+    display: none;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+}
+
+#pwa-install-prompt.show {
+    display: block;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translate(-50%, 100%); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
+}
+
+.pwa-install-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    justify-content: center;
+}
+
+.pwa-install-buttons button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#pwa-install-accept {
+    background: #2ecc71;
+    color: white;
+}
+
+#pwa-install-decline {
+    background: #e74c3c;
+    color: white;
+}
