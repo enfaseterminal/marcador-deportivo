@@ -1,188 +1,299 @@
-// /js/futbol-sala.js - VERSIÓN DEFINITIVA UNIFICADA
-window.currentMatch = {
-    team1: { name: "Equipo Local", score: 0, timeouts: 1, fouls: 0, yellowCards: [], blueCards: [] },
-    team2: { name: "Equipo Visitante", score: 0, timeouts: 1, fouls: 0, yellowCards: [], blueCards: [] },
-    currentPeriod: 1,
+/**
+ * /js/futbol-sala.js
+ * Marcador Profesional con lógica de expulsiones y persistencia
+ */
+
+// 1. ESTADO INICIAL
+const INITIAL_STATE = {
+    team1: { name: "Local", score: 0, fouls: 0, timeouts: 1, yellowCards: {} },
+    team2: { name: "Visitante", score: 0, fouls: 0, timeouts: 1, yellowCards: {} },
+    currentPeriod: 1, // 1: T1, 2: T2, 3: P1, 4: P2
     timeRemaining: 20 * 60,
-    timerRunning: false,
-    isOvertime: false,
-    location: "No especificada",
-    events: []
+    isRunning: false,
+    location: "Pabellón Municipal",
+    events: [],
+    matchEnded: false
 };
 
-window.pendingCard = null;
-window.timerInterval = null;
+window.currentMatch = JSON.parse(localStorage.getItem('futsal_match')) || {...INITIAL_STATE};
+let timerInterval = null;
+let pendingCard = null; // {team, type}
 
-// --- INICIALIZACIÓN ---
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("Inicializando Fútbol Sala Pro...");
-    setupEventListeners();
-    setupEditableNames();
-    updateDisplay();
-    renderEvents();
+// 2. INICIALIZACIÓN
+document.addEventListener('DOMContentLoaded', () => {
+    renderAll();
+    if (window.currentMatch.isRunning) {
+        startTimerLogic();
+    }
 });
 
-// --- ACTUALIZAR PANTALLA ---
-function updateDisplay() {
-    // Marcadores
-    document.getElementById('team1-score').textContent = window.currentMatch.team1.score;
-    document.getElementById('team2-score').textContent = window.currentMatch.team2.score;
+// 3. FUNCIONES DE RENDERIZADO
+function renderAll() {
+    const m = window.currentMatch;
     
-    // Nombres
-    document.getElementById('team1-name').textContent = window.currentMatch.team1.name;
-    document.getElementById('team2-name').textContent = window.currentMatch.team2.name;
+    // Nombres y Marcador
+    document.getElementById('team1-name-display').textContent = m.team1.name;
+    document.getElementById('team2-name-display').textContent = m.team2.name;
+    document.getElementById('team1-score').textContent = m.team1.score;
+    document.getElementById('team2-score').textContent = m.team2.score;
     
-    // Faltas
-    if (document.getElementById('fouls-1')) document.getElementById('fouls-1').textContent = window.currentMatch.team1.fouls;
-    if (document.getElementById('fouls-2')) document.getElementById('fouls-2').textContent = window.currentMatch.team2.fouls;
+    // Faltas y Tiempos Muertos
+    document.getElementById('team1-fouls').textContent = m.team1.fouls;
+    document.getElementById('team2-fouls').textContent = m.team2.fouls;
+    document.getElementById('team1-timeouts').textContent = m.team1.timeouts;
+    document.getElementById('team2-timeouts').textContent = m.team2.timeouts;
     
-    // Tiempos Muertos
-    if (document.getElementById('timeout-1')) document.getElementById('timeout-1').textContent = window.currentMatch.team1.timeouts;
-    if (document.getElementById('timeout-2')) document.getElementById('timeout-2').textContent = window.currentMatch.team2.timeouts;
+    // Ubicación y Periodo
+    document.getElementById('current-location').textContent = m.location;
+    renderPeriodText();
     
+    // Reloj
     updateTimerDisplay();
+    
+    // Lista de eventos
+    renderEvents();
+    
+    // Controles de botones
+    const startBtn = document.getElementById('start-pause-btn');
+    startBtn.innerHTML = m.isRunning ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
 }
 
-// --- FUNCIONES DE ACCIÓN ---
-window.addGoal = function(team) {
-    window.currentMatch[team].score++;
-    logEvent('goal', '¡GOOOOL!', team);
-    if (typeof celebrate === 'function') celebrate();
-    updateDisplay();
-};
+function renderPeriodText() {
+    const texts = ["", "1º TIEMPO", "2º TIEMPO", "PRÓRROGA 1", "PRÓRROGA 2", "FINALIZADO"];
+    document.getElementById('period-text').textContent = texts[window.currentMatch.currentPeriod];
+}
 
-window.addFoul = function(team) {
-    if (window.currentMatch[team].fouls < 5) {
-        window.currentMatch[team].fouls++;
-        logEvent('foul', 'Falta cometida', team);
+function updateTimerDisplay() {
+    const mins = Math.floor(window.currentMatch.timeRemaining / 60);
+    const secs = window.currentMatch.timeRemaining % 60;
+    document.getElementById('main-timer').textContent = 
+        `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+// 4. LÓGICA DEL CRONÓMETRO
+function toggleTimer() {
+    if (window.currentMatch.matchEnded) return;
+    
+    window.currentMatch.isRunning = !window.currentMatch.isRunning;
+    if (window.currentMatch.isRunning) {
+        startTimerLogic();
     } else {
-        window.currentMatch[team].fouls++;
-        logEvent('foul', '⚠️ ¡QUINTA FALTA! (Doble Penalti)', team);
+        clearInterval(timerInterval);
     }
-    updateDisplay();
-};
+    saveState();
+    renderAll();
+}
 
-window.useTimeout = function(team) {
-    if (window.currentMatch[team].timeouts > 0) {
-        window.currentMatch[team].timeouts--;
-        logEvent('timeout', 'Tiempo Muerto solicitado', team);
-        updateDisplay();
-    } else {
-        alert("No quedan tiempos muertos");
-    }
-};
-
-// --- RELOJ ---
-function startTimer() {
-    if (window.timerInterval) return;
-    window.timerInterval = setInterval(() => {
+function startTimerLogic() {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
         if (window.currentMatch.timeRemaining > 0) {
             window.currentMatch.timeRemaining--;
+            if (window.currentMatch.timeRemaining % 5 === 0) saveState(); // Guardado frecuente
             updateTimerDisplay();
         } else {
-            pauseTimer();
+            handlePeriodEnd();
         }
     }, 1000);
 }
 
-function pauseTimer() {
-    clearInterval(window.timerInterval);
-    window.timerInterval = null;
+function handlePeriodEnd() {
+    window.currentMatch.isRunning = false;
+    clearInterval(timerInterval);
+    showNotification("¡Fin del periodo!", "warning");
+    saveState();
+    renderAll();
 }
 
-function updateTimerDisplay() {
-    const min = Math.floor(window.currentMatch.timeRemaining / 60);
-    const sec = window.currentMatch.timeRemaining % 60;
-    document.getElementById('main-timer').textContent = 
-        `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
-}
+function nextPeriod() {
+    if (window.currentMatch.currentPeriod >= 5) return;
 
-// --- NOMBRES EDITABLES ---
-function setupEditableNames() {
-    ['team1-name', 'team2-name'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.style.cursor = 'pointer';
-            el.onclick = function() {
-                const newName = prompt("Nombre del equipo:", el.textContent);
-                if (newName) {
-                    const teamKey = id.startsWith('team1') ? 'team1' : 'team2';
-                    window.currentMatch[teamKey].name = newName;
-                    updateDisplay();
-                }
-            };
+    // Lógica de prórroga si hay empate al final del T2
+    if (window.currentMatch.currentPeriod === 2) {
+        if (window.currentMatch.team1.score === window.currentMatch.team2.score) {
+            if (confirm("¿Empate detectado. Empezar prórroga?")) {
+                window.currentMatch.currentPeriod = 3;
+                window.currentMatch.timeRemaining = 5 * 60; // 5 min de prórroga
+            } else {
+                finishMatch();
+            }
+        } else {
+            finishMatch();
         }
-    });
-}
-
-// --- TARJETAS ---
-window.openCardModal = function(team, type) {
-    window.pendingCard = { team, type };
-    document.getElementById('card-modal').style.display = 'flex';
-};
-
-window.saveCard = function() {
-    if (!window.pendingCard) return;
-    const { team, type } = window.pendingCard;
-    const player = document.getElementById('card-player-number').value || 'S/N';
-    
-    if (type === 'yellow') {
-        window.currentMatch[team].yellowCards.push({ player });
-        logEvent('yellow-card', `🟨 Tarjeta Amarilla - #${player}`, team);
     } else {
-        window.currentMatch[team].blueCards.push({ player });
-        logEvent('blue-card', `🟦 Tarjeta Azul - #${player}`, team);
+        window.currentMatch.currentPeriod++;
+        window.currentMatch.timeRemaining = window.currentMatch.currentPeriod > 2 ? 5 * 60 : 20 * 60;
     }
     
-    document.getElementById('card-modal').style.display = 'none';
-    document.getElementById('card-player-number').value = '';
-    updateDisplay();
-};
+    saveState();
+    renderAll();
+}
 
-// --- EVENTOS ---
+// 5. ACCIONES DE JUEGO
+function addGoal(team) {
+    window.currentMatch[team].score++;
+    logEvent("GOL", `Gol de ${window.currentMatch[team].name}`, team);
+    saveState();
+    renderAll();
+}
+
+function changeScore(team, val) {
+    window.currentMatch[team].score = Math.max(0, window.currentMatch[team].score + val);
+    saveState();
+    renderAll();
+}
+
+function addFoul(team) {
+    window.currentMatch[team].fouls++;
+    logEvent("FALTA", `Falta cometida por ${window.currentMatch[team].name}`, team);
+    if(window.currentMatch[team].fouls >= 6) {
+        showNotification("¡Sexta falta! Doble Penalti.", "warning");
+    }
+    saveState();
+    renderAll();
+}
+
+function useTimeout(team) {
+    if (window.currentMatch[team].timeouts > 0) {
+        window.currentMatch[team].timeouts--;
+        logEvent("T. MUERTO", `Tiempo muerto: ${window.currentMatch[team].name}`, team);
+        saveState();
+        renderAll();
+        showNotification("Tiempo muerto solicitado");
+    }
+}
+
+// 6. LÓGICA DE TARJETAS (REGLA SOLICITADA)
+function openCardModal(team, type) {
+    pendingCard = { team, type };
+    document.getElementById('card-modal-title').textContent = 
+        `Tarjeta ${type === 'yellow' ? 'AMARILLA' : 'AZUL'} - ${window.currentMatch[team].name}`;
+    document.getElementById('card-modal').style.display = 'flex';
+}
+
+function processCard() {
+    const playerNum = document.getElementById('card-player-number').value;
+    if (!playerNum) return alert("Introduce el número del jugador");
+
+    const { team, type } = pendingCard;
+    const teamObj = window.currentMatch[team];
+
+    if (type === 'yellow') {
+        // Registrar amarilla
+        teamObj.yellowCards[playerNum] = (teamObj.yellowCards[playerNum] || 0) + 1;
+        
+        if (teamObj.yellowCards[playerNum] >= 2) {
+            // DOBLE AMARILLA = AZUL Y EXPULSIÓN
+            logEvent("EXPULSIÓN", `2ª Amarilla -> Azul para el dorsal ${playerNum}`, team);
+            showNotification(`¡Dorsal ${playerNum} expulsado por doble amarilla!`, "error");
+            teamObj.yellowCards[playerNum] = 0; // Reset
+        } else {
+            logEvent("TARJETA", `Amarilla para dorsal ${playerNum}`, team);
+        }
+    } else {
+        // AZUL DIRECTA
+        logEvent("EXPULSIÓN", `Tarjeta Azul para dorsal ${playerNum}`, team);
+        showNotification(`¡Dorsal ${playerNum} expulsado (Azul)!`, "error");
+    }
+
+    closeModal('card-modal');
+    document.getElementById('card-player-number').value = "";
+    saveState();
+    renderAll();
+}
+
+// 7. PERSISTENCIA Y UTILIDADES
+function saveState() {
+    localStorage.setItem('futsal_match', JSON.stringify(window.currentMatch));
+    // Backup en cookie por si acaso (expira en 1 día)
+    document.cookie = "futsal_backup=" + encodeURIComponent(JSON.stringify(window.currentMatch)) + ";max-age=86400;path=/";
+}
+
 function logEvent(type, description, team) {
-    const time = document.getElementById('main-timer').textContent;
-    window.currentMatch.events.unshift({
-        time,
+    const event = {
+        time: document.getElementById('main-timer').textContent,
+        period: window.currentMatch.currentPeriod,
+        type,
         description,
-        teamName: window.currentMatch[team]?.name || "Sistema"
-    });
-    renderEvents();
+        team
+    };
+    window.currentMatch.events.unshift(event); // Lo más nuevo arriba
 }
 
 function renderEvents() {
     const list = document.getElementById('events-list');
-    if (list) {
-        list.innerHTML = window.currentMatch.events.map(ev => `
-            <div class="event-item"><strong>[${ev.time}] ${ev.teamName}:</strong> ${ev.description}</div>
-        `).join('');
+    list.innerHTML = window.currentMatch.events.map(e => `
+        <div class="event-item ${e.team}">
+            <span class="event-time">[${e.time}]</span>
+            <span class="event-desc"><strong>${e.type}:</strong> ${e.description}</span>
+        </div>
+    `).join('');
+}
+
+function editTeamName(teamKey) {
+    const newName = prompt("Nuevo nombre del equipo:", window.currentMatch[teamKey].name);
+    if (newName) {
+        window.currentMatch[teamKey].name = newName;
+        saveState();
+        renderAll();
     }
 }
 
-// --- ASIGNAR BOTONES ---
-function setupEventListeners() {
-    // Goles
-    document.getElementById('add-goal-1')?.addEventListener('click', () => window.addGoal('team1'));
-    document.getElementById('add-goal-2')?.addEventListener('click', () => window.addGoal('team2'));
-    
-    // Faltas
-    document.getElementById('add-foul-1')?.addEventListener('click', () => window.addFoul('team1'));
-    document.getElementById('add-foul-2')?.addEventListener('click', () => window.addFoul('team2'));
-    
-    // Tiempos Muertos
-    document.getElementById('btn-timeout-1')?.addEventListener('click', () => window.useTimeout('team1'));
-    document.getElementById('btn-timeout-2')?.addEventListener('click', () => window.useTimeout('team2'));
+function editLocation() {
+    const loc = prompt("Lugar del partido:", window.currentMatch.location);
+    if (loc) {
+        window.currentMatch.location = loc;
+        saveState();
+        renderAll();
+    }
+}
 
-    // Tarjetas
-    document.getElementById('yellow-card-1')?.addEventListener('click', () => window.openCardModal('team1', 'yellow'));
-    document.getElementById('yellow-card-2')?.addEventListener('click', () => window.openCardModal('team2', 'yellow'));
-    document.getElementById('blue-card-1')?.addEventListener('click', () => window.openCardModal('team1', 'blue'));
-    document.getElementById('blue-card-2')?.addEventListener('click', () => window.openCardModal('team2', 'blue'));
+function finishMatch() {
+    window.currentMatch.matchEnded = true;
+    window.currentMatch.currentPeriod = 5;
+    const winner = window.currentMatch.team1.score > window.currentMatch.team2.score ? 
+                   window.currentMatch.team1.name : window.currentMatch.team2.name;
     
-    document.getElementById('save-card')?.addEventListener('click', window.saveCard);
-    document.getElementById('cancel-card')?.addEventListener('click', () => document.getElementById('card-modal').style.display='none');
+    if (window.currentMatch.team1.score !== window.currentMatch.team2.score) {
+        showNotification(`¡FINAL! Ganador: ${winner}`, "success");
+        if (typeof Celebration === 'function') {
+            const confetti = new Celebration();
+            confetti.init();
+            confetti.start();
+        }
+    }
+    saveState();
+}
 
-    // Timer
-    document.getElementById('start-timer')?.addEventListener('click', startTimer);
-    document.getElementById('pause-timer')?.addEventListener('click', pauseTimer);
+function confirmReset() {
+    if (confirm("¿Estás seguro de reiniciar el partido? Se borrará todo.")) {
+        localStorage.removeItem('futsal_match');
+        window.currentMatch = {...INITIAL_STATE};
+        location.reload();
+    }
+}
+
+function shareResult() {
+    const m = window.currentMatch;
+    const text = `⚽ *Resultado Fútbol Sala* ⚽\n` +
+                 `━━━━━━━━━━━━━━━━\n` +
+                 `${m.team1.name} *${m.team1.score} - ${m.team2.score}* ${m.team2.name}\n` +
+                 `📍 Lugar: ${m.location}\n` +
+                 `⏱️ Periodo: ${m.currentPeriod}\n` +
+                 `━━━━━━━━━━━━━━━━\n` +
+                 `vía ligaescolar.es`;
+    
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+}
+
+function showNotification(msg, type = 'success') {
+    const n = document.getElementById('notification');
+    n.textContent = msg;
+    n.className = `notification show ${type}`;
+    setTimeout(() => n.className = 'notification', 3000);
+}
+
+function closeModal(id) {
+    document.getElementById(id).style.display = 'none';
 }

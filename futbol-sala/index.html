@@ -1,227 +1,120 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <script src="../js/ads-analytics.js"></script>     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marcador de Fútbol Sala | Liga Escolar</title>
+    <title>Marcador Fútbol Sala Pro | Liga Escolar</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../css/base.css">
-    <link rel="stylesheet" href="../css/themes.css">
-    <link rel="stylesheet" href="../css/layout.css">
-    <link rel="stylesheet" href="../css/components.css">
-    <link rel="stylesheet" href="../css/header-with-bg.css">
     <link rel="stylesheet" href="../css/sport-specific/futbol-sala.css">
-    <style>
-        body { background: linear-gradient(135deg, #1a5276, #27ae60); color: #ecf0f1; min-height: 100vh; margin: 0; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .card-emoji { font-size: 1.4em; vertical-align: middle; }
-
-        /* --- ADOPCIÓN DE ESTILOS NUEVOS --- */
-        
-        /* 1. Eliminar marcos blancos en las tarjetas */
-        .btn-small, .card-emoji, .btn-warning, .btn-info {
-            border: none !important;
-            outline: none !important;
-            box-shadow: none !important;
-            background: transparent; /* Para que solo se vea el emoji */
-        }
-
-        /* 2. Estilo para el Historial de Eventos (Pizarra) */
-        .match-history-section {
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-        }
-        .events-list {
-            max-height: 250px;
-            overflow-y: auto;
-            font-family: 'Courier New', Courier, monospace;
-            padding: 10px;
-        }
-        .event-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
-            color: #f0f0f0;
-            font-size: 0.95rem;
-        }
-
-        /* 3. Botones de Compartir */
-        .share-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .btn-whatsapp { background-color: #25D366 !important; color: white !important; }
-        .btn-share-native { background-color: #3498db !important; color: white !important; }
-    </style>
 </head>
 <body class="theme-futbol-sala">
-    <a href="/" class="floating-home-btn" title="Volver al inicio"><i class="fas fa-home"></i></a>
-    
     <div class="container">
         <header class="app-header">
-            <div class="header-bg"><img src="/imagenes/pizarra.png" alt="Fondo" class="header-bg-image"></div>
-            <div class="header-content">
-                <div class="header-left">
-                    <h1><i class="fas fa-futbol"></i> Marcador de Fútbol Sala</h1>
-                    <p class="subtitle">Liga Escolar - <span id="current-location">No especificada</span></p>
-                </div>
-                <div class="header-right">
-                    <div class="clock-container"><div id="clock">00:00:00</div><div id="date">--/--/----</div></div>
-                </div>
+            <div class="location-badge" id="location-display">
+                <i class="fas fa-map-marker-alt"></i> <span id="current-location">Pabellón Municipal</span>
+                <button onclick="editLocation()"><i class="fas fa-edit"></i></button>
             </div>
+            <div class="period-badge" id="period-text">1º TIEMPO</div>
         </header>
 
-        <div class="match-info-futbol-sala">
-            <div class="match-info-item"><span class="info-label">Periodo:</span> <span class="info-value" id="current-period">1° Tiempo</span></div>
-            <div class="match-info-item"><span class="info-label">Tiempo:</span> <span class="info-value" id="match-timer">20:00</span></div>
-            <div class="match-info-item"><span class="info-label">Estado:</span> <span class="info-value" id="match-status">No iniciado</span></div>
-            <div class="match-info-item"><span class="info-label">Prórroga:</span> <span class="info-value" id="overtime-status">No</span></div>
-        </div>
-
-        <div class="timer-container">
+        <div class="timer-section">
             <div class="main-timer" id="main-timer">20:00</div>
-            <div class="period-info" id="period-info">1° Tiempo</div>
-        </div>
-
-        <div class="control-group">
-            <div class="time-controls">
-                <button class="btn-icon btn-timer-start" id="start-timer"><i class="fas fa-play"></i><span>Iniciar</span></button>
-                <button class="btn-icon btn-timer-pause" id="pause-timer"><i class="fas fa-pause"></i><span>Pausar</span></button>
-                <button class="btn-icon btn-timer-reset" id="reset-timer"><i class="fas fa-redo-alt"></i><span>Reiniciar</span></button>
-                <button class="btn-icon btn-next-period" id="next-period"><i class="fas fa-forward"></i><span>Siguiente</span></button>
+            <div class="timer-controls">
+                <button class="btn-timer" id="start-pause-btn" onclick="toggleTimer()">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button class="btn-timer btn-reset" onclick="confirmReset()">
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button class="btn-timer btn-next" onclick="nextPeriod()" title="Siguiente Periodo">
+                    <i class="fas fa-step-forward"></i>
+                </button>
             </div>
         </div>
 
-        <div class="scoreboard-futbol-sala">
-            <div class="team-futbol-sala" id="team1">
-                <div class="team-name-futbol-sala editable" data-team="1" id="team1-name">Equipo Local</div>
-                <div class="score-futbol-sala" id="team1-score">0</div>
-                <div class="cards-info">
-                    <div class="cards-section">
-                        <span>A: <span id="team1-yellow-cards">0</span></span>
-                        <button class="btn btn-small" id="team1-add-yellow"><span class="card-emoji">🟨</span></button>
-                        <button class="btn btn-small" id="team1-remove-yellow"><i class="fas fa-minus"></i></button>
+        <main class="scoreboard">
+            <div class="team team-local">
+                <div class="team-name" id="team1-name-display" onclick="editTeamName('team1')">EQUIPO LOCAL</div>
+                <div class="score" id="team1-score">0</div>
+                <div class="score-controls">
+                    <button class="btn-score add" onclick="addGoal('team1')">+</button>
+                    <button class="btn-score sub" onclick="changeScore('team1', -1)">-</button>
+                </div>
+                <div class="team-stats">
+                    <div class="stat-item">
+                        <span>Faltas</span>
+                        <div class="stat-counter" id="team1-fouls">0</div>
+                        <button class="btn-stat" onclick="addFoul('team1')">+</button>
                     </div>
-                    <div class="cards-section">
-                        <span>Az: <span id="team1-blue-cards">0</span></span>
-                        <button class="btn btn-small" id="team1-add-blue"><span class="card-emoji">🟦</span></button>
-                        <button class="btn btn-small" id="team1-remove-blue"><i class="fas fa-minus"></i></button>
+                    <div class="stat-item">
+                        <span>T. Muertos</span>
+                        <div class="stat-counter" id="team1-timeouts">1</div>
+                        <button class="btn-stat" id="btn-timeout-team1" onclick="useTimeout('team1')">Uso</button>
                     </div>
                 </div>
-                <div class="team-info">
-                    <div>Faltas: <span id="team1-fouls">0</span> <button class="btn btn-small" id="team1-add-foul">+</button></div>
-                    <div>T.O: <span id="team1-timeouts">1</span> <button class="btn btn-small" id="team1-add-timeout">+</button></div>
+                <div class="card-buttons">
+                    <button class="btn-card yellow" onclick="openCardModal('team1', 'yellow')">🟨</button>
+                    <button class="btn-card blue" onclick="openCardModal('team1', 'blue')">🟦</button>
                 </div>
-                <div class="score-controls"><button class="btn btn-primary" id="team1-add-goal">+ GOL</button></div>
-                <div class="expulsions-list" id="team1-expulsions"></div>
             </div>
 
-            <div class="team-futbol-sala" id="team2">
-                <div class="team-name-futbol-sala editable" data-team="2" id="team2-name">Equipo Visitante</div>
-                <div class="score-futbol-sala" id="team2-score">0</div>
-                <div class="cards-info">
-                    <div class="cards-section">
-                        <span>A: <span id="team2-yellow-cards">0</span></span>
-                        <button class="btn btn-small" id="team2-add-yellow"><span class="card-emoji">🟨</span></button>
-                        <button class="btn btn-small" id="team2-remove-yellow"><i class="fas fa-minus"></i></button>
+            <div class="team team-visitor">
+                <div class="team-name" id="team2-name-display" onclick="editTeamName('team2')">EQUIPO VISITANTE</div>
+                <div class="score" id="team2-score">0</div>
+                <div class="score-controls">
+                    <button class="btn-score add" onclick="addGoal('team2')">+</button>
+                    <button class="btn-score sub" onclick="changeScore('team2', -1)">-</button>
+                </div>
+                <div class="team-stats">
+                    <div class="stat-item">
+                        <span>Faltas</span>
+                        <div class="stat-counter" id="team2-fouls">0</div>
+                        <button class="btn-stat" onclick="addFoul('team2')">+</button>
                     </div>
-                    <div class="cards-section">
-                        <span>Az: <span id="team2-blue-cards">0</span></span>
-                        <button class="btn btn-small" id="team2-add-blue"><span class="card-emoji">🟦</span></button>
-                        <button class="btn btn-small" id="team2-remove-blue"><i class="fas fa-minus"></i></button>
+                    <div class="stat-item">
+                        <span>T. Muertos</span>
+                        <div class="stat-counter" id="team2-timeouts">1</div>
+                        <button class="btn-stat" id="btn-timeout-team2" onclick="useTimeout('team2')">Uso</button>
                     </div>
                 </div>
-                <div class="team-info">
-                    <div>Faltas: <span id="team2-fouls">0</span> <button class="btn btn-small" id="team2-add-foul">+</button></div>
-                    <div>T.O: <span id="team2-timeouts">1</span> <button class="btn btn-small" id="team2-add-timeout">+</button></div>
-                </div>
-                <div class="score-controls"><button class="btn btn-primary" id="team2-add-goal">+ GOL</button></div>
-                <div class="expulsions-list" id="team2-expulsions"></div>
-            </div>
-        </div>
-
-        <div class="modal" id="card-modal" style="display:none;">
-            <div class="modal-content">
-                <h2 id="card-modal-title">Registrar Tarjeta</h2>
-                <div class="form-group">
-                    <label>Número Jugador:</label>
-                    <input type="number" id="card-player-number" placeholder="Ej: 10">
-                </div>
-                <div class="form-group">
-                    <label>Motivo:</label>
-                    <input type="text" id="card-reason" placeholder="Opcional">
-                </div>
-                <div class="modal-buttons">
-                    <button class="btn btn-secondary" id="cancel-card">Cancelar</button>
-                    <button class="btn btn-primary" id="save-card">Guardar</button>
+                <div class="card-buttons">
+                    <button class="btn-card yellow" onclick="openCardModal('team2', 'yellow')">🟨</button>
+                    <button class="btn-card blue" onclick="openCardModal('team2', 'blue')">🟦</button>
                 </div>
             </div>
-        </div>
+        </main>
 
-        <div class="match-history-section">
-            <h3 style="margin-top:0; font-size: 1.1rem;"><i class="fas fa-list-ul"></i> Sucesos del Partido</h3>
+        <section class="events-section">
+            <h3>Sucesos del Partido</h3>
             <div id="events-list" class="events-list">
                 </div>
-        </div>
+        </section>
 
-        <div class="action-buttons">
-            <button class="btn btn-success" id="save-match">Guardar Partido</button>
-            <div class="share-group">
-                <button class="btn btn-whatsapp" onclick="shareWhatsApp()">
-                    <i class="fab fa-whatsapp"></i> WhatsApp
-                </button>
-                <button class="btn btn-share-native" onclick="shareNative()">
-                    <i class="fas fa-share-alt"></i> Compartir
-                </button>
+        <footer class="action-footer">
+            <button class="btn-action share" onclick="shareResult()">
+                <i class="fab fa-whatsapp"></i> Compartir
+            </button>
+            <button class="btn-action save" onclick="forceSave()">
+                <i class="fas fa-save"></i> Guardar Historial
+            </button>
+        </footer>
+    </div>
+
+    <div id="card-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="card-modal-title">Registrar Tarjeta</h2>
+            <input type="number" id="card-player-number" placeholder="Dorsal del jugador">
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeModal('card-modal')">Cancelar</button>
+                <button class="btn-confirm" onclick="processCard()">Confirmar</button>
             </div>
-            <button class="btn btn-warning" id="reset-match" style="margin-top:10px; width:100%">Reiniciar Todo</button>
         </div>
     </div>
 
-    <script src="../js/clock.js"></script>
+    <div id="notification" class="notification"></div>
+
     <script src="../js/celebrate.js"></script>
-    <script src="../js/common.js"></script>
     <script src="../js/storage.js"></script>
-    <script src="../js/match-core.js"></script>
-    <script src="../js/modal-manager.js"></script>
     <script src="../js/futbol-sala.js"></script>
-
-    <script>
-        // Funciones de compartir (Adoptadas)
-        function shareWhatsApp() {
-            const t1 = document.getElementById('team1-name').textContent;
-            const s1 = document.getElementById('team1-score').textContent;
-            const t2 = document.getElementById('team2-name').textContent;
-            const s2 = document.getElementById('team2-score').textContent;
-            const loc = document.getElementById('current-location').textContent;
-            
-            const text = `⚽ *Fútbol Sala* ⚽\n━━━━━━━━━━━━\n${t1} *${s1} - ${s2}* ${t2}\n📍 ${loc}\n━━━━━━━━━━━━\nligaescolar.es`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-        }
-
-        async function shareNative() {
-            if (navigator.share) {
-                const t1 = document.getElementById('team1-name').textContent;
-                const s1 = document.getElementById('team1-score').textContent;
-                const t2 = document.getElementById('team2-name').textContent;
-                const s2 = document.getElementById('team2-score').textContent;
-                try {
-                    await navigator.share({
-                        title: 'Resultado de Fútbol Sala',
-                        text: `${t1} ${s1} - ${s2} ${t2}`,
-                        url: window.location.href
-                    });
-                } catch (err) { console.log("Compartir cancelado"); }
-            }
-        }
-    </script>
 </body>
 </html>

@@ -1,842 +1,140 @@
-/* ESTILOS MUY ESPECÍFICOS PARA FÚTBOL SALA */
-
-/* Tema específico */
-   body {
-       background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-       color: #ecf0f1;
-       min-height: 100vh;
-       margin: 0;
-       padding: 10px;
-   }
-body.theme-futbol-sala {
-    background: var(--gradient);
+:root {
+    --primary: #1a2a6c;
+    --accent: #fdbb2d;
+    --local: #e74c3c;
+    --visitor: #3498db;
+    --bg: #121212;
 }
 
-/* Reloj con color específico */
-.clock-container-futbol-sala {
-    background-color: rgba(46, 204, 113, 0.8);
-}
-
-/* Reglas del juego - diseño específico */
-.game-rules-futbol-sala {
-    color: #ffd700;
+body {
+    background-color: var(--bg);
+    color: white;
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 10px;
     display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 10px;
-    font-size: 0.9rem;
+    justify-content: center;
 }
 
-.game-rules-futbol-sala i {
-    color: var(--warning-color);
+.container {
+    width: 100%;
+    max-width: 800px;
 }
 
-/* Información del partido */
-.match-info-futbol-sala {
-    background-color: rgba(255, 255, 255, 0.1);
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 20px;
+.app-header {
     display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: 15px;
-    backdrop-filter: blur(5px);
-}
-
-.match-info-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 120px;
-}
-
-.info-label {
-    font-size: 0.8rem;
-    opacity: 0.8;
-    margin-bottom: 5px;
-}
-
-.info-value {
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: #ffd700;
-}
-
-/* Cronómetro principal */
-.timer-container {
-    background-color: rgba(44, 62, 80, 0.9);
-    border-radius: 20px;
-    padding: 30px;
-    margin: 25px 0;
-    text-align: center;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
-    border: 3px solid rgba(255, 255, 255, 0.1);
+    justify-content: space-between;
+    padding: 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
 }
 
 .main-timer {
     font-size: 5rem;
     font-weight: bold;
-    color: #ffd700;
-    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-    margin-bottom: 15px;
-    font-family: 'Courier New', monospace;
-    letter-spacing: 2px;
-}
-
-.period-info {
-    font-size: 1.5rem;
-    color: white;
-    font-weight: bold;
-    padding: 10px 20px;
-    background-color: rgba(52, 152, 219, 0.8);
-    border-radius: 10px;
-    display: inline-block;
-}
-
-/* Scoreboard específico */
-.scoreboard-futbol-sala {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 30px 0;
-    gap: 30px;
-    position: relative;
-}
-
-.team-futbol-sala {
-    background-color: rgba(44, 62, 80, 0.9);
-    border-radius: 20px;
-    padding: 25px;
     text-align: center;
-    flex: 1;
-    box-shadow: var(--shadow);
-    transition: var(--transition);
-    min-height: 400px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    backdrop-filter: blur(5px);
+    color: var(--accent);
+    font-family: monospace;
+    text-shadow: 0 0 20px rgba(253, 187, 45, 0.4);
 }
 
-.team-futbol-sala:hover {
-    transform: translateY(-5px);
-}
-
-.team-name-futbol-sala {
-    font-size: 1.6rem;
-    margin-bottom: 15px;
-    font-weight: bold;
-    cursor: pointer;
-    padding: 10px;
-    border-radius: 10px;
-    transition: var(--transition);
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
-.team-name-futbol-sala:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-.score-futbol-sala {
-    font-size: 5.5rem;
-    font-weight: bold;
-    margin: 15px 0;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
-    color: #ffd700;
-}
-
-.vs-separator {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: white;
-    background-color: rgba(231, 76, 60, 0.8);
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-/* ===== NUEVOS ESTILOS PARA TARJETAS ===== */
-
-.cards-info {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin: 15px 0;
-    padding: 15px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-}
-
-.cards-section {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 12px;
-    background-color: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-}
-
-.cards-label {
-    font-size: 0.9rem;
-    color: var(--light-color);
-    min-width: 80px;
-}
-
-.cards-value {
-    font-size: 1.3rem;
-    font-weight: bold;
-    margin: 0 10px;
-    min-width: 30px;
-    text-align: center;
-}
-
-/* Botones de tarjetas */
-.btn-yellow {
-    background-color: #f39c12;
-    color: #2c3e50;
-    border: none;
-    width: 30px;
-    height: 30px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-yellow:hover {
-    background-color: #e67e22;
-    transform: scale(1.05);
-}
-
-.btn-blue {
-    background-color: #3498db;
-    color: white;
-    border: none;
-    width: 30px;
-    height: 30px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-blue:hover {
-    background-color: #2980b9;
-    transform: scale(1.05);
-}
-
-.btn-remove-yellow, .btn-remove-blue {
-    background-color: rgba(231, 76, 60, 0.7);
-    color: white;
-    border: none;
-    width: 30px;
-    height: 30px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-remove-yellow:hover, .btn-remove-blue:hover {
-    background-color: #e74c3c;
-    transform: scale(1.05);
-}
-
-/* Botones de ajustes para faltas y timeouts */
-.team-info {
-    margin: 15px 0;
-    padding: 15px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-    display: flex;
-    justify-content: space-between;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.timeouts-info, .fouls-info {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 5px;
-    width: 100%;
-}
-
-.timeouts-label, .fouls-label {
-    font-size: 0.9rem;
-    opacity: 0.8;
-    margin-bottom: 0;
-}
-
-.timeouts-value, .fouls-value {
-    font-size: 1.3rem;
-    font-weight: bold;
-    color: #ffd700;
-    min-width: 25px;
-    text-align: center;
-}
-
-.timeouts-info button, .fouls-info button {
-    width: 30px;
-    height: 30px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 5px;
-    cursor: pointer;
-    border: none;
-    transition: all 0.3s ease;
-}
-
-.btn-timeout {
-    background-color: #9b59b6;
-    color: white;
-}
-
-.btn-timeout:hover {
-    background-color: #8e44ad;
-}
-
-.btn-foul {
-    background-color: #e74c3c;
-    color: white;
-}
-
-.btn-foul:hover {
-    background-color: #c0392b;
-}
-
-.btn-remove-timeout, .btn-remove-foul {
-    background-color: rgba(149, 165, 166, 0.7);
-    color: white;
-}
-
-.btn-remove-timeout:hover, .btn-remove-foul:hover {
-    background-color: #7f8c8d;
-}
-
-/* Historial de expulsiones */
-.expulsions-history {
-    margin-top: 15px;
-    padding: 10px;
-    background-color: rgba(231, 76, 60, 0.1);
-    border-radius: 8px;
-    border-left: 4px solid #e74c3c;
-    max-height: 150px;
-    overflow-y: auto;
-}
-
-.expulsion-item {
-    padding: 5px 10px;
-    margin: 3px 0;
-    background-color: rgba(231, 76, 60, 0.2);
-    border-radius: 5px;
-    font-size: 0.85rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.expulsion-player {
-    font-weight: bold;
-    color: #ffd700;
-    margin-right: 5px;
-}
-
-.expulsion-reason {
-    font-size: 0.8rem;
-    opacity: 0.9;
-    margin-left: 10px;
-    flex: 1;
-    min-width: 120px;
-}
-
-.expulsion-time {
-    font-size: 0.7rem;
-    opacity: 0.8;
-    margin: 0 5px;
-}
-
-.remove-expulsion {
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.7);
-    cursor: pointer;
-    font-size: 0.8rem;
-    padding: 2px 8px;
-    transition: color 0.3s ease;
-}
-
-.remove-expulsion:hover {
-    color: #e74c3c;
-}
-
-/* Controles de goles */
-.score-controls {
-    margin-top: 15px;
-    display: flex;
-    justify-content: center;
+.scoreboard {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 15px;
+    margin-top: 20px;
 }
 
-/* Controles de tiempo */
-.time-controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    margin: 20px 0;
-    flex-wrap: wrap;
-}
-
-/* Botones específicos para fútbol sala */
-.btn-timer-start {
-    background: linear-gradient(135deg, #2ecc71, #27ae60);
-}
-
-.btn-timer-pause {
-    background: linear-gradient(135deg, #f39c12, #d68910);
-}
-
-.btn-timer-reset {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
-}
-
-.btn-next-period {
-    background: linear-gradient(135deg, #3498db, #2980b9);
-}
-
-.btn-finish-time {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad);
-}
-
-.btn-overtime {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad);
-}
-
-.btn-share-current {
-    background: linear-gradient(135deg, #3498db, #2980b9);
-}
-
-.btn-share-history {
-    background: linear-gradient(135deg, #34495e, #2c3e50);
-}
-
-.btn-whatsapp {
-    background: linear-gradient(135deg, #25D366, #128C7E);
-}
-
-/* Botones con iconos */
-.btn-icon {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-width: 90px;
-    height: 90px;
-    padding: 10px;
+.team {
+    padding: 15px;
     border-radius: 12px;
+    text-align: center;
+}
+
+.team-local { background: linear-gradient(135deg, #2c3e50, var(--local)); }
+.team-visitor { background: linear-gradient(135deg, #2c3e50, var(--visitor)); }
+
+.score {
+    font-size: 6rem;
+    font-weight: 800;
+}
+
+.btn-score {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    margin: 5px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px 0;
+    background: rgba(0,0,0,0.3);
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.btn-card {
+    font-size: 1.5rem;
+    padding: 10px 20px;
+    border-radius: 8px;
     border: none;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    color: white;
-    font-size: 0.8rem;
-    text-align: center;
-    gap: 8px;
-    position: relative;
-}
-
-.btn-icon i {
-    font-size: 1.8rem;
-    margin: 0;
-}
-
-/* Efectos hover */
-.btn-icon:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    opacity: 0.95;
-}
-
-.btn-icon:active {
-    transform: translateY(0);
-}
-
-/* Historial de eventos */
-.events-history {
-    background-color: rgba(44, 62, 80, 0.9);
-    border-radius: 15px;
-    padding: 20px;
-    margin: 30px 0;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(5px);
-}
-
-.events-history h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 1.8rem;
-    color: var(--light-color);
 }
 
 .events-list {
     max-height: 200px;
     overflow-y: auto;
+    background: #1e1e1e;
     padding: 10px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
+    border-radius: 8px;
 }
 
 .event-item {
-    padding: 10px 15px;
-    margin-bottom: 8px;
-    background-color: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    border-left: 4px solid #3498db;
+    border-bottom: 1px solid #333;
+    padding: 5px 0;
     font-size: 0.9rem;
-    display: flex;
-    justify-content: space-between;
+}
+
+/* Modales y Notificaciones */
+.modal {
+    display: none;
+    position: fixed;
+    top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.8);
     align-items: center;
-}
-
-.event-time {
-    color: #ffd700;
-    font-weight: bold;
-    font-family: monospace;
-}
-
-.event-description {
-    flex: 1;
-    margin-left: 15px;
-}
-
-/* ===== BOTONES DE CONTROL MEJORADOS ===== */
-
-/* Contenedor principal de controles */
-.match-controls, .export-controls, .time-controls {
-    display: flex;
     justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin: 20px 0;
-    flex-wrap: wrap;
-}
-
-/* Tooltips para los botones */
-.btn-icon::after {
-    content: attr(title);
-    position: absolute;
-    bottom: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 0.75rem;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
     z-index: 1000;
 }
 
-.btn-icon:hover::after {
-    opacity: 1;
-    visibility: visible;
-    bottom: -35px;
-}
-
-/* Contenedor para grupos de botones */
-.control-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 15px 0;
-    width: 100%;
-}
-
-.control-group-label {
-    font-size: 1rem;
-    margin-bottom: 10px;
-    color: white;
-    font-weight: bold;
-    text-align: center;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-    padding: 5px 15px;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    width: fit-content;
-}
-
-/* Separador visual */
-.control-separator {
+.modal-content {
+    background: #2c3e50;
+    padding: 20px;
+    border-radius: 12px;
     width: 90%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    margin: 20px auto;
+    max-width: 400px;
 }
 
-/* Estados del cronómetro */
-.timer-running {
-    color: #2ecc71 !important;
-    text-shadow: 0 0 20px rgba(46, 204, 113, 0.5) !important;
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    display: none;
+    animation: slideIn 0.3s ease;
 }
 
-.timer-paused {
-    color: #f39c12 !important;
-    text-shadow: 0 0 20px rgba(243, 156, 18, 0.5) !important;
+.notification.show { display: block; }
+.warning { background: #f39c12; color: black; }
+.error { background: #c0392b; }
+
+@keyframes slideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
 }
-
-.timer-finished {
-    color: #e74c3c !important;
-    text-shadow: 0 0 20px rgba(231, 76, 60, 0.5) !important;
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-}
-
-/* Botón deshabilitado */
-.btn-icon:disabled, .btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.btn-icon:disabled:hover {
-    transform: none;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Animación para notificaciones de expulsión */
-@keyframes flashRed {
-    0%, 100% { background-color: rgba(231, 76, 60, 0.1); }
-    50% { background-color: rgba(231, 76, 60, 0.3); }
-}
-
-.expulsion-flash {
-    animation: flashRed 1s 3;
-}
-
-/* Responsive para fútbol sala */
-@media (max-width: 768px) {
-    .scoreboard-futbol-sala {
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .vs-separator {
-        position: relative;
-        left: auto;
-        top: auto;
-        transform: none;
-        margin: 10px 0;
-    }
-
-    .score-futbol-sala {
-        font-size: 4.5rem;
-    }
-
-    .main-timer {
-        font-size: 4rem;
-    }
-
-    .team-futbol-sala {
-        min-height: 380px;
-        padding: 20px;
-    }
-
-    .btn-icon {
-        min-width: 80px;
-        height: 80px;
-        font-size: 0.75rem;
-    }
-
-    .btn-icon i {
-        font-size: 1.6rem;
-    }
-
-    .cards-section {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 8px;
-    }
-
-    .cards-label {
-        min-width: 60px;
-        font-size: 0.8rem;
-    }
-
-    .cards-value {
-        font-size: 1.1rem;
-        min-width: 25px;
-    }
-
-    .btn-yellow, .btn-blue, .btn-remove-yellow, .btn-remove-blue,
-    .timeouts-info button, .fouls-info button {
-        width: 25px;
-        height: 25px;
-        font-size: 0.7rem;
-    }
-
-    .expulsion-item {
-        font-size: 0.75rem;
-        flex-wrap: wrap;
-    }
-}
-
-@media (max-width: 480px) {
-    .score-futbol-sala {
-        font-size: 3.5rem;
-    }
-
-    .main-timer {
-        font-size: 3rem;
-    }
-
-    .match-info-futbol-sala {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .match-info-item {
-        min-width: 100%;
-        flex-direction: row;
-        justify-content: space-between;
-        padding: 8px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .info-label, .info-value {
-        font-size: 0.9rem;
-    }
-
-    .btn-icon {
-        min-width: 70px;
-        height: 70px;
-        font-size: 0.7rem;
-    }
-
-    .btn-icon i {
-        font-size: 1.4rem;
-    }
-
-    .control-group-label {
-        font-size: 0.9rem;
-    }
-
-    .cards-info {
-        padding: 10px;
-    }
-
-    .cards-section {
-        padding: 6px 8px;
-    }
-
-    .expulsions-history {
-        max-height: 100px;
-    }
-}
-
-/* Modo landscape para móviles */
-@media (orientation: landscape) and (max-height: 500px) {
-    .app-header { 
-        display: none !important; 
-    }
-
-    .scoreboard-futbol-sala {
-        margin: 10px 0;
-        gap: 15px;
-    }
-
-    .team-futbol-sala {
-        padding: 15px;
-        min-height: 300px;
-    }
-
-    .score-futbol-sala {
-        font-size: 4rem;
-        margin: 10px 0;
-    }
-
-    .main-timer {
-        font-size: 3rem;
-        margin-bottom: 10px;
-    }
-
-    .btn-icon {
-        min-width: 70px;
-        height: 70px;
-        font-size: 0.7rem;
-        padding: 5px;
-    }
-
-    .btn-icon i {
-        font-size: 1.4rem;
-    }
-/* SOLUCIÓN: Quitar marco blanco de las tarjetas */
-.card-yellow, .card-blue, .card-red {
-  border: none !important; 
-  outline: none !important;
-  box-shadow: none !important;
-  -webkit-appearance: none;
-}
-
-.events-list {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 10px;
-  padding: 15px;
-  margin-top: 20px;
-  max-height: 250px;
-  overflow-y: auto;
-  border: 1px solid rgba(255,255,255,0.1);
-}
-
-.event-item {
-  padding: 8px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  font-size: 0.9em;
-  display: flex;
-  justify-content: space-between;
-}
-
-.action-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.btn-whatsapp { background-color: #25D366 !important; color: white !important; }
-.btn-share-alt { background-color: #3498db !important; color: white !important; }
-
-@media (max-width: 600px) {
-  .action-buttons { grid-template-columns: 1fr; }
-}
-
