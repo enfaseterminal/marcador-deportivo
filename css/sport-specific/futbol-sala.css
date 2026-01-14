@@ -746,3 +746,124 @@ footer {
         max-width: none;
     }
 }
+/* BOTONES DE CORRECCIÓN */
+.correction-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.btn-stat {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.3s ease;
+    min-width: 40px;
+}
+
+.btn-stat.add {
+    background: var(--success);
+}
+
+.btn-stat.remove {
+    background: var(--error);
+}
+
+.btn-stat.recover {
+    background: var(--warning);
+    color: #000;
+}
+
+.btn-stat:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: scale(1.05);
+}
+
+.btn-stat:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* BOTONES DE TARJETAS CON CORRECCIÓN */
+.card-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.btn-card {
+    font-size: 1.5rem;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px;
+}
+
+.btn-card.yellow {
+    background: #f1c40f;
+    color: #000;
+    flex: 1;
+}
+
+.btn-card.blue {
+    background: #3498db;
+    color: white;
+    flex: 1;
+}
+
+.btn-card.remove {
+    background: #7f8c8d;
+    color: white;
+    font-size: 1rem;
+    padding: 10px;
+    min-width: 40px;
+    flex: 0.5;
+}
+
+.btn-card:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.btn-card:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* BOTONES EN HISTORIAL */
+.history-actions {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.btn-small {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: opacity 0.2s;
+}
+
+.btn-small:hover {
+    opacity: 0.9;
+}
+
+.btn-small.btn-danger {
+    background: var(--error);
+}
