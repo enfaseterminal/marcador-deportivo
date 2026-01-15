@@ -31,6 +31,36 @@
       "dificultad": "facil"
     },
     {
+      "palabra": "Golf",
+      "pista": "Deporte donde se introduce una pelota en hoyos con el menor número de golpes",
+      "categoria": "deportes",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Rugby",
+      "pista": "Deporte de contacto con balón ovalado",
+      "categoria": "deportes",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Hockey",
+      "pista": "Deporte que se juega con un palo y un disco o bola",
+      "categoria": "deportes",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Esgrima",
+      "pista": "Deporte de combate con espadas",
+      "categoria": "deportes",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Badminton",
+      "pista": "Deporte con raqueta y volante",
+      "categoria": "deportes",
+      "dificultad": "dificil"
+    },
+    {
       "palabra": "Médico",
       "pista": "Persona que cura enfermedades",
       "categoria": "profesiones",
@@ -59,6 +89,18 @@
       "pista": "Persona que prepara comida",
       "categoria": "profesiones",
       "dificultad": "facil"
+    },
+    {
+      "palabra": "Paleontólogo",
+      "pista": "Científico que estudia los fósiles",
+      "categoria": "profesiones",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Ornitólogo",
+      "pista": "Científico que estudia las aves",
+      "categoria": "profesiones",
+      "dificultad": "dificil"
     },
     {
       "palabra": "Perro",
@@ -199,18 +241,6 @@
       "dificultad": "dificil"
     },
     {
-      "palabra": "Paleontólogo",
-      "pista": "Científico que estudia los fósiles",
-      "categoria": "profesiones",
-      "dificultad": "dificil"
-    },
-    {
-      "palabra": "Ornitólogo",
-      "pista": "Científico que estudia las aves",
-      "categoria": "profesiones",
-      "dificultad": "dificil"
-    },
-    {
       "palabra": "Equinoccio",
       "pista": "Momento del año en que el día y la noche tienen la misma duración",
       "categoria": "ciencia",
@@ -221,13 +251,715 @@
       "pista": "Proceso por el cual las plantas convierten la luz solar en energía",
       "categoria": "ciencia",
       "dificultad": "dificil"
+    },
+    {
+      "palabra": "El Padrino",
+      "pista": "Película de mafiosos dirigida por Francis Ford Coppola",
+      "categoria": "peliculas_hollywood",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Titanic",
+      "pista": "Película romántica sobre un barco que se hunde",
+      "categoria": "peliculas_hollywood",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Star Wars",
+      "pista": "Saga de ciencia ficción con sables de luz y la Fuerza",
+      "categoria": "peliculas_hollywood",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "El Señor de los Anillos",
+      "pista": "Trilogía de fantasía con hobbits, elfos y un anillo poderoso",
+      "categoria": "peliculas_hollywood",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Parasite",
+      "pista": "Película surcoreana ganadora del Óscar sobre diferencias sociales",
+      "categoria": "peliculas_hollywood",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Inception",
+      "pista": "Película de Christopher Nolan sobre robar sueños",
+      "categoria": "peliculas_hollywood",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Avatar",
+      "pista": "Película con seres azules en el planeta Pandora",
+      "categoria": "peliculas_hollywood",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Pulp Fiction",
+      "pista": "Película de Quentin Tarantino con estructura no lineal",
+      "categoria": "peliculas_hollywood",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Forrest Gump",
+      "pista": "Película sobre un hombre que vive eventos históricos importantes",
+      "categoria": "peliculas_hollywood",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "The Matrix",
+      "pista": "Película de ciencia ficción sobre realidad simulada",
+      "categoria": "peliculas_hollywood",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Breaking Bad",
+      "pista": "Serie sobre un profesor de química que se convierte en narcotraficante",
+      "categoria": "series_tv",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Juego de Tronos",
+      "pista": "Serie de fantasía medieval con dragones y guerras por el trono",
+      "categoria": "series_tv",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Stranger Things",
+      "pista": "Serie de Netflix sobre niños y dimensiones paralelas en los 80s",
+      "categoria": "series_tv",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "The Office",
+      "pista": "Comedia sobre la vida en una oficina, original británica o versión americana",
+      "categoria": "series_tv",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Chernobyl",
+      "pista": "Miniserie sobre el desastre nuclear de 1986",
+      "categoria": "series_tv",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "The Crown",
+      "pista": "Serie sobre la reina Isabel II de Inglaterra",
+      "categoria": "series_tv",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Los Simpson",
+      "pista": "Familia amarilla de Springfield, serie animada más longeva",
+      "categoria": "animacion",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Bob Esponja",
+      "pista": "Esponja marina que vive en una piña bajo el mar",
+      "categoria": "animacion",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Dragon Ball",
+      "pista": "Anime sobre Goku y las esferas del dragón",
+      "categoria": "animacion",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Rick y Morty",
+      "pista": "Serie animada sobre un científico loco y su nieto",
+      "categoria": "animacion",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Attack on Titan",
+      "pista": "Anime donde la humanidad vive encerrada por gigantes caníbales",
+      "categoria": "animacion",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "One Piece",
+      "pista": "Anime sobre piratas buscando el tesoro del Rey Pirata",
+      "categoria": "animacion",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "España",
+      "pista": "País europeo conocido por el flamenco, paella y sol",
+      "categoria": "paises",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Japón",
+      "pista": "País asiático conocido como la tierra del sol naciente",
+      "categoria": "paises",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Australia",
+      "pista": "País continente conocido por canguros y koalas",
+      "categoria": "paises",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Brasil",
+      "pista": "País sudamericano conocido por el carnaval y el fútbol",
+      "categoria": "paises",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Bután",
+      "pista": "Pequeño reino en el Himalaya que mide la felicidad nacional",
+      "categoria": "paises",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Nepal",
+      "pista": "País con el Monte Everest, la montaña más alta",
+      "categoria": "paises",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Mango",
+      "pista": "Fruta tropical dulce con hueso grande",
+      "categoria": "frutas",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Kiwi",
+      "pista": "Fruta marrón por fuera, verde por dentro, originaria de China",
+      "categoria": "frutas",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Granada",
+      "pista": "Fruta con muchas semillas rojas jugosas",
+      "categoria": "frutas",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Lichi",
+      "pista": "Fruta china con cáscara rugosa rosa y pulpa blanca dulce",
+      "categoria": "frutas",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Rambután",
+      "pista": "Fruta tropical peluda parecida al lichi",
+      "categoria": "frutas",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Piña",
+      "pista": "Fruta tropical con corona de hojas y piel áspera",
+      "categoria": "frutas",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Nueva York",
+      "pista": "Ciudad estadounidense conocida como la Gran Manzana",
+      "categoria": "ciudades",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "París",
+      "pista": "Capital de Francia, ciudad del amor y la torre Eiffel",
+      "categoria": "ciudades",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Tokio",
+      "pista": "Capital de Japón, ciudad superpoblada y tecnológica",
+      "categoria": "ciudades",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Venecia",
+      "pista": "Ciudad italiana construida sobre canales de agua",
+      "categoria": "ciudades",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Petra",
+      "pista": "Ciudad arqueológica en Jordania tallada en piedra rosa",
+      "categoria": "ciudades",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Barcelona",
+      "pista": "Ciudad española con la Sagrada Familia",
+      "categoria": "ciudades",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Torre Eiffel",
+      "pista": "Estructura de hierro en París, símbolo de Francia",
+      "categoria": "monumentos",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Estatua de la Libertad",
+      "pista": "Monumento en Nueva York regalo de Francia",
+      "categoria": "monumentos",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Gran Muralla China",
+      "pista": "Construcción defensiva milenaria en China",
+      "categoria": "monumentos",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Taj Mahal",
+      "pista": "Mausoleo de mármol blanco en India, construido por amor",
+      "categoria": "monumentos",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Machu Picchu",
+      "pista": "Ciudadela inca en los Andes peruanos",
+      "categoria": "monumentos",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Coliseo",
+      "pista": "Anfiteatro romano donde luchaban gladiadores",
+      "categoria": "monumentos",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Albert Einstein",
+      "pista": "Físico alemán conocido por la teoría de la relatividad",
+      "categoria": "personajes_famosos",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Cleopatra",
+      "pista": "Última faraona del antiguo Egipto",
+      "categoria": "personajes_famosos",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Leonardo da Vinci",
+      "pista": "Artista e inventor renacentista pintor de la Mona Lisa",
+      "categoria": "personajes_famosos",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Marie Curie",
+      "pista": "Científica polaca, pionera en el estudio de la radiactividad",
+      "categoria": "personajes_famosos",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Frida Kahlo",
+      "pista": "Artista mexicana conocida por sus autorretratos",
+      "categoria": "personajes_famosos",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Cristiano Ronaldo",
+      "pista": "Futbolista portugués, uno de los mejores del mundo",
+      "categoria": "personajes_famosos",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Pez dorado",
+      "pista": "Mascota acuática común, de color naranja brillante",
+      "categoria": "mascotas",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Hámster",
+      "pista": "Roedor pequeño que corre en una rueda",
+      "categoria": "mascotas",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Conejo",
+      "pista": "Animal de orejas largas que salta y come zanahorias",
+      "categoria": "mascotas",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Iguana",
+      "pista": "Reptil de gran tamaño, mascota exótica",
+      "categoria": "mascotas",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Hurón",
+      "pista": "Mamífero mustélido doméstico, alargado y juguetón",
+      "categoria": "mascotas",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "El laberinto del fauno",
+      "pista": "Película de Guillermo del Toro ambientada en la posguerra española",
+      "categoria": "peliculas_espanolas",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Los otros",
+      "pista": "Película de terror con Nicole Kidman dirigida por Amenábar",
+      "categoria": "peliculas_espanolas",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Abre los ojos",
+      "pista": "Película que inspiró 'Vanilla Sky', dirigida por Alejandro Amenábar",
+      "categoria": "peliculas_espanolas",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Ocho apellidos vascos",
+      "pista": "Comedia romántica española que fue un gran éxito en taquilla",
+      "categoria": "peliculas_espanolas",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Volver",
+      "pista": "Película de Pedro Almodóvar con Penélope Cruz",
+      "categoria": "peliculas_espanolas",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "La isla mínima",
+      "pista": "Thriller policiaco ambientado en las marismas andaluzas",
+      "categoria": "peliculas_espanolas",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Madrid",
+      "pista": "Capital de España, conocida por el Museo del Prado",
+      "categoria": "ciudades_españa",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Barcelona",
+      "pista": "Ciudad catalana con la Sagrada Familia y playas",
+      "categoria": "ciudades_españa",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Sevilla",
+      "pista": "Ciudad andaluza famosa por su catedral y la Giralda",
+      "categoria": "ciudades_españa",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Valencia",
+      "pista": "Ciudad del este, conocida por la Ciudad de las Artes y las Ciencias",
+      "categoria": "ciudades_españa",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Bilbao",
+      "pista": "Ciudad vasca con el Museo Guggenheim",
+      "categoria": "ciudades_españa",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Granada",
+      "pista": "Ciudad andaluza con la Alhambra",
+      "categoria": "ciudades_españa",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Salamanca",
+      "pista": "Ciudad universitaria con una famosa plaza mayor",
+      "categoria": "ciudades_españa",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Córdoba",
+      "pista": "Ciudad andaluza con la Mezquita-Catedral",
+      "categoria": "ciudades_españa",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Paella",
+      "pista": "Plato de arroz con mariscos y/o carne, originario de Valencia",
+      "categoria": "platos_comida",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Gazpacho",
+      "pista": "Sopa fría de tomate, típica de Andalucía",
+      "categoria": "platos_comida",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Tortilla de patatas",
+      "pista": "Tortilla española con huevo y patata",
+      "categoria": "platos_comida",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Fabada asturiana",
+      "pista": "Guiso de alubias blancas con chorizo, morcilla y tocino",
+      "categoria": "platos_comida",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Cocido madrileño",
+      "pista": "Guiso de garbanzos, carne y verduras, típico de Madrid",
+      "categoria": "platos_comida",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Pulpo a la gallega",
+      "pista": "Plato de pulpo con patata, pimentón y aceite de oliva",
+      "categoria": "platos_comida",
+      "dificultad": "medio"
+    },
+    {
+      "palabra": "Salmorejo",
+      "pista": "Crema fría de tomate más espesa que el gazpacho, típica de Córdoba",
+      "categoria": "platos_comida",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Marmitako",
+      "pista": "Guiso de bonito con patatas, típico del País Vasco",
+      "categoria": "platos_comida",
+      "dificultad": "dificil"
+    },
+    {
+      "palabra": "Hamburguesa",
+      "pista": "Comida rápida con carne y pan",
+      "categoria": "platos_comida",
+      "dificultad": "facil"
+    },
+    {
+      "palabra": "Pizza",
+      "pista": "Comida italiana con masa y queso",
+      "categoria": "platos_comida",
+      "dificultad": "facil"
     }
+{
+  "palabra": "Camiseta",
+  "pista": "Prenda de ropa con mangas cortas que se pone en la parte superior del cuerpo",
+  "categoria": "ropa",
+  "dificultad": "facil"
+},
+{
+  "palabra": "Pantalón",
+  "pista": "Prenda que cubre desde la cintura hasta los pies, con dos piernas separadas",
+  "categoria": "ropa",
+  "dificultad": "facil"
+},
+{
+  "palabra": "Vestido",
+  "pista": "Prenda femenina que cubre el cuerpo de una pieza, desde los hombros",
+  "categoria": "ropa",
+  "dificultad": "facil"
+},
+{
+  "palabra": "Abrigo",
+  "pista": "Prenda de invierno que se usa encima de otras ropas para abrigar",
+  "categoria": "ropa",
+  "dificultad": "medio"
+},
+{
+  "palabra": "Bata",
+  "pista": "Prenda cómoda que se usa en casa, similar a un vestido suelto",
+  "categoria": "ropa",
+  "dificultad": "medio"
+},
+{
+  "palabra": "Chaleco",
+  "pista": "Prenda sin mangas que se lleva sobre una camisa o blusa",
+  "categoria": "ropa",
+  "dificultad": "medio"
+},
+{
+  "palabra": "Quimono",
+  "pista": "Prenda tradicional japonesa con mangas anchas y cruzada al frente",
+  "categoria": "ropa",
+  "dificultad": "dificil"
+},
+{
+  "palabra": "Bombacha",
+  "pista": "Prenda femenina interior amplia, tradicional en algunos países",
+  "categoria": "ropa",
+  "dificultad": "dificil"
+},
+{
+  "palabra": "Túnica",
+  "pista": "Prenda larga y suelta que se usaba en la antigüedad",
+  "categoria": "ropa",
+  "dificultad": "dificil"
+},
+{
+  "palabra": "Amazonas",
+  "pista": "Río más largo y caudaloso del mundo, en América del Sur",
+  "categoria": "rios",
+  "dificultad": "facil"
+},
+{
+  "palabra": "Nilo",
+  "pista": "Río más largo de África, histórico por las civilizaciones que surgieron a sus orillas",
+  "categoria": "rios",
+  "dificultad": "facil"
+},
+{
+  "palabra": "Ebro",
+  "pista": "Río más caudaloso de España, desemboca en el Mediterráneo",
+  "categoria": "rios",
+  "dificultad": "facil"
+},
+{
+  "palabra": "Misisipi",
+  "pista": "Río principal de Estados Unidos, famoso en la literatura de Mark Twain",
+  "categoria": "rios",
+  "dificultad": "medio"
+},
+{
+  "palabra": "Danubio",
+  "pista": "Río europeo que atraviesa 10 países, conocido por valses clásicos",
+  "categoria": "rios",
+  "dificultad": "medio"
+},
+{
+  "palabra": "Ganges",
+  "pista": "Río sagrado de la India, importante en el hinduismo",
+  "categoria": "rios",
+  "dificultad": "medio"
+},
+{
+  "palabra": "Yangtsé",
+  "pista": "Río más largo de Asia, en China, con la presa de las Tres Gargantas",
+  "categoria": "rios",
+  "dificultad": "dificil"
+},
+{
+  "palabra": "Volga",
+  "pista": "Río más largo de Europa, fluye a través de Rusia",
+  "categoria": "rios",
+  "dificultad": "dificil"
+},
+{
+  "palabra": "Mackenzie",
+  "pista": "Río más largo de Canadá, en el territorio del Noroeste",
+  "categoria": "rios",
+  "dificultad": "dificil"
+},
+{
+  "palabra": "Don Quijote de la Mancha",
+  "pista": "Novela española de Miguel de Cervantes sobre un caballero andante",
+  "categoria": "titulos_libros",
+  "dificultad": "facil"
+},
+{
+  "palabra": "Cien años de soledad",
+  "pista": "Novela de Gabriel García Márquez sobre la familia Buendía en Macondo",
+  "categoria": "titulos_libros",
+  "dificultad": "facil"
+},
+{
+  "palabra": "Harry Potter",
+  "pista": "Serie de libros sobre un joven mago y sus amigos en Hogwarts",
+  "categoria": "titulos_libros",
+  "dificultad": "facil"
+},
+{
+  "palabra": "El nombre del viento",
+  "pista": "Primer libro de la trilogía Crónica del asesino de reyes, de Patrick Rothfuss",
+  "categoria": "titulos_libros",
+  "dificultad": "medio"
+},
+{
+  "palabra": "La sombra del viento",
+  "pista": "Novela de Carlos Ruiz Zafón ambientada en la Barcelona de posguerra",
+  "categoria": "titulos_libros",
+  "dificultad": "medio"
+},
+{
+  "palabra": "El guardián entre el centeno",
+  "pista": "Novela de J.D. Salinger sobre Holden Caulfield",
+  "categoria": "titulos_libros",
+  "dificultad": "medio"
+},
+{
+  "palabra": "Rayuela",
+  "pista": "Novela experimental de Julio Cortázar que se puede leer en diferente orden",
+  "categoria": "titulos_libros",
+  "dificultad": "dificil"
+},
+{
+  "palabra": "En busca del tiempo perdido",
+  "pista": "Obra monumental de Marcel Proust en siete volúmenes",
+  "categoria": "titulos_libros",
+  "dificultad": "dificil"
+},
+{
+  "palabra": "Ulises",
+  "pista": "Novela de James Joyce que relata un día en la vida de Leopold Bloom",
+  "categoria": "titulos_libros",
+  "dificultad": "dificil"
+},
+{
+  "palabra": "Penélope Cruz",
+  "pista": "Actriz española ganadora de un Oscar, casada con Javier Bardem",
+  "categoria": "actores_famosos",
+  "dificultad": "facil"
+},
+{
+  "palabra": "Javier Bardem",
+  "pista": "Actor español ganador de un Oscar, conocido por sus papeles intensos",
+  "categoria": "actores_famosos",
+  "dificultad": "facil"
+},
+{
+  "palabra": "Leonardo DiCaprio",
+  "pista": "Actor estadounidense ganador de Oscar por 'El renacido'",
+  "categoria": "actores_famosos",
+  "dificultad": "facil"
+},
+{
+  "palabra": "Meryl Streep",
+  "pista": "Actriz estadounidense con más nominaciones al Oscar en la historia",
+  "categoria": "actores_famosos",
+  "dificultad": "medio"
+},
+{
+  "palabra": "Antonio Banderas",
+  "pista": "Actor español conocido por 'La máscara del Zorro' y 'Desperado'",
+  "categoria": "actores_famosos",
+  "dificultad": "medio"
+},
+{
+  "palabra": "Carmen Maura",
+  "pista": "Actriz española, colaboradora frecuente de Pedro Almodóvar",
+  "categoria": "actores_famosos",
+  "dificultad": "medio"
+},
+{
+  "palabra": "Fernando Fernán Gómez",
+  "pista": "Actor, director y escritor español, figura clave del cine español",
+  "categoria": "actores_famosos",
+  "dificultad": "dificil"
+},
+{
+  "palabra": "Tilda Swinton",
+  "pista": "Actriz británica conocida por sus papeles andróginos y vanguardistas",
+  "categoria": "actores_famosos",
+  "dificultad": "dificil"
+},
+{
+  "palabra": "Joaquín Phoenix",
+  "pista": "Actor estadounidense ganador del Oscar por 'Joker'",
+  "categoria": "actores_famosos",
+  "dificultad": "dificil"
+}
   ],
   "configuracion": {
     "tiempo_votacion": 30,
     "max_jugadores": 12,
     "min_jugadores": 3,
     "max_impostores": 3,
-    "dificultades_disponibles": ["facil", "dificil", "mixto"]
+    "dificultades_disponibles": ["facil", "medio", "dificil"]
   }
 }

@@ -1,0 +1,568 @@
+/* impostor-game.css - Estilos específicos para el juego del impostor */
+
+/* Gestión de pantallas */
+.game-screen {
+    display: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease;
+}
+
+.game-screen.active {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Contenedor principal - YA NO ES NECESARIO (usamos .container)
+.game-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+}
+*/
+
+/* Pantalla de asignación de roles */
+.role-screen {
+    text-align: center;
+    padding: 20px;
+}
+
+.role-card {
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 20px;
+    padding: 40px 30px;
+    margin: 30px auto;
+    max-width: 600px;
+    border: 3px solid transparent;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.role-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--innocent-color), var(--impostor-color));
+}
+
+.role-icon {
+    font-size: 5rem;
+    margin-bottom: 20px;
+    transition: transform 0.5s;
+}
+
+.role-icon.innocent {
+    color: var(--innocent-color);
+}
+
+.role-icon.impostor {
+    color: var(--impostor-color);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.role-title {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.role-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin-bottom: 40px;
+}
+
+.secret-container {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    padding: 25px;
+    margin: 25px 0;
+    border: 2px dashed rgba(255,255,255,0.2);
+}
+
+.secret-label {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    color: #aaa;
+}
+
+.secret-value {
+    font-size: 2.2rem;
+    font-weight: bold;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 15px 0;
+    transition: all 0.3s;
+}
+
+.word-secret {
+    background: rgba(76, 175, 80, 0.15);
+    border: 2px solid var(--innocent-color);
+    color: var(--innocent-color);
+}
+
+.hint-secret {
+    background: rgba(255, 64, 129, 0.15);
+    border: 2px solid var(--impostor-color);
+    color: var(--impostor-color);
+}
+
+.hidden-secret {
+    filter: blur(15px);
+    user-select: none;
+    cursor: pointer;
+    position: relative;
+}
+
+.hidden-secret::after {
+    content: "TOCA PARA REVELAR";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.2rem;
+    color: white;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    font-weight: bold;
+    opacity: 0.7;
+}
+
+.player-progress {
+    margin: 40px 0 30px;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.progress-bar {
+    height: 12px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    transition: width 0.5s ease;
+}
+
+.role-instructions {
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 30px 0;
+    border-left: 4px solid var(--info-color);
+}
+
+/* Pantalla de juego */
+.game-screen-content {
+    padding: 20px;
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+}
+
+.timer-display {
+    font-size: 3.5rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 20px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 15px;
+    margin: 20px 0;
+    border: 3px solid var(--timer-color);
+    box-shadow: 0 5px 15px rgba(255,87,34,0.3);
+}
+
+.timer-warning {
+    animation: pulseTimer 1s infinite;
+}
+
+@keyframes pulseTimer {
+    0% { border-color: var(--timer-color); }
+    50% { border-color: #ff8a65; }
+    100% { border-color: var(--timer-color); }
+}
+
+.game-stats {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 25px 0;
+}
+
+.stat-card {
+    background: rgba(255,255,255,0.08);
+    padding: 15px 25px;
+    border-radius: 10px;
+    text-align: center;
+    min-width: 150px;
+    border: 2px solid transparent;
+}
+
+.stat-card.players {
+    border-color: var(--info-color);
+}
+
+.stat-card.impostors {
+    border-color: var(--impostor-color);
+}
+
+.game-instructions {
+    background: rgba(33, 150, 243, 0.1);
+    border-radius: 15px;
+    padding: 25px;
+    margin: 30px 0;
+    border: 2px solid var(--info-color);
+}
+
+.instructions-list {
+    list-style: none;
+    padding: 0;
+}
+
+.instructions-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.05);
+}
+
+.instructions-list i {
+    margin-top: 3px;
+    color: var(--info-color);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+/* Pantalla de votación */
+.voting-screen-content {
+    padding: 20px;
+}
+
+.voting-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.voting-timer {
+    font-size: 4rem;
+    font-weight: bold;
+    color: var(--timer-color);
+    margin: 20px 0;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.players-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.player-vote-card {
+    background: rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.player-vote-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255,255,255,0.12);
+}
+
+.player-vote-card.selected {
+    border-color: var(--primary-color);
+    background: rgba(156, 39, 176, 0.2);
+    box-shadow: 0 5px 20px rgba(156, 39, 176, 0.3);
+}
+
+.player-vote-card.eliminated {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: rgba(244, 67, 54, 0.1);
+}
+
+.player-vote-card.eliminated::after {
+    content: '✗';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    color: rgba(244, 67, 54, 0.5);
+    font-weight: bold;
+}
+
+.vote-count-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--primary-color);
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.vote-instructions {
+    background: rgba(255, 152, 0, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    border: 2px solid var(--warning-color);
+}
+
+/* Pantalla de resultados */
+.results-screen-content {
+    padding: 20px;
+}
+
+.result-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.result-banner {
+    font-size: 3rem;
+    font-weight: bold;
+    padding: 30px;
+    border-radius: 20px;
+    margin: 30px 0;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.result-banner.impostor-win {
+    background: linear-gradient(135deg, rgba(255,64,129,0.2), rgba(156,39,176,0.2));
+    border: 3px solid var(--impostor-color);
+    color: var(--impostor-color);
+}
+
+.result-banner.innocent-win {
+    background: linear-gradient(135deg, rgba(76,175,80,0.2), rgba(139,195,74,0.2));
+    border: 3px solid var(--innocent-color);
+    color: var(--innocent-color);
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin: 40px 0;
+}
+
+.result-card {
+    background: rgba(0,0,0,0.3);
+    border-radius: 15px;
+    padding: 25px;
+}
+
+.result-details {
+    margin: 25px 0;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.players-results {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.player-result {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    border-left: 4px solid transparent;
+}
+
+.player-result.innocent {
+    border-left-color: var(--innocent-color);
+}
+
+.player-result.impostor {
+    border-left-color: var(--impostor-color);
+}
+
+.vote-result {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.vote-correct {
+    background: rgba(76,175,80,0.2);
+    color: var(--innocent-color);
+}
+
+.vote-incorrect {
+    background: rgba(244,67,54,0.2);
+    color: #f44336;
+}
+
+.results-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .role-card {
+        padding: 25px 15px;
+        margin: 15px auto;
+    }
+    
+    .role-icon {
+        font-size: 4rem;
+    }
+    
+    .role-title {
+        font-size: 2rem;
+    }
+    
+    .secret-value {
+        font-size: 1.8rem;
+        min-height: 70px;
+        padding: 15px;
+    }
+    
+    .timer-display {
+        font-size: 2.5rem;
+        padding: 15px;
+    }
+    
+    .players-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 15px;
+    }
+    
+    .action-buttons, .results-actions {
+        flex-direction: column;
+    }
+    
+    .action-buttons button, .results-actions button {
+        width: 100%;
+    }
+}
+
+/* Animaciones */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.game-screen.active {
+    animation: slideIn 0.5s ease;
+}
+
+/* Efectos de sonido visuales */
+.sound-indicator {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(0,0,0,0.5);
+    padding: 10px 15px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+}
+
+/* Overlay de carga */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255,255,255,0.1);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

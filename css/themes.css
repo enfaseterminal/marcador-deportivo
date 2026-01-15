@@ -65,6 +65,13 @@
     --gradient: linear-gradient(135deg, #1e8449, #27ae60, #f39c12);
     --accent-color: #f39c12;
 }
+/* ===== TEMA IMPOSTOR ===== */
+.theme-impostor {
+    --primary-color: #9c27b0;
+    --secondary-color: #673ab7;
+    --accent-color: #ff4081;
+    --gradient: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+}
 
 /* Aplicar el gradiente al body según el tema */
 body.theme-voleibol { background: var(--gradient); }
