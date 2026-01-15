@@ -1,30 +1,33 @@
 /**
- * /js/futbol-sala.js - VERSIÓN CORREGIDA
+ * /js/futbol-sala.js - VERSIÓN FINAL CORREGIDA
  * Marcador Profesional con todas las correcciones
  */
 
-// 1. ESTADO INICIAL
+// 1. ESTADO INICIAL CON NORMATIVA AMF/FIFUSA
 const INITIAL_STATE = {
     team1: { 
         name: "EQUIPO LOCAL", 
         score: 0, 
         fouls: 0, 
-        timeouts: 1, 
-        yellowCards: {},
-        blueCards: {},
-        timeoutsUsed: 0
+        timeouts: 1,
+        timeoutsUsed: 0,
+        // Sistema AMF/FIFUSA
+        yellowCards: {},    // { dorsal: cantidad }
+        blueCards: {},      // { dorsal: cantidad }
+        redCards: {}        // { dorsal: true/false }
     },
     team2: { 
         name: "EQUIPO VISITANTE", 
         score: 0, 
         fouls: 0, 
-        timeouts: 1, 
+        timeouts: 1,
+        timeoutsUsed: 0,
         yellowCards: {},
         blueCards: {},
-        timeoutsUsed: 0
+        redCards: {}
     },
-    currentPeriod: 1,
-    timeRemaining: 20 * 60,
+    currentPeriod: 1,       // 1: T1, 2: T2, 3: P1, 4: P2, 5: FINAL
+    timeRemaining: 20 * 60, // 20 minutos en segundos
     isRunning: false,
     location: "No especificada",
     events: [],
@@ -40,7 +43,28 @@ let timerInterval = null;
 let pendingCard = null;
 let timeoutTimer = null;
 
-// 3. FUNCIONES DE RENDERIZADO
+// 3. INICIALIZACIÓN
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Fútbol Sala - Inicializando...');
+    
+    // Inicializar arrays si no existen
+    if (!window.currentMatch.team1.redCards) window.currentMatch.team1.redCards = {};
+    if (!window.currentMatch.team2.redCards) window.currentMatch.team2.redCards = {};
+    
+    // Renderizar todo
+    renderAll();
+    renderMatchHistory();
+    
+    // Iniciar timer si estaba corriendo
+    if (window.currentMatch.isRunning && !window.currentMatch.isTimeoutActive) {
+        startTimer();
+    }
+    
+    // Inicializar botones de PWA
+    initPWAButton();
+});
+
+// 4. FUNCIONES DE RENDERIZADO
 function renderAll() {
     const m = window.currentMatch;
     
@@ -72,8 +96,10 @@ function renderAll() {
     if (m.isTimeoutActive) {
         icon.className = 'fas fa-clock';
         startBtn.disabled = true;
+        startBtn.title = 'Tiempo muerto activo';
     } else {
         startBtn.disabled = false;
+        startBtn.title = m.isRunning ? 'Pausar' : 'Iniciar';
         icon.className = m.isRunning ? 'fas fa-pause' : 'fas fa-play';
     }
     
@@ -86,6 +112,11 @@ function renderPeriodText() {
     const periodEl = document.getElementById('period-text');
     if (periodEl) {
         periodEl.textContent = periods[window.currentMatch.currentPeriod] || "FINAL";
+        
+        if (window.currentMatch.currentPeriod >= 3) {
+            periodEl.style.color = '#ff9900';
+            periodEl.style.fontWeight = 'bold';
+        }
     }
 }
 
@@ -97,10 +128,19 @@ function updateTimerDisplay() {
     
     if (timerEl) {
         timerEl.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        
+        // Cambiar color si queda poco tiempo
+        if (m.timeRemaining <= 300 && m.currentPeriod <= 2) {
+            timerEl.style.color = m.timeRemaining <= 60 ? '#e74c3c' : '#f39c12';
+        } else if (m.timeRemaining <= 60 && m.currentPeriod >= 3) {
+            timerEl.style.color = '#e74c3c';
+        } else {
+            timerEl.style.color = '#fdbb2d';
+        }
     }
 }
 
-// 4. LÓGICA DEL CRONÓMETRO
+// 5. LÓGICA DEL CRONÓMETRO - CORREGIDA PARA FINALIZACIÓN
 function toggleTimer() {
     const m = window.currentMatch;
     
@@ -128,13 +168,18 @@ function startTimer() {
             m.timeRemaining--;
             updateTimerDisplay();
             
+            // Guardar cada 30 segundos
             if (m.timeRemaining % 30 === 0) {
                 saveState();
             }
         } else {
+            // TIEMPO AGOTADO - LLEGAR A CERO
             clearInterval(timerInterval);
             m.timeRemaining = 0;
+            m.isRunning = false;
             updateTimerDisplay();
+            
+            // FINALIZAR PERIODO INMEDIATAMENTE
             handlePeriodEnd();
         }
     }, 1000);
@@ -148,47 +193,88 @@ function pauseTimer() {
 function handlePeriodEnd() {
     const m = window.currentMatch;
     
+    // Asegurar que el tiempo está en 0
     m.timeRemaining = 0;
     m.isRunning = false;
-    updateTimerDisplay();
     
-    // Verificar si hay ganador
-    const scoreDiff = Math.abs(m.team1.score - m.team2.score);
-    
-    if (scoreDiff > 0 && m.currentPeriod >= 2) {
-        // Hay ganador - FINALIZAR
-        setTimeout(() => {
-            finishMatch();
-        }, 1000);
-    } else if (m.currentPeriod < 2) {
-        // Pasar al siguiente periodo
+    // Verificar qué periodo es
+    if (m.currentPeriod < 2) {
+        // Primer tiempo terminado
         m.currentPeriod++;
+        showNotification(`¡Fin del primer tiempo!`, 'info');
+        
+        // Resetear tiempo para segundo tiempo
         m.timeRemaining = 20 * 60;
         
         saveState();
         renderAll();
         
+        // Preguntar si continuar
         setTimeout(() => {
-            if (confirm(`¿Preparado para el ${m.currentPeriod === 2 ? 'segundo tiempo' : 'prórroga'}?`)) {
+            if (confirm('¿Preparado para el segundo tiempo?')) {
                 m.isRunning = true;
                 startTimer();
                 renderAll();
             }
         }, 1000);
-    } else if (m.currentPeriod === 2 && scoreDiff === 0) {
-        // Empate - preguntar por prórroga
-        setTimeout(() => {
-            if (confirm('¡Empate! ¿Deseas comenzar la prórroga?')) {
-                m.currentPeriod = 3;
+        
+    } else if (m.currentPeriod === 2) {
+        // SEGUNDO TIEMPO TERMINADO - VERIFICAR GANADOR
+        const scoreDiff = m.team1.score - m.team2.score;
+        
+        if (scoreDiff !== 0) {
+            // HAY GANADOR - FINALIZAR PARTIDO INMEDIATAMENTE
+            setTimeout(() => {
+                finishMatch();
+            }, 1000);
+        } else {
+            // EMPATE - PREGUNTAR PRÓRROGA
+            setTimeout(() => {
+                if (confirm('¡Empate! ¿Deseas comenzar la prórroga?')) {
+                    m.currentPeriod = 3;
+                    m.timeRemaining = 5 * 60;
+                    m.isRunning = true;
+                    saveState();
+                    renderAll();
+                    startTimer();
+                    showNotification('¡Comienza la prórroga!', 'info');
+                } else {
+                    finishMatch();
+                }
+            }, 1500);
+        }
+    } else if (m.currentPeriod < 5) {
+        // PRÓRROGA - VERIFICAR GOL DE ORO
+        const scoreDiff = m.team1.score - m.team2.score;
+        
+        if (scoreDiff !== 0) {
+            // GOL EN PRÓRROGA - FINALIZAR INMEDIATAMENTE
+            setTimeout(() => {
+                finishMatch();
+            }, 1000);
+        } else {
+            // Continuar prórroga
+            m.currentPeriod++;
+            
+            if (m.currentPeriod === 5) {
+                // SEGUNDA PRÓRROGA TERMINADA - FINALIZAR
+                setTimeout(() => {
+                    finishMatch();
+                }, 1000);
+            } else {
+                // Segunda parte de la prórroga
                 m.timeRemaining = 5 * 60;
-                m.isRunning = true;
+                showNotification('Segunda parte de la prórroga', 'info');
                 saveState();
                 renderAll();
-                startTimer();
-            } else {
-                finishMatch();
+                
+                setTimeout(() => {
+                    m.isRunning = true;
+                    startTimer();
+                    renderAll();
+                }, 2000);
             }
-        }, 1500);
+        }
     }
 }
 
@@ -211,21 +297,24 @@ function nextPeriod() {
     }
 }
 
-// 5. SISTEMA DE GOLES (FUNCIONES EXPORTADAS)
+// 6. SISTEMA DE GOLES (CORREGIDO)
 function addGoal(team) {
-    const m = window.currentMatch;
-    const teamObj = m[team];
-    
-    teamObj.score++;
+    window.currentMatch[team].score++;
     
     // Registrar evento
-    logEvent("GOL", `⚽ Gol de ${teamObj.name}`, team);
+    logEvent("GOL", `⚽ Gol de ${window.currentMatch[team].name}`, team);
     
-    // Efecto visual
-    const scoreEl = document.getElementById(`${team}-score`);
-    if (scoreEl) {
-        scoreEl.style.transform = 'scale(1.2)';
-        setTimeout(() => scoreEl.style.transform = 'scale(1)', 300);
+    // Verificar si es gol de oro en prórroga
+    const m = window.currentMatch;
+    if (m.currentPeriod >= 3 && m.currentPeriod <= 4) {
+        // Estamos en prórroga
+        const otherTeam = team === 'team1' ? 'team2' : 'team1';
+        if (m[team].score > m[otherTeam].score) {
+            // Gol de oro - finalizar inmediatamente
+            setTimeout(() => {
+                finishMatch();
+            }, 1000);
+        }
     }
     
     saveState();
@@ -233,32 +322,28 @@ function addGoal(team) {
 }
 
 function changeScore(team, val) {
-    const m = window.currentMatch;
-    const teamObj = m[team];
-    
-    teamObj.score = Math.max(0, teamObj.score + val);
+    window.currentMatch[team].score = Math.max(0, window.currentMatch[team].score + val);
     
     if (val > 0) {
-        logEvent("GOL", `⚽ Gol de ${teamObj.name}`, team);
+        logEvent("GOL", `⚽ Gol de ${window.currentMatch[team].name}`, team);
     } else {
-        logEvent("GOL_ANULADO", `❌ Gol anulado de ${teamObj.name}`, team);
+        logEvent("GOL_ANULADO", `❌ Gol anulado de ${window.currentMatch[team].name}`, team);
     }
     
     saveState();
     renderAll();
 }
 
-// 6. SISTEMA DE FALTAS
+// 7. SISTEMA DE FALTAS (SIMPLIFICADO)
 function addFoul(team) {
-    const m = window.currentMatch;
-    const teamObj = m[team];
+    window.currentMatch[team].fouls++;
     
-    teamObj.fouls++;
+    // Registrar evento
+    logEvent("FALTA", `⚠️ Falta de ${window.currentMatch[team].name} (Total: ${window.currentMatch[team].fouls})`, team);
     
-    logEvent("FALTA", `⚠️ Falta de ${teamObj.name} (Total: ${teamObj.fouls})`, team);
-    
-    if (teamObj.fouls === 6) {
-        showNotification(`¡${teamObj.name} tiene 6 faltas! Penalty doble en la siguiente.`, 'warning');
+    // Notificación especial en la 6ta falta
+    if (window.currentMatch[team].fouls === 6) {
+        showNotification(`¡${window.currentMatch[team].name} tiene 6 faltas! Penalty doble en la siguiente.`, 'warning');
     }
     
     saveState();
@@ -266,22 +351,18 @@ function addFoul(team) {
 }
 
 function removeFoul(team) {
-    const m = window.currentMatch;
-    const teamObj = m[team];
-    
-    if (teamObj.fouls > 0) {
-        teamObj.fouls--;
-        
-        logEvent("FALTA_CORREGIDA", `Falta eliminada de ${teamObj.name}`, team);
+    if (window.currentMatch[team].fouls > 0) {
+        window.currentMatch[team].fouls--;
+        logEvent("FALTA_CORREGIDA", `Falta eliminada de ${window.currentMatch[team].name}`, team);
         saveState();
         renderAll();
-        showNotification(`Falta eliminada de ${teamObj.name}`, 'info');
+        showNotification(`Falta eliminada de ${window.currentMatch[team].name}`, 'info');
     } else {
-        showNotification(`${teamObj.name} no tiene faltas para eliminar`, 'warning');
+        showNotification(`${window.currentMatch[team].name} no tiene faltas para eliminar`, 'warning');
     }
 }
 
-// 7. TIEMPOS MUERTOS
+// 8. TIEMPOS MUERTOS (SIMPLIFICADO)
 function useTimeout(team) {
     const m = window.currentMatch;
     const teamObj = m[team];
@@ -300,6 +381,7 @@ function useTimeout(team) {
         
         // Reducir tiempos muertos disponibles
         teamObj.timeouts--;
+        teamObj.timeoutsUsed = (teamObj.timeoutsUsed || 0) + 1;
         
         // Registrar evento
         logEvent("TIME_OUT", `Tiempo muerto: ${teamObj.name}`, team);
@@ -346,22 +428,6 @@ function useTimeout(team) {
     }
 }
 
-function recoverTimeout(team) {
-    const m = window.currentMatch;
-    const teamObj = m[team];
-    
-    if (teamObj.timeouts < 1) {
-        teamObj.timeouts++;
-        
-        logEvent("TIMEOUT_RECUPERADO", `Tiempo muerto recuperado: ${teamObj.name}`, team);
-        saveState();
-        renderAll();
-        showNotification(`Tiempo muerto recuperado para ${teamObj.name}`, 'success');
-    } else {
-        showNotification(`${teamObj.name} ya tiene todos sus tiempos muertos`, 'warning');
-    }
-}
-
 function endTimeout() {
     const m = window.currentMatch;
     
@@ -386,7 +452,7 @@ function endTimeout() {
     renderAll();
 }
 
-// 8. SISTEMA DE TARJETAS
+// 9. SISTEMA DE TARJETAS AMF/FIFUSA (CORREGIDO)
 function openCardModal(team, type) {
     pendingCard = { team, type };
     
@@ -396,9 +462,13 @@ function openCardModal(team, type) {
     
     if (modal && title && input) {
         const teamName = window.currentMatch[team].name;
-        const cardName = type === 'yellow' ? 'AMARILLA' : 'AZUL';
+        const cardNames = {
+            'yellow': 'AMARILLA',
+            'blue': 'AZUL (Expulsión Temporal)',
+            'red': 'ROJA (Expulsión Definitiva)'
+        };
         
-        title.textContent = `Tarjeta ${cardName} - ${teamName}`;
+        title.textContent = `Tarjeta ${cardNames[type]} - ${teamName}`;
         input.value = '';
         input.focus();
         modal.style.display = 'flex';
@@ -420,21 +490,71 @@ function processCard() {
     const m = window.currentMatch;
     const teamObj = m[team];
     
-    if (type === 'yellow') {
-        teamObj.yellowCards[playerNum] = (teamObj.yellowCards[playerNum] || 0) + 1;
-        
-        if (teamObj.yellowCards[playerNum] === 2) {
-            logEvent("EXPULSIÓN", `🟨🟨 2ª Amarilla -> 🟦 Azul para dorsal ${playerNum}`, team);
-            showNotification(`¡Dorsal ${playerNum} expulsado por doble amarilla!`, 'error');
-            teamObj.yellowCards[playerNum] = 0;
-        } else {
-            logEvent("TARJETA", `🟨 Amarilla para dorsal ${playerNum}`, team);
-            showNotification(`🟨 Tarjeta amarilla para dorsal ${playerNum}`, 'warning');
-        }
-    } else {
-        teamObj.blueCards[playerNum] = (teamObj.blueCards[playerNum] || 0) + 1;
-        logEvent("EXPULSIÓN", `🟦 Tarjeta azul para dorsal ${playerNum}`, team);
-        showNotification(`🟦 Tarjeta azul (expulsión) para dorsal ${playerNum}`, 'error');
+    // Asegurar que los objetos existen
+    if (!teamObj.yellowCards) teamObj.yellowCards = {};
+    if (!teamObj.blueCards) teamObj.blueCards = {};
+    if (!teamObj.redCards) teamObj.redCards = {};
+    
+    // NORMATIVA AMF/FIFUSA:
+    switch(type) {
+        case 'yellow':
+            // Amarilla simple
+            teamObj.yellowCards[playerNum] = (teamObj.yellowCards[playerNum] || 0) + 1;
+            
+            // Verificar si es la segunda amarilla -> Azul
+            if (teamObj.yellowCards[playerNum] >= 2) {
+                // 2 Amarillas = 1 Azul
+                teamObj.yellowCards[playerNum] = 0;
+                teamObj.blueCards[playerNum] = (teamObj.blueCards[playerNum] || 0) + 1;
+                
+                logEvent("EXPULSIÓN", `🟨🟨 2ª Amarilla -> 🟦 Azul para dorsal ${playerNum} (Expulsión temporal 2 min)`, team);
+                showNotification(`🟦 Dorsal ${playerNum} expulsado temporalmente (2 min) por doble amarilla!`, 'warning');
+            } else {
+                logEvent("TARJETA", `🟨 Amarilla para dorsal ${playerNum}`, team);
+                showNotification(`🟨 Tarjeta amarilla para dorsal ${playerNum}`, 'warning');
+            }
+            break;
+            
+        case 'blue':
+            // Azul directa (expulsión temporal 2 min)
+            teamObj.blueCards[playerNum] = (teamObj.blueCards[playerNum] || 0) + 1;
+            
+            // Verificar combinaciones:
+            // 1. Si ya tiene amarilla -> Roja
+            if (teamObj.yellowCards[playerNum] >= 1) {
+                teamObj.yellowCards[playerNum] = 0;
+                teamObj.blueCards[playerNum] = 0;
+                teamObj.redCards[playerNum] = true;
+                
+                logEvent("EXPULSIÓN", `🟨+🟦 Amarilla + Azul -> 🟥 Roja para dorsal ${playerNum} (Expulsión definitiva)`, team);
+                showNotification(`🟥 Dorsal ${playerNum} expulsado definitivamente (Amarilla + Azul)!`, 'error');
+            }
+            // 2. Si es la segunda azul -> Roja
+            else if (teamObj.blueCards[playerNum] >= 2) {
+                teamObj.blueCards[playerNum] = 0;
+                teamObj.redCards[playerNum] = true;
+                
+                logEvent("EXPULSIÓN", `🟦🟦 2 Azules -> 🟥 Roja para dorsal ${playerNum} (Expulsión definitiva)`, team);
+                showNotification(`🟥 Dorsal ${playerNum} expulsado definitivamente por dos azules!`, 'error');
+            }
+            // 3. Azul simple
+            else {
+                logEvent("EXPULSIÓN", `🟦 Azul para dorsal ${playerNum} (Expulsión temporal 2 min)`, team);
+                showNotification(`🟦 Dorsal ${playerNum} expulsado temporalmente (2 minutos)`, 'warning');
+            }
+            break;
+            
+        case 'red':
+            // Roja directa (expulsión definitiva)
+            teamObj.redCards[playerNum] = true;
+            
+            // Limpiar otras tarjetas del mismo jugador
+            if (teamObj.yellowCards[playerNum]) delete teamObj.yellowCards[playerNum];
+            if (teamObj.blueCards[playerNum]) delete teamObj.blueCards[playerNum];
+            
+            logEvent("EXPULSIÓN", `🟥 Roja directa para dorsal ${playerNum} (Expulsión definitiva)`, team);
+            showNotification(`🟥 Dorsal ${playerNum} expulsado definitivamente!`, 'error');
+            break;
     }
     
     closeModal('card-modal');
@@ -442,44 +562,7 @@ function processCard() {
     renderAll();
 }
 
-function removeLastCard(team) {
-    const m = window.currentMatch;
-    const teamObj = m[team];
-    
-    // Buscar la última tarjeta amarilla
-    const yellowPlayers = Object.keys(teamObj.yellowCards || {});
-    const bluePlayers = Object.keys(teamObj.blueCards || {});
-    
-    if (bluePlayers.length > 0) {
-        const lastPlayer = bluePlayers[bluePlayers.length - 1];
-        if (teamObj.blueCards[lastPlayer] > 0) {
-            teamObj.blueCards[lastPlayer]--;
-            if (teamObj.blueCards[lastPlayer] <= 0) {
-                delete teamObj.blueCards[lastPlayer];
-            }
-            logEvent("TARJETA_ELIMINADA", `Azul eliminada del dorsal ${lastPlayer}`, team);
-            showNotification(`🟦 Tarjeta azul eliminada del dorsal ${lastPlayer}`, 'info');
-        }
-    } else if (yellowPlayers.length > 0) {
-        const lastPlayer = yellowPlayers[yellowPlayers.length - 1];
-        if (teamObj.yellowCards[lastPlayer] > 0) {
-            teamObj.yellowCards[lastPlayer]--;
-            if (teamObj.yellowCards[lastPlayer] <= 0) {
-                delete teamObj.yellowCards[lastPlayer];
-            }
-            logEvent("TARJETA_ELIMINADA", `Amarilla eliminada del dorsal ${lastPlayer}`, team);
-            showNotification(`🟨 Tarjeta amarilla eliminada del dorsal ${lastPlayer}`, 'info');
-        }
-    } else {
-        showNotification(`${teamObj.name} no tiene tarjetas registradas`, 'warning');
-        return;
-    }
-    
-    saveState();
-    renderAll();
-}
-
-// 9. SISTEMA DE EVENTOS
+// 10. SISTEMA DE EVENTOS
 function logEvent(type, description, team) {
     const event = {
         timestamp: new Date().toISOString(),
@@ -518,7 +601,7 @@ function renderEvents() {
     `).join('');
 }
 
-// 10. FINALIZACIÓN DE PARTIDO
+// 11. FINALIZACIÓN DE PARTIDO (CORREGIDA)
 function finishMatch() {
     const m = window.currentMatch;
     
@@ -529,23 +612,30 @@ function finishMatch() {
     clearInterval(timerInterval);
     clearInterval(timeoutTimer);
     
+    // Eliminar display de timeout si existe
+    const timeoutDisplay = document.getElementById('timeout-display');
+    if (timeoutDisplay) {
+        timeoutDisplay.remove();
+    }
+    
     // Determinar ganador
     let winner = null;
     if (m.team1.score > m.team2.score) {
-        winner = { team: 'team1', name: m.team1.name };
+        winner = { team: 'team1', name: m.team1.name, score: m.team1.score };
     } else if (m.team2.score > m.team1.score) {
-        winner = { team: 'team2', name: m.team2.name };
+        winner = { team: 'team2', name: m.team2.name, score: m.team2.score };
     }
     
     if (winner) {
-        showNotification(`🏆 ¡${winner.name} GANA EL PARTIDO!`, 'success');
+        // Mostrar notificación de victoria
+        showNotification(`🏆 ¡${winner.name} GANA EL PARTIDO! ${m.team1.score}-${m.team2.score}`, 'success');
         
         // Lanzar celebración
         if (typeof showCelebration === 'function') {
             setTimeout(() => showCelebration(), 500);
         }
         
-        // Preguntar si guardar
+        // Preguntar si guardar en historial
         setTimeout(() => {
             if (confirm('¿Guardar partido en el historial?')) {
                 saveMatchToHistory();
@@ -553,24 +643,42 @@ function finishMatch() {
         }, 2000);
     } else {
         showNotification('⚖️ ¡EMPATE!', 'info');
+        
+        // Preguntar si guardar empate
+        setTimeout(() => {
+            if (confirm('¿Guardar partido empatado en el historial?')) {
+                saveMatchToHistory();
+            }
+        }, 2000);
     }
     
     saveState();
     renderAll();
 }
 
-// 11. HISTORIAL
+// 12. HISTORIAL
 function saveMatchToHistory() {
     const m = window.currentMatch;
     
     const matchData = {
         id: Date.now(),
-        team1: { name: m.team1.name, score: m.team1.score },
-        team2: { name: m.team2.name, score: m.team2.score },
+        team1: { 
+            name: m.team1.name,
+            score: m.team1.score,
+            fouls: m.team1.fouls
+        },
+        team2: { 
+            name: m.team2.name,
+            score: m.team2.score,
+            fouls: m.team2.fouls
+        },
         score: `${m.team1.score}-${m.team2.score}`,
         location: m.location,
         date: new Date().toLocaleString('es-ES'),
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        period: m.currentPeriod,
+        winner: m.team1.score > m.team2.score ? m.team1.name : 
+                m.team2.score > m.team1.score ? m.team2.name : 'Empate'
     };
     
     window.matchHistory.unshift(matchData);
@@ -595,7 +703,7 @@ function renderMatchHistory() {
         list.innerHTML = `
             <div class="empty-history">
                 <i class="fas fa-clipboard-list fa-2x"></i>
-                <p>No hay partidos guardados</p>
+                <p>No hay partidos guardados. ¡Juega y guarda algunos partidos!</p>
             </div>
         `;
         return;
@@ -605,6 +713,7 @@ function renderMatchHistory() {
         <div class="history-item">
             <div class="history-teams">
                 ${match.team1.name} vs ${match.team2.name}
+                ${match.winner !== 'Empate' ? `<span class="winner-badge">🏆 ${match.winner}</span>` : '<span class="draw-badge">⚖️ Empate</span>'}
             </div>
             <div class="history-score">
                 ${match.score}
@@ -623,7 +732,7 @@ function clearMatchHistory() {
         return;
     }
     
-    if (confirm('¿Estás seguro de borrar todo el historial?')) {
+    if (confirm('¿Estás seguro de borrar todo el historial? Esta acción no se puede deshacer.')) {
         window.matchHistory = [];
         localStorage.removeItem('futsal_history');
         renderMatchHistory();
@@ -631,7 +740,7 @@ function clearMatchHistory() {
     }
 }
 
-// 12. COMPARTIR
+// 13. COMPARTIR
 function openShareModal() {
     const modal = document.getElementById('share-modal');
     const textEl = document.getElementById('share-text');
@@ -711,7 +820,7 @@ function closeShareModal() {
     if (modal) modal.style.display = 'none';
 }
 
-// 13. UTILIDADES
+// 14. FUNCIONES DE UTILIDAD
 function editTeamName(teamKey) {
     const currentName = window.currentMatch[teamKey].name;
     const newName = prompt('Nuevo nombre del equipo:', currentName);
@@ -725,20 +834,32 @@ function editTeamName(teamKey) {
 }
 
 function confirmReset() {
-    if (confirm('¿Estás seguro de reiniciar el partido?')) {
+    if (confirm('¿Estás seguro de reiniciar el partido? Se perderán todos los datos.')) {
         resetMatch();
     }
 }
 
 function resetMatch() {
+    // Guardar partido actual en historial si tiene datos
+    if (window.currentMatch.team1.score > 0 || window.currentMatch.team2.score > 0 || 
+        window.currentMatch.events.length > 0) {
+        if (confirm('¿Guardar partido actual en historial antes de reiniciar?')) {
+            saveMatchToHistory();
+        }
+    }
+    
+    // Reiniciar estado
     window.currentMatch = {...INITIAL_STATE};
     
+    // Limpiar timers
     clearInterval(timerInterval);
     clearInterval(timeoutTimer);
     
+    // Eliminar display de timeout si existe
     const timeoutDisplay = document.getElementById('timeout-display');
     if (timeoutDisplay) timeoutDisplay.remove();
     
+    // Guardar y renderizar
     localStorage.removeItem('futsal_match');
     renderAll();
     
@@ -759,9 +880,11 @@ function showNotification(message, type = 'success') {
     
     if (!notification || !text) return;
     
+    // Configurar notificación
     notification.className = `notification ${type} show`;
     text.textContent = message;
     
+    // Mostrar por 3 segundos
     setTimeout(() => {
         notification.style.animation = 'slideOutRight 0.3s ease forwards';
         setTimeout(() => {
@@ -776,23 +899,80 @@ function closeModal(modalId) {
     if (modal) modal.style.display = 'none';
 }
 
-// 14. INICIALIZACIÓN
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('Fútbol Sala - Inicializando...');
-    
-    // Inicializar event listeners
-    initEventListeners();
-    
-    // Renderizar todo
-    renderAll();
-    renderMatchHistory();
-    
-    // Iniciar timer si estaba corriendo
-    if (window.currentMatch.isRunning && !window.currentMatch.isTimeoutActive) {
-        startTimer();
+// 15. SISTEMA PWA - ACTUALIZACIÓN Y CACHÉ
+function initPWAButton() {
+    const pwaBtn = document.getElementById('pwa-update-btn');
+    if (pwaBtn) {
+        pwaBtn.addEventListener('click', updatePWA);
     }
-});
+}
 
+async function updatePWA() {
+    if ('serviceWorker' in navigator) {
+        try {
+            showNotification('Actualizando aplicación...', 'info');
+            
+            // Obtener registro del Service Worker
+            const registration = await navigator.serviceWorker.getRegistration();
+            
+            if (registration) {
+                // 1. Borrar toda la caché
+                const cacheNames = await caches.keys();
+                await Promise.all(
+                    cacheNames.map(cacheName => caches.delete(cacheName))
+                );
+                
+                // 2. Forzar actualización del Service Worker
+                await registration.update();
+                
+                // 3. Desregistrar el Service Worker actual
+                await registration.unregister();
+                
+                // 4. Recargar la página para registrar nuevo Service Worker
+                showNotification('✅ Aplicación actualizada. Recargando...', 'success');
+                setTimeout(() => {
+                    location.reload(true); // true = forzar recarga desde servidor
+                }, 1500);
+            } else {
+                showNotification('No hay Service Worker registrado', 'warning');
+            }
+        } catch (error) {
+            console.error('Error al actualizar PWA:', error);
+            showNotification('Error al actualizar la aplicación', 'error');
+        }
+    } else {
+        showNotification('PWA no soportado en este navegador', 'warning');
+    }
+}
+
+function checkForUpdates() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistration().then(registration => {
+            if (registration) {
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed') {
+                            if (navigator.serviceWorker.controller) {
+                                // Nueva versión disponible
+                                showNotification('¡Nueva versión disponible!', 'info');
+                                
+                                // Mostrar botón de actualización
+                                const updateBtn = document.getElementById('pwa-update-btn');
+                                if (updateBtn) {
+                                    updateBtn.style.display = 'flex';
+                                }
+                            }
+                        }
+                    });
+                });
+            }
+        });
+    }
+}
+
+// 16. INICIALIZACIÓN DE EVENT LISTENERS
 function initEventListeners() {
     // Guardar ubicación
     const saveLocationBtn = document.getElementById('save-location');
@@ -818,26 +998,16 @@ function initEventListeners() {
         });
     }
     
-    // Botones de corrección dinámicos
+    // Botones de corrección de faltas
     document.addEventListener('click', (e) => {
         if (e.target.classList.contains('btn-remove-foul')) {
             const team = e.target.dataset.team;
             removeFoul(team);
         }
-        
-        if (e.target.classList.contains('btn-recover-timeout')) {
-            const team = e.target.dataset.team;
-            recoverTimeout(team);
-        }
-        
-        if (e.target.classList.contains('btn-remove-card')) {
-            const team = e.target.dataset.team;
-            removeLastCard(team);
-        }
     });
 }
 
-// 15. EXPORTAR FUNCIONES GLOBALES (IMPORTANTE!)
+// 17. EXPORTAR FUNCIONES GLOBALES (IMPORTANTE PARA HTML)
 window.toggleTimer = toggleTimer;
 window.confirmReset = confirmReset;
 window.nextPeriod = nextPeriod;
@@ -845,11 +1015,9 @@ window.addGoal = addGoal;
 window.changeScore = changeScore;
 window.addFoul = addFoul;
 window.removeFoul = removeFoul;
-window.recoverTimeout = recoverTimeout;
 window.useTimeout = useTimeout;
 window.openCardModal = openCardModal;
 window.processCard = processCard;
-window.removeLastCard = removeLastCard;
 window.closeModal = closeModal;
 window.editTeamName = editTeamName;
 window.openShareModal = openShareModal;
@@ -859,3 +1027,20 @@ window.shareToWhatsapp = shareToWhatsapp;
 window.closeShareModal = closeShareModal;
 window.clearMatchHistory = clearMatchHistory;
 window.forceSave = forceSave;
+window.updatePWA = updatePWA;
+window.saveMatchToHistory = saveMatchToHistory;
+
+// Inicializar cuando se carga la página
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        initEventListeners();
+        renderAll();
+        renderMatchHistory();
+        checkForUpdates();
+    });
+} else {
+    initEventListeners();
+    renderAll();
+    renderMatchHistory();
+    checkForUpdates();
+}

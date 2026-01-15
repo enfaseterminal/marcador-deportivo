@@ -11,8 +11,11 @@
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="../css/header-with-bg.css">
     <link rel="stylesheet" href="../css/sport-specific/futbol-sala.css">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="/imagenes/favicon.ico">
+    <link rel="icon" href="../imagenes/favicon.ico">
+    <link rel="apple-touch-icon" href="../imagenes/icon-192.png">
+    <meta name="theme-color" content="#1a2a6c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body class="theme-futbol-sala">
     <!-- Botón flotante de inicio -->
@@ -25,11 +28,16 @@
         <i class="fas fa-question-circle"></i>
     </a>
 
+    <!-- Botón flotante para actualizar PWA -->
+    <button id="pwa-update-btn" class="floating-pwa-btn" title="Actualizar aplicación">
+        <i class="fas fa-sync-alt"></i>
+    </button>
+
     <div class="container">
         <!-- HEADER CON IMAGEN DE FONDO -->
         <header class="app-header">
             <div class="header-bg">
-                <img src="/imagenes/pizarra.png" alt="Fondo pizarra deportiva" class="header-bg-image">
+                <img src="../imagenes/pizarra.png" alt="Fondo pizarra deportiva" class="header-bg-image">
             </div>
             
             <div class="header-content">
@@ -39,6 +47,8 @@
                     <p class="game-rules-futbol-sala">
                         <i class="fas fa-info-circle"></i> 
                         2 tiempos de 20 min | Prórroga 2x5 min | Timeouts: 1 por equipo
+                        <br>
+                        <small>Normativa AMF/FIFUSA: 🟨 Amarilla | 🟦 Azul (2 min) | 🟥 Roja</small>
                     </p>
                     <div class="input-group">
                         <input type="text" id="match-location-input" placeholder="Ingresa la ubicación del partido">
@@ -94,20 +104,13 @@
                     <div class="stat-item">
                         <span>T. Muertos</span>
                         <div class="stat-counter" id="team1-timeouts">1</div>
-                        <div class="correction-buttons">
-                            <button class="btn-stat" id="btn-timeout-team1" onclick="useTimeout('team1')">Uso</button>
-                            <button class="btn-stat recover btn-recover-timeout" data-team="team1" title="Recuperar timeout">
-                                <i class="fas fa-redo"></i>
-                            </button>
-                        </div>
+                        <button class="btn-stat" id="btn-timeout-team1" onclick="useTimeout('team1')">Uso</button>
                     </div>
                 </div>
                 <div class="card-buttons">
                     <button class="btn-card yellow" onclick="openCardModal('team1', 'yellow')">🟨</button>
                     <button class="btn-card blue" onclick="openCardModal('team1', 'blue')">🟦</button>
-                    <button class="btn-card remove btn-remove-card" data-team="team1" title="Eliminar última tarjeta">
-                        <i class="fas fa-times"></i>
-                    </button>
+                    <button class="btn-card red" onclick="openCardModal('team1', 'red')">🟥</button>
                 </div>
             </div>
 
@@ -132,20 +135,13 @@
                     <div class="stat-item">
                         <span>T. Muertos</span>
                         <div class="stat-counter" id="team2-timeouts">1</div>
-                        <div class="correction-buttons">
-                            <button class="btn-stat" id="btn-timeout-team2" onclick="useTimeout('team2')">Uso</button>
-                            <button class="btn-stat recover btn-recover-timeout" data-team="team2" title="Recuperar timeout">
-                                <i class="fas fa-redo"></i>
-                            </button>
-                        </div>
+                        <button class="btn-stat" id="btn-timeout-team2" onclick="useTimeout('team2')">Uso</button>
                     </div>
                 </div>
                 <div class="card-buttons">
                     <button class="btn-card yellow" onclick="openCardModal('team2', 'yellow')">🟨</button>
                     <button class="btn-card blue" onclick="openCardModal('team2', 'blue')">🟦</button>
-                    <button class="btn-card remove btn-remove-card" data-team="team2" title="Eliminar última tarjeta">
-                        <i class="fas fa-times"></i>
-                    </button>
+                    <button class="btn-card red" onclick="openCardModal('team2', 'red')">🟥</button>
                 </div>
             </div>
         </main>
@@ -164,8 +160,8 @@
                 <!-- El historial se carga dinámicamente -->
             </div>
             <div class="export-controls">
-                <button class="btn btn-primary" onclick="openShareHistoryModal()">
-                    <i class="fas fa-share-alt"></i> Compartir Historial
+                <button class="btn btn-primary" onclick="openShareModal()">
+                    <i class="fas fa-share-alt"></i> Compartir Resultado
                 </button>
                 <button class="btn btn-warning" onclick="clearMatchHistory()">
                     <i class="fas fa-trash"></i> Borrar Historial
@@ -175,9 +171,6 @@
 
         <!-- BOTONES DE ACCIÓN -->
         <footer class="action-footer">
-            <button class="btn-action share" onclick="openShareModal()">
-                <i class="fas fa-share-alt"></i> Compartir Resultado
-            </button>
             <button class="btn-action save" onclick="forceSave()">
                 <i class="fas fa-save"></i> Guardar Partido
             </button>
@@ -198,7 +191,7 @@
     <div id="card-modal" class="modal">
         <div class="modal-content">
             <h2 id="card-modal-title">Registrar Tarjeta</h2>
-            <input type="number" id="card-player-number" placeholder="Dorsal del jugador" min="1" max="99">
+            <input type="number" id="card-player-number" placeholder="Dorsal del jugador (1-99)" min="1" max="99">
             <div class="modal-buttons">
                 <button class="btn-cancel" onclick="closeModal('card-modal')">Cancelar</button>
                 <button class="btn-confirm" onclick="processCard()">Confirmar</button>
@@ -217,30 +210,14 @@
                     <i class="fas fa-copy"></i> Copiar Texto
                 </button>
                 <button class="btn btn-success" onclick="shareViaNative()">
-                    <i class="fas fa-share-alt"></i> Compartir (App)
+                    <i class="fas fa-share-alt"></i> Compartir
                 </button>
                 <button class="btn btn-primary" onclick="shareToWhatsapp()">
                     <i class="fab fa-whatsapp"></i> WhatsApp
                 </button>
-                <button class="btn btn-info" onclick="shareText(shareText.textContent)">
-                    <i class="fas fa-share"></i> Más opciones...
-                </button>
                 <button class="btn btn-warning" onclick="closeShareModal()">
                     <i class="fas fa-times"></i> Cerrar
                 </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL PARA GUARDAR PARTIDO -->
-    <div id="save-match-modal" class="modal">
-        <div class="modal-content">
-            <h2>Guardar Partido en Historial</h2>
-            <p>Resultado: <span id="save-match-result"></span></p>
-            <p>Ubicación: <span id="save-match-location"></span></p>
-            <div class="modal-buttons">
-                <button class="btn btn-secondary" id="cancel-save">Cancelar</button>
-                <button class="btn btn-success" id="confirm-save">Guardar Partido</button>
             </div>
         </div>
     </div>
@@ -258,8 +235,54 @@
     <script src="../js/clock.js"></script>
     <script src="../js/celebrate.js"></script>
     <script src="../js/storage.js"></script>
-    <script src="../js/match-core.js"></script>
-    <script src="../js/modal-manager.js"></script>
     <script src="../js/futbol-sala.js"></script>
+    
+    <script>
+        // Registrar Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => {
+                    console.log('Service Worker registrado:', reg);
+                    
+                    // Verificar actualizaciones cada vez que se carga la página
+                    reg.addEventListener('updatefound', () => {
+                        const newWorker = reg.installing;
+                        console.log('Nueva versión del Service Worker encontrada');
+                        
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // Nueva versión disponible
+                                showNotification('¡Nueva versión disponible!', 'info');
+                                
+                                // Mostrar botón de actualización
+                                const updateBtn = document.getElementById('pwa-update-btn');
+                                if (updateBtn) {
+                                    updateBtn.style.display = 'flex';
+                                }
+                            }
+                        });
+                    });
+                })
+                .catch(err => console.log('Error SW:', err));
+        }
+        
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notification-text');
+            
+            if (!notification || !text) return;
+            
+            notification.className = `notification ${type} show`;
+            text.textContent = message;
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease forwards';
+                setTimeout(() => {
+                    notification.className = 'notification';
+                    notification.style.animation = '';
+                }, 300);
+            }, 3000);
+        }
+    </script>
 </body>
 </html>
