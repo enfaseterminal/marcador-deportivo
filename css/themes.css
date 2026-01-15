@@ -58,6 +58,13 @@
     --gradient: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
     --accent-color: #9b59b6;
 }
+/* ===== TEMA FÚTBOL 7 ===== */
+.theme-futbol-siete {
+    --primary-color: #1e8449;
+    --secondary-color: #f39c12;
+    --gradient: linear-gradient(135deg, #1e8449, #27ae60, #f39c12);
+    --accent-color: #f39c12;
+}
 
 /* Aplicar el gradiente al body según el tema */
 body.theme-voleibol { background: var(--gradient); }
@@ -65,3 +72,4 @@ body.theme-minivoley { background: var(--gradient); }
 body.theme-domino { background: var(--gradient); }
 body.theme-futbol-sala { background: var(--gradient); }
 body.theme-main { background: var(--gradient); }
+body.theme-futbol-siete { background: var(--gradient); }

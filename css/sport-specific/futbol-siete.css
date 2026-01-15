@@ -1,17 +1,17 @@
+/* ===== TEMA FÚTBOL 7 ===== */
 :root {
-    --primary: #1a2a6c;
-    --accent: #fdbb2d;
-    --local: #e74c3c;
-    --visitor: #3498db;
-    --bg: #121212;
-    --success: #27ae60;
-    --warning: #f39c12;
-    --error: #e74c3c;
-    --info: #3498db;
+    --futbol7-primary: #1e8449;
+    --futbol7-accent: #f39c12;
+    --futbol7-local: #e74c3c;
+    --futbol7-visitor: #3498db;
+    --futbol7-success: #27ae60;
+    --futbol7-warning: #f1c40f;
+    --futbol7-error: #c0392b;
+    --futbol7-info: #2980b9;
 }
 
-body.theme-futbol-sala {
-    background: linear-gradient(135deg, #1a5276, #27ae60, #f39c12);
+body.theme-futbol-siete {
+    background: linear-gradient(135deg, #1e8449, #27ae60, #f39c12);
     color: white;
     font-family: 'Segoe UI', sans-serif;
     margin: 0;
@@ -21,24 +21,24 @@ body.theme-futbol-sala {
     min-height: 100vh;
 }
 
-body.theme-futbol-sala .container {
+body.theme-futbol-siete .container {
     width: 100%;
     max-width: 800px;
 }
 
-/* CABECERA ESPECÍFICA PARA FÚTBOL SALA */
-.clock-container-futbol-sala {
-    background: rgba(26, 42, 108, 0.8) !important;
-    border: 2px solid var(--accent);
+/* CABECERA ESPECÍFICA PARA FÚTBOL 7 */
+.clock-container-futbol-siete {
+    background: rgba(30, 132, 73, 0.8) !important;
+    border: 2px solid var(--futbol7-accent);
 }
 
-.game-rules-futbol-sala {
+.game-rules-futbol-siete {
     background: rgba(0, 0, 0, 0.3);
     padding: 8px 12px;
     border-radius: 8px;
     font-size: 0.9rem;
     margin: 10px 0;
-    border-left: 4px solid var(--accent);
+    border-left: 4px solid var(--futbol7-accent);
 }
 
 /* TIMER SECTION */
@@ -48,16 +48,16 @@ body.theme-futbol-sala .container {
     background: rgba(0, 0, 0, 0.3);
     padding: 20px;
     border-radius: 15px;
-    border: 2px solid var(--accent);
+    border: 2px solid var(--futbol7-accent);
 }
 
 .main-timer {
     font-size: 5rem;
     font-weight: bold;
     text-align: center;
-    color: var(--accent);
+    color: var(--futbol7-accent);
     font-family: 'Courier New', monospace;
-    text-shadow: 0 0 20px rgba(253, 187, 45, 0.6);
+    text-shadow: 0 0 20px rgba(243, 156, 18, 0.6);
     margin-bottom: 15px;
     letter-spacing: 2px;
 }
@@ -73,7 +73,7 @@ body.theme-futbol-sala .container {
     height: 60px;
     border-radius: 50%;
     border: none;
-    background: var(--primary);
+    background: var(--futbol7-primary);
     color: white;
     font-size: 1.5rem;
     cursor: pointer;
@@ -85,15 +85,15 @@ body.theme-futbol-sala .container {
 
 .btn-timer:hover {
     transform: scale(1.1);
-    background: var(--accent);
+    background: var(--futbol7-accent);
 }
 
 .btn-reset {
-    background: #e74c3c;
+    background: var(--futbol7-error);
 }
 
 .btn-next {
-    background: #2ecc71;
+    background: var(--futbol7-success);
 }
 
 /* SCOREBOARD */
@@ -117,13 +117,13 @@ body.theme-futbol-sala .container {
 }
 
 .team-local { 
-    background: linear-gradient(135deg, var(--local), #c0392b);
-    border: 3px solid var(--local);
+    background: linear-gradient(135deg, var(--futbol7-local), #c0392b);
+    border: 3px solid var(--futbol7-local);
 }
 
 .team-visitor { 
-    background: linear-gradient(135deg, var(--visitor), #2980b9);
-    border: 3px solid var(--visitor);
+    background: linear-gradient(135deg, var(--futbol7-visitor), #2980b9);
+    border: 3px solid var(--futbol7-visitor);
 }
 
 .team-name {
@@ -171,12 +171,12 @@ body.theme-futbol-sala .container {
 }
 
 .btn-score.add {
-    background: #2ecc71;
+    background: var(--futbol7-success);
     color: white;
 }
 
 .btn-score.sub {
-    background: #e74c3c;
+    background: var(--futbol7-error);
     color: white;
 }
 
@@ -189,7 +189,7 @@ body.theme-futbol-sala .container {
     transform: scale(0.95);
 }
 
-/* TEAM STATS MEJORADO CON BOTONES DE CORRECCIÓN */
+/* TEAM STATS */
 .team-stats {
     margin: 20px 0;
     background: rgba(0, 0, 0, 0.2);
@@ -201,14 +201,14 @@ body.theme-futbol-sala .container {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: 12px 0;
-    padding: 10px;
+    margin: 10px 0;
+    padding: 8px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
 }
 
 .stat-counter {
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-weight: bold;
     min-width: 40px;
     text-align: center;
@@ -221,31 +221,26 @@ body.theme-futbol-sala .container {
 }
 
 .btn-stat {
-    background: var(--primary);
+    background: var(--futbol7-primary);
     color: white;
     border: none;
-    padding: 8px 12px;
+    padding: 6px 10px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.9rem;
     transition: background 0.3s ease;
-    min-width: 40px;
+    min-width: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .btn-stat.add {
-    background: var(--success);
+    background: var(--futbol7-success);
 }
 
 .btn-stat.remove {
-    background: var(--error);
-}
-
-.btn-stat.recover {
-    background: var(--warning);
-    color: #000;
+    background: var(--futbol7-error);
 }
 
 .btn-stat:hover:not(:disabled) {
@@ -259,18 +254,17 @@ body.theme-futbol-sala .container {
     transform: none;
 }
 
-/* CARD BUTTONS MEJORADO */
+/* CARD BUTTONS */
 .card-buttons {
     display: flex;
     justify-content: center;
-    gap: 10px;
+    gap: 15px;
     margin-top: 15px;
-    flex-wrap: wrap;
 }
 
 .btn-card {
-    font-size: 1.5rem;
-    padding: 10px 20px;
+    font-size: 1.8rem;
+    padding: 12px 24px;
     border-radius: 10px;
     border: none;
     cursor: pointer;
@@ -278,28 +272,18 @@ body.theme-futbol-sala .container {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 60px;
+    min-width: 100px;
+    flex: 1;
 }
 
 .btn-card.yellow {
     background: #f1c40f;
     color: #000;
-    flex: 1;
 }
 
-.btn-card.blue {
-    background: #3498db;
+.btn-card.red {
+    background: #e74c3c;
     color: white;
-    flex: 1;
-}
-
-.btn-card.remove {
-    background: #7f8c8d;
-    color: white;
-    font-size: 1rem;
-    padding: 10px;
-    min-width: 40px;
-    flex: 0.5;
 }
 
 .btn-card:hover:not(:disabled) {
@@ -313,7 +297,83 @@ body.theme-futbol-sala .container {
     transform: none;
 }
 
-/* EVENTS SECTION MEJORADO */
+/* ESTADÍSTICAS AVANZADAS */
+.advanced-stats {
+    margin: 30px 0;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+}
+
+.advanced-stats h3 {
+    color: var(--futbol7-accent);
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-card h4 {
+    color: var(--futbol7-accent);
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.stat-values {
+    display: flex;
+    justify-content: space-between;
+}
+
+.stat-value {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.stat-value span {
+    font-size: 2rem;
+    font-weight: bold;
+    min-width: 40px;
+}
+
+.btn-stat-small {
+    background: var(--futbol7-primary);
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.btn-stat-small:hover {
+    background: var(--futbol7-accent);
+    transform: scale(1.1);
+}
+
+/* EVENTS SECTION */
 .events-section {
     margin: 30px 0;
     padding: 20px;
@@ -322,22 +382,9 @@ body.theme-futbol-sala .container {
 }
 
 .events-section h3 {
-    color: var(--accent);
+    color: var(--futbol7-accent);
     margin-bottom: 15px;
     font-size: 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.events-section h3 .btn-clear-events {
-    background: var(--error);
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.8rem;
 }
 
 .events-list {
@@ -356,11 +403,6 @@ body.theme-futbol-sala .container {
     display: flex;
     align-items: center;
     gap: 10px;
-    transition: background 0.2s ease;
-}
-
-.event-item:hover {
-    background: rgba(255, 255, 255, 0.05);
 }
 
 .event-item:last-child {
@@ -368,30 +410,13 @@ body.theme-futbol-sala .container {
 }
 
 .event-time {
-    color: var(--accent);
+    color: var(--futbol7-accent);
     font-weight: bold;
     min-width: 70px;
-    font-family: monospace;
 }
 
 .event-desc {
     flex: 1;
-}
-
-.btn-remove-event {
-    background: transparent;
-    border: none;
-    color: #e74c3c;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 3px;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-}
-
-.btn-remove-event:hover {
-    opacity: 1;
-    background: rgba(231, 76, 60, 0.2);
 }
 
 .empty-events {
@@ -401,7 +426,7 @@ body.theme-futbol-sala .container {
     font-style: italic;
 }
 
-/* HISTORY SECTION MEJORADO */
+/* HISTORY SECTION */
 .history {
     background: rgba(0, 0, 0, 0.3);
     border-radius: 15px;
@@ -410,7 +435,7 @@ body.theme-futbol-sala .container {
 }
 
 .history h2 {
-    color: var(--accent);
+    color: var(--futbol7-accent);
     text-align: center;
     margin-bottom: 20px;
     font-size: 1.8rem;
@@ -430,13 +455,7 @@ body.theme-futbol-sala .container {
     border-radius: 8px;
     padding: 15px;
     margin-bottom: 10px;
-    border-left: 4px solid var(--accent);
-    transition: transform 0.2s ease;
-}
-
-.history-item:hover {
-    transform: translateX(5px);
-    background: rgba(255, 255, 255, 0.08);
+    border-left: 4px solid var(--futbol7-accent);
 }
 
 .history-teams {
@@ -449,7 +468,7 @@ body.theme-futbol-sala .container {
 }
 
 .winner-badge {
-    background: #27ae60;
+    background: var(--futbol7-success);
     color: white;
     padding: 3px 8px;
     border-radius: 12px;
@@ -458,7 +477,7 @@ body.theme-futbol-sala .container {
 }
 
 .draw-badge {
-    background: #f39c12;
+    background: var(--futbol7-warning);
     color: #000;
     padding: 3px 8px;
     border-radius: 12px;
@@ -469,7 +488,7 @@ body.theme-futbol-sala .container {
 .history-score {
     font-size: 1.8rem;
     font-weight: bold;
-    color: var(--accent);
+    color: var(--futbol7-accent);
     margin: 10px 0;
     text-align: center;
 }
@@ -481,33 +500,6 @@ body.theme-futbol-sala .container {
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 5px;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.history-actions {
-    display: flex;
-    gap: 5px;
-    margin-top: 10px;
-}
-
-.btn-small {
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    transition: opacity 0.2s;
-}
-
-.btn-small:hover {
-    opacity: 0.9;
-}
-
-.btn-small.btn-danger {
-    background: var(--error);
 }
 
 .empty-history {
@@ -553,13 +545,8 @@ body.theme-futbol-sala .container {
     justify-content: center;
 }
 
-.btn-action.share {
-    background: #25D366;
-    color: white;
-}
-
 .btn-action.save {
-    background: var(--primary);
+    background: var(--futbol7-primary);
     color: white;
 }
 
@@ -589,25 +576,25 @@ body.theme-futbol-sala .container {
 }
 
 .notification.success {
-    background: #27ae60;
+    background: var(--futbol7-success);
     color: white;
     border-left: 5px solid #2ecc71;
 }
 
 .notification.warning {
-    background: #f39c12;
+    background: var(--futbol7-warning);
     color: black;
     border-left: 5px solid #e67e22;
 }
 
 .notification.error {
-    background: #c0392b;
+    background: var(--futbol7-error);
     color: white;
     border-left: 5px solid #e74c3c;
 }
 
 .notification.info {
-    background: #3498db;
+    background: var(--futbol7-info);
     color: white;
     border-left: 5px solid #2980b9;
 }
@@ -622,36 +609,31 @@ body.theme-futbol-sala .container {
     to { transform: translateX(100%); opacity: 0; }
 }
 
-/* TIMEOUT DISPLAY */
-#timeout-display {
-    font-family: 'Courier New', monospace;
-    text-shadow: 0 0 10px rgba(52, 152, 219, 0.8);
+/* BOTÓN FLOTANTE PWA */
+.floating-pwa-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    color: white;
+    border-radius: 50%;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: none; /* Oculto por defecto */
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    z-index: 9997;
+    transition: all 0.3s ease;
 }
 
-/* FOOTER GENERAL */
-footer {
-    text-align: center;
-    margin-top: 30px;
-    padding: 20px;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.9rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.footer-links {
-    margin-top: 10px;
-}
-
-.footer-links a {
-    color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
-    transition: color 0.3s ease;
-    margin: 0 10px;
-}
-
-.footer-links a:hover {
-    color: var(--accent);
-    text-decoration: underline;
+.floating-pwa-btn:hover {
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #8e44ad, #7d3c98);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
 /* RESPONSIVE */
@@ -688,6 +670,14 @@ footer {
     .export-controls {
         flex-direction: column;
         align-items: center;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .team-stats {
+        padding: 10px;
     }
     
     .stat-item {
@@ -744,216 +734,5 @@ footer {
         left: 20px;
         right: 20px;
         max-width: none;
-    }
-}
-/* BOTONES DE CORRECCIÓN */
-.correction-buttons {
-    display: flex;
-    gap: 5px;
-}
-
-.btn-stat {
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background 0.3s ease;
-    min-width: 40px;
-}
-
-.btn-stat.add {
-    background: var(--success);
-}
-
-.btn-stat.remove {
-    background: var(--error);
-}
-
-.btn-stat.recover {
-    background: var(--warning);
-    color: #000;
-}
-
-.btn-stat:hover:not(:disabled) {
-    opacity: 0.9;
-    transform: scale(1.05);
-}
-
-.btn-stat:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-}
-
-/* BOTONES DE TARJETAS CON CORRECCIÓN */
-.card-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 15px;
-    flex-wrap: wrap;
-}
-
-.btn-card {
-    font-size: 1.5rem;
-    padding: 10px 20px;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 60px;
-}
-
-.btn-card.yellow {
-    background: #f1c40f;
-    color: #000;
-    flex: 1;
-}
-
-.btn-card.blue {
-    background: #3498db;
-    color: white;
-    flex: 1;
-}
-
-.btn-card.remove {
-    background: #7f8c8d;
-    color: white;
-    font-size: 1rem;
-    padding: 10px;
-    min-width: 40px;
-    flex: 0.5;
-}
-
-.btn-card:hover:not(:disabled) {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.btn-card:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-}
-
-/* BOTONES EN HISTORIAL */
-.history-actions {
-    display: flex;
-    gap: 5px;
-    margin-top: 10px;
-}
-
-.btn-small {
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    transition: opacity 0.2s;
-}
-
-.btn-small:hover {
-    opacity: 0.9;
-}
-
-.btn-small.btn-danger {
-    background: var(--error);
-}
-/* BOTÓN FLOTANTE PWA */
-.floating-pwa-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 56px;
-    height: 56px;
-    background: linear-gradient(135deg, #9b59b6, #8e44ad);
-    color: white;
-    border-radius: 50%;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    display: none; /* Oculto por defecto */
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    z-index: 9997;
-    transition: all 0.3s ease;
-}
-
-.floating-pwa-btn:hover {
-    transform: scale(1.1);
-    background: linear-gradient(135deg, #8e44ad, #7d3c98);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-}
-
-/* TARJETAS AMF */
-.btn-card.red {
-    background: #e74c3c;
-    color: white;
-}
-
-/* BOTONES DE CORRECCIÓN DE FALTAS */
-.correction-buttons {
-    display: flex;
-    gap: 5px;
-}
-
-.btn-stat {
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background 0.3s ease;
-    min-width: 40px;
-}
-
-.btn-stat.add {
-    background: var(--success);
-}
-
-.btn-stat.remove {
-    background: var(--error);
-}
-
-.btn-stat:hover:not(:disabled) {
-    opacity: 0.9;
-    transform: scale(1.05);
-}
-
-.btn-stat:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-}
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-    .floating-pwa-btn {
-        bottom: 15px;
-        right: 15px;
-        width: 50px;
-        height: 50px;
-        font-size: 1.3rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .floating-pwa-btn {
-        bottom: 10px;
-        right: 10px;
-        width: 46px;
-        height: 46px;
-        font-size: 1.1rem;
     }
 }

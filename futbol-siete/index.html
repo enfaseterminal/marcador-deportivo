@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marcador Fútbol 7 Pro | Liga Escolar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/themes.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/header-with-bg.css">
+    <link rel="stylesheet" href="../css/sport-specific/futbol-siete.css">
+    <link rel="icon" href="../imagenes/favicon.ico">
+    <link rel="apple-touch-icon" href="../imagenes/icon-192.png">
+    <meta name="theme-color" content="#1e8449">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        :root {
+            --futbol7-primary: #1e8449;
+            --futbol7-accent: #f39c12;
+            --futbol7-local: #e74c3c;
+            --futbol7-visitor: #3498db;
+        }
+    </style>
+</head>
+<body class="theme-futbol-siete">
+    <!-- Botón flotante de inicio -->
+    <a href="/" class="floating-home-btn" title="Volver al inicio">
+        <i class="fas fa-home"></i>
+    </a>
+
+    <!-- Botón flotante de ayuda -->
+    <a href="ayuda.html" class="floating-help-btn" title="Ayuda y reglas">
+        <i class="fas fa-question-circle"></i>
+    </a>
+
+    <!-- Botón flotante para actualizar PWA -->
+    <button id="pwa-update-btn" class="floating-pwa-btn" title="Actualizar aplicación">
+        <i class="fas fa-sync-alt"></i>
+    </button>
+
+    <div class="container">
+        <!-- HEADER CON IMAGEN DE FONDO -->
+        <header class="app-header">
+            <div class="header-bg">
+                <img src="../imagenes/pizarra.png" alt="Fondo pizarra deportiva" class="header-bg-image">
+            </div>
+            
+            <div class="header-content">
+                <div class="header-left">
+                    <h1><i class="fas fa-futbol"></i> Marcador de Fútbol 7</h1>
+                    <p class="subtitle">Liga Escolar - <span id="current-location">No especificada</span></p>
+                    <p class="game-rules-futbol-siete">
+                        <i class="fas fa-info-circle"></i> 
+                        2 tiempos de 25 min | Fútbol 7 | 7 jugadores por equipo
+                        <br>
+                        <small>Reglas FIFA modificadas | 🟨 Amarilla | 🟥 Roja | Saques de banda con pies</small>
+                    </p>
+                    <div class="input-group">
+                        <input type="text" id="match-location-input" placeholder="Ingresa la ubicación del partido">
+                        <button class="btn btn-small" id="save-location">
+                            <i class="fas fa-check"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="clock-container clock-container-futbol-siete">
+                        <div id="clock">00:00:00</div>
+                        <div id="date">--/--/----</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <div class="timer-section">
+            <div class="main-timer" id="main-timer">25:00</div>
+            <div class="timer-controls">
+                <button class="btn-timer" id="start-pause-btn" onclick="toggleTimer()">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button class="btn-timer btn-reset" onclick="confirmReset()">
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button class="btn-timer btn-next" onclick="nextPeriod()" title="Siguiente Periodo">
+                    <i class="fas fa-step-forward"></i>
+                </button>
+            </div>
+        </div>
+
+        <main class="scoreboard">
+            <div class="team team-local">
+                <div class="team-name" id="team1-name-display" onclick="editTeamName('team1')">EQUIPO LOCAL</div>
+                <div class="score" id="team1-score">0</div>
+                <div class="score-controls">
+                    <button class="btn-score add" onclick="addGoal('team1')">+</button>
+                    <button class="btn-score sub" onclick="changeScore('team1', -1)">-</button>
+                </div>
+                <div class="team-stats">
+                    <div class="stat-item">
+                        <span>Faltas</span>
+                        <div class="stat-counter" id="team1-fouls">0</div>
+                        <div class="correction-buttons">
+                            <button class="btn-stat add" onclick="addFoul('team1')">+</button>
+                            <button class="btn-stat remove btn-remove-foul" data-team="team1" title="Quitar falta">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span>S. Esquina</span>
+                        <div class="stat-counter" id="team1-corners">0</div>
+                        <div class="correction-buttons">
+                            <button class="btn-stat add" onclick="addCorner('team1')">+</button>
+                            <button class="btn-stat remove btn-remove-corner" data-team="team1" title="Quitar córner">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span>F. Lateral</span>
+                        <div class="stat-counter" id="team1-throwins">0</div>
+                        <div class="correction-buttons">
+                            <button class="btn-stat add" onclick="addThrowIn('team1')">+</button>
+                            <button class="btn-stat remove btn-remove-throwin" data-team="team1" title="Quitar saque">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-buttons">
+                    <button class="btn-card yellow" onclick="openCardModal('team1', 'yellow')">🟨</button>
+                    <button class="btn-card red" onclick="openCardModal('team1', 'red')">🟥</button>
+                </div>
+            </div>
+
+            <div class="team team-visitor">
+                <div class="team-name" id="team2-name-display" onclick="editTeamName('team2')">EQUIPO VISITANTE</div>
+                <div class="score" id="team2-score">0</div>
+                <div class="score-controls">
+                    <button class="btn-score add" onclick="addGoal('team2')">+</button>
+                    <button class="btn-score sub" onclick="changeScore('team2', -1)">-</button>
+                </div>
+                <div class="team-stats">
+                    <div class="stat-item">
+                        <span>Faltas</span>
+                        <div class="stat-counter" id="team2-fouls">0</div>
+                        <div class="correction-buttons">
+                            <button class="btn-stat add" onclick="addFoul('team2')">+</button>
+                            <button class="btn-stat remove btn-remove-foul" data-team="team2" title="Quitar falta">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span>S. Esquina</span>
+                        <div class="stat-counter" id="team2-corners">0</div>
+                        <div class="correction-buttons">
+                            <button class="btn-stat add" onclick="addCorner('team2')">+</button>
+                            <button class="btn-stat remove btn-remove-corner" data-team="team2" title="Quitar córner">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span>F. Lateral</span>
+                        <div class="stat-counter" id="team2-throwins">0</div>
+                        <div class="correction-buttons">
+                            <button class="btn-stat add" onclick="addThrowIn('team2')">+</button>
+                            <button class="btn-stat remove btn-remove-throwin" data-team="team2" title="Quitar saque">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-buttons">
+                    <button class="btn-card yellow" onclick="openCardModal('team2', 'yellow')">🟨</button>
+                    <button class="btn-card red" onclick="openCardModal('team2', 'red')">🟥</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- ESTADÍSTICAS AVANZADAS -->
+        <section class="advanced-stats">
+            <h3><i class="fas fa-chart-line"></i> Estadísticas Avanzadas</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4><i class="fas fa-futbol"></i> Tiros a Puerta</h4>
+                    <div class="stat-values">
+                        <div class="stat-value">
+                            <span id="team1-shots">0</span>
+                            <button class="btn-stat-small" onclick="addShot('team1', 'ontarget')">+</button>
+                        </div>
+                        <div class="stat-value">
+                            <span id="team2-shots">0</span>
+                            <button class="btn-stat-small" onclick="addShot('team2', 'ontarget')">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h4><i class="fas fa-times-circle"></i> Tiros Fuera</h4>
+                    <div class="stat-values">
+                        <div class="stat-value">
+                            <span id="team1-offtarget">0</span>
+                            <button class="btn-stat-small" onclick="addShot('team1', 'offtarget')">+</button>
+                        </div>
+                        <div class="stat-value">
+                            <span id="team2-offtarget">0</span>
+                            <button class="btn-stat-small" onclick="addShot('team2', 'offtarget')">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h4><i class="fas fa-shield-alt"></i> Fueras de Juego</h4>
+                    <div class="stat-values">
+                        <div class="stat-value">
+                            <span id="team1-offside">0</span>
+                            <button class="btn-stat-small" onclick="addOffside('team1')">+</button>
+                        </div>
+                        <div class="stat-value">
+                            <span id="team2-offside">0</span>
+                            <button class="btn-stat-small" onclick="addOffside('team2')">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="events-section">
+            <h3>Sucesos del Partido</h3>
+            <div id="events-list" class="events-list">
+                <!-- Los eventos se cargan dinámicamente -->
+            </div>
+        </section>
+
+        <!-- SECCIÓN DE HISTORIAL -->
+        <section class="history">
+            <h2><i class="fas fa-history"></i> Historial de Partidos</h2>
+            <div id="history-list" class="history-list">
+                <!-- El historial se carga dinámicamente -->
+            </div>
+            <div class="export-controls">
+                <button class="btn btn-primary" onclick="openShareModal()">
+                    <i class="fas fa-share-alt"></i> Compartir Resultado
+                </button>
+                <button class="btn btn-warning" onclick="clearMatchHistory()">
+                    <i class="fas fa-trash"></i> Borrar Historial
+                </button>
+            </div>
+        </section>
+
+        <!-- BOTONES DE ACCIÓN -->
+        <footer class="action-footer">
+            <button class="btn-action save" onclick="forceSave()">
+                <i class="fas fa-save"></i> Guardar Partido
+            </button>
+        </footer>
+
+        <!-- FOOTER -->
+        <footer>
+            <p>© 2025 Liga Escolar - Todos los derechos reservados</p>
+            <p class="footer-links">
+                <a href="https://www.ligaescolar.es/privacidad.html">Política de privacidad</a> |
+                <a href="#">Términos de uso</a> |
+                <a href="https://www.enfaseterminal.com/">Blog EnFaseTerminal</a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- MODAL PARA TARJETAS -->
+    <div id="card-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="card-modal-title">Registrar Tarjeta</h2>
+            <input type="number" id="card-player-number" placeholder="Dorsal del jugador (1-99)" min="1" max="99">
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeModal('card-modal')">Cancelar</button>
+                <button class="btn-confirm" onclick="processCard()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PARA COMPARTIR -->
+    <div id="share-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="share-modal-title">Compartir Resultado</h2>
+            <p id="share-preview-title">Vista previa del resultado:</p>
+            <div id="share-text" class="share-text"></div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="copyShareText()">
+                    <i class="fas fa-copy"></i> Copiar Texto
+                </button>
+                <button class="btn btn-success" onclick="shareViaNative()">
+                    <i class="fas fa-share-alt"></i> Compartir
+                </button>
+                <button class="btn btn-primary" onclick="shareToWhatsapp()">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </button>
+                <button class="btn btn-warning" onclick="closeShareModal()">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICACIÓN -->
+    <div id="notification" class="notification">
+        <i class="fas fa-info-circle"></i>
+        <span id="notification-text"></span>
+    </div>
+
+    <!-- Google Analytics y Publicidad con consentimiento -->
+    <script src="../js/ads-analytics.js"></script>
+    <!-- End Google Analytics y Publicidad con consentimiento -->
+
+    <script src="../js/clock.js"></script>
+    <script src="../js/celebrate.js"></script>
+    <script src="../js/storage.js"></script>
+    <script src="../js/futbol-siete.js"></script>
+    
+    <script>
+        // Registrar Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => {
+                    console.log('Service Worker registrado:', reg);
+                    
+                    // Verificar actualizaciones
+                    reg.addEventListener('updatefound', () => {
+                        const newWorker = reg.installing;
+                        console.log('Nueva versión del Service Worker encontrada');
+                        
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // Nueva versión disponible
+                                showNotification('¡Nueva versión disponible!', 'info');
+                                
+                                // Mostrar botón de actualización
+                                const updateBtn = document.getElementById('pwa-update-btn');
+                                if (updateBtn) {
+                                    updateBtn.style.display = 'flex';
+                                }
+                            }
+                        });
+                    });
+                })
+                .catch(err => console.log('Error SW:', err));
+        }
+        
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notification-text');
+            
+            if (!notification || !text) return;
+            
+            notification.className = `notification ${type} show`;
+            text.textContent = message;
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease forwards';
+                setTimeout(() => {
+                    notification.className = 'notification';
+                    notification.style.animation = '';
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

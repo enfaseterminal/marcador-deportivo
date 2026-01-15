@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayuda - Marcador Fútbol 7 | Liga Escolar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/themes.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/header-with-bg.css">
+    <style>
+        .help-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .help-section {
+            margin-bottom: 40px;
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            border-left: 5px solid #1e8449;
+        }
+        
+        .help-section h2 {
+            color: #27ae60;
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .help-section h2 i {
+            font-size: 1.4rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #27ae60;
+        }
+        
+        .feature-card h3 {
+            color: #f39c12;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .feature-card p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+        
+        .rules-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .rules-list li {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 4px solid #27ae60;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .rules-list li i {
+            color: #27ae60;
+            min-width: 20px;
+        }
+        
+        .shortcuts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .shortcut-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        
+        .shortcut-icon {
+            width: 40px;
+            height: 40px;
+            background: #27ae60;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .back-button {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 25px;
+            background: #27ae60;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .back-button:hover {
+            background: #229954;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .back-button i {
+            margin-right: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .help-content {
+                padding: 15px;
+            }
+            
+            .help-section {
+                padding: 15px;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="theme-futbol-siete">
+    <!-- Botón flotante de inicio -->
+    <a href="/" class="floating-home-btn" title="Volver al inicio">
+        <i class="fas fa-home"></i>
+    </a>
+
+    <!-- Botón flotante de ayuda (oculto en esta página) -->
+    <a href="index.html" class="floating-help-btn" title="Volver al marcador">
+        <i class="fas fa-futbol"></i>
+    </a>
+
+    <div class="container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="header-bg">
+                <img src="../imagenes/pizarra.png" alt="Fondo pizarra deportiva" class="header-bg-image">
+            </div>
+            
+            <div class="header-content">
+                <div class="header-left">
+                    <h1><i class="fas fa-question-circle"></i> Ayuda Fútbol 7</h1>
+                    <p class="subtitle">Guía completa del marcador y reglas del juego</p>
+                </div>
+                <div class="header-right">
+                    <div class="clock-container">
+                        <div id="clock">00:00:00</div>
+                        <div id="date">--/--/----</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENIDO DE AYUDA -->
+        <main class="help-content">
+            <!-- SECCIÓN 1: INTRODUCCIÓN -->
+            <section class="help-section">
+                <h2><i class="fas fa-info-circle"></i> Introducción</h2>
+                <p>Bienvenido al Marcador Profesional de Fútbol 7 de Liga Escolar. Esta herramienta está diseñada específicamente para torneos escolares de fútbol 7, siguiendo las reglas FIFA modificadas.</p>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3><i class="fas fa-bolt"></i> Funcionalidades Principales</h3>
+                        <p>Control completo del tiempo, marcador, faltas, córners, saques laterales y sistema de tarjetas FIFA.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="fas fa-chart-bar"></i> Estadísticas Avanzadas</h3>
+                        <p>Registro de tiros a puerta, tiros fuera, fueras de juego y otras estadísticas del partido.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="fas fa-history"></i> Historial Automático</h3>
+                        <p>Todos los partidos se guardan automáticamente. Puedes consultarlos y compartirlos.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="fas fa-share-alt"></i> Compartir Resultados</h3>
+                        <p>Comparte resultados por WhatsApp, correo o cualquier aplicación.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 2: REGLAS FÚTBOL 7 -->
+            <section class="help-section">
+                <h2><i class="fas fa-book"></i> Reglas Oficiales Fútbol 7</h2>
+                <p>Conoce las reglas básicas del fútbol 7 según las modificaciones FIFA para categorías escolares:</p>
+                
+                <ul class="rules-list">
+                    <li><i class="fas fa-clock"></i> <strong>Duración:</strong> 2 tiempos de 25 minutos cada uno</li>
+                    <li><i class="fas fa-user-friends"></i> <strong>Jugadores:</strong> 7 por equipo (6 + portero)</li>
+                    <li><i class="fas fa-expand-arrows-alt"></i> <strong>Terreno de juego:</strong> 50-65m x 30-45m</li>
+                    <li><i class="fas fa-futbol"></i> <strong>Balón:</strong> Tamaño 4 (sub-12) o 5 (sub-14 en adelante)</li>
+                    <li><i class="fas fa-arrows-alt-h"></i> <strong>Saque de banda:</strong> Con los pies</li>
+                    <li><i class="fas fa-exchange-alt"></i> <strong>Cambios:</strong> Ilimitados (re-entrada permitida)</li>
+                    <li><i class="fas fa-undo"></i> <strong>Fuera de juego:</strong> Se aplica (línea a mitad de campo)</li>
+                    <li><i class="fas fa-ban"></i> <strong>Rigor:</strong> Sin tackle fuerte, énfasis en formación</li>
+                </ul>
+            </section>
+
+            <!-- SECCIÓN 3: GUÍA RÁPIDA -->
+            <section class="help-section">
+                <h2><i class="fas fa-play-circle"></i> Cómo Usar el Marcador</h2>
+                
+                <div class="shortcuts">
+                    <div class="shortcut-item">
+                        <div class="shortcut-icon">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <div>
+                            <strong>Iniciar/Pausar</strong>
+                            <p>Controla el cronómetro principal</p>
+                        </div>
+                    </div>
+                    
+                    <div class="shortcut-item">
+                        <div class="shortcut-icon">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div>
+                            <strong>Añadir Gol</strong>
+                            <p>Botón + en cada equipo</p>
+                        </div>
+                    </div>
+                    
+                    <div class="shortcut-item">
+                        <div class="shortcut-icon">
+                            <i class="fas fa-user-alt"></i>
+                        </div>
+                        <div>
+                            <strong>Registrar Falta</strong>
+                            <p>Botón + en la sección de faltas</p>
+                        </div>
+                    </div>
+                    
+                    <div class="shortcut-item">
+                        <div class="shortcut-icon">
+                            <i class="fas fa-flag"></i>
+                        </div>
+                        <div>
+                            <strong>Córner/Saque</strong>
+                            <p>Botones + en córners y saques</p>
+                        </div>
+                    </div>
+                    
+                    <div class="shortcut-item">
+                        <div class="shortcut-icon">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                        <div>
+                            <strong>Tarjetas</strong>
+                            <p>Botones 🟨 y 🟥 para cada equipo</p>
+                        </div>
+                    </div>
+                    
+                    <div class="shortcut-item">
+                        <div class="shortcut-icon">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div>
+                            <strong>Editar Nombres</strong>
+                            <p>Haz clic en el nombre del equipo</p>
+                        </div>
+                    </div>
+                    
+                    <div class="shortcut-item">
+                        <div class="shortcut-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <strong>Estadísticas</strong>
+                            <p>Sección inferior para estadísticas avanzadas</p>
+                        </div>
+                    </div>
+                    
+                    <div class="shortcut-item">
+                        <div class="shortcut-icon">
+                            <i class="fas fa-save"></i>
+                        </div>
+                        <div>
+                            <strong>Guardar</strong>
+                            <p>Botón "Guardar Partido" al final</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 4: SISTEMA DE TARJETAS FIFA -->
+            <section class="help-section">
+                <h2><i class="fas fa-id-card"></i> Sistema de Tarjetas FIFA</h2>
+                <p>Sistema oficial de la FIFA para fútbol 7:</p>
+                
+                <div class="feature-grid">
+                    <div class="feature-card" style="border-left: 5px solid #f1c40f;">
+                        <h3><i class="fas fa-square" style="color: #f1c40f;"></i> Tarjeta Amarilla</h3>
+                        <p><strong>Amonestación</strong><br>
+                        Primera advertencia al jugador por conducta antideportiva</p>
+                    </div>
+                    
+                    <div class="feature-card" style="border-left: 5px solid #e74c3c;">
+                        <h3><i class="fas fa-square" style="color: #e74c3c;"></i> Tarjeta Roja</h3>
+                        <p><strong>Expulsión definitiva</strong><br>
+                        El jugador no vuelve. El equipo juega con uno menos.</p>
+                    </div>
+                </div>
+                
+                <h3 style="margin-top: 20px; color: #f39c12;">Combinaciones según reglamento FIFA:</h3>
+                <ul class="rules-list">
+                    <li><i class="fas fa-exclamation-triangle" style="color: #f1c40f;"></i> <strong>2 Amarillas = 1 Roja</strong> (Expulsión definitiva)</li>
+                    <li><i class="fas fa-exclamation-triangle" style="color: #e74c3c;"></i> <strong>Roja directa</strong> por falta grave o violencia</li>
+                    <li><i class="fas fa-user-minus"></i> Equipo con expulsado juega con un jugador menos</li>
+                    <li><i class="fas fa-history"></i> Las tarjetas se acumulan por torneo</li>
+                </ul>
+            </section>
+
+            <!-- SECCIÓN 5: PREGUNTAS FRECUENTES -->
+            <section class="help-section">
+                <h2><i class="fas fa-question"></i> Preguntas Frecuentes</h2>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3><i class="fas fa-redo"></i> ¿Cómo reinicio el partido?</h3>
+                        <p>Usa el botón circular con la flecha ↶ (reiniciar). Se te pedirá confirmación para evitar borrados accidentales.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="fas fa-trash"></i> ¿Cómo borro el historial?</h3>
+                        <p>En la sección de historial, pulsa "Borrar Historial". Esta acción no se puede deshacer.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="fas fa-cloud-download-alt"></i> ¿Se guarda automáticamente?</h3>
+                        <p>Sí, el marcador guarda automáticamente cada 30 segundos. También puedes guardar manualmente.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="fas fa-mobile-alt"></i> ¿Funciona sin internet?</h3>
+                        <p>Sí, es una PWA (Progressive Web App). Una vez cargada, funciona completamente offline.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- BOTÓN DE VOLVER -->
+            <div style="text-align: center; margin-top: 40px;">
+                <a href="index.html" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Volver al Marcador
+                </a>
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer>
+            <p>© 2025 Liga Escolar - Todos los derechos reservados</p>
+            <p class="footer-links">
+                <a href="https://www.ligaescolar.es/privacidad.html">Política de privacidad</a> |
+                <a href="#">Términos de uso</a> |
+                <a href="https://www.enfaseterminal.com/">Blog EnFaseTerminal</a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Google Analytics y Publicidad con consentimiento -->
+    <script src="../js/ads-analytics.js"></script>
+
+    <script src="../js/clock.js"></script>
+    <script>
+        // Inicializar reloj
+        function updateClock() {
+            const now = new Date();
+            const clock = document.getElementById('clock');
+            const date = document.getElementById('date');
+            
+            if (clock) {
+                clock.textContent = now.toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+            }
+            
+            if (date) {
+                date.textContent = now.toLocaleDateString('es-ES', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+        }
+        
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
+</body>
+</html>
