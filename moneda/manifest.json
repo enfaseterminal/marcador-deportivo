@@ -1,0 +1,32 @@
+{
+  "name": "Lanzador de Moneda - Liga Escolar",
+  "short_name": "Moneda LE",
+  "description": "Lanzador virtual de moneda al aire para cara o cruz",
+  "start_url": "/moneda/",
+  "display": "standalone",
+  "background_color": "#2c3e50",
+  "theme_color": "#34495e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/imagenes/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/imagenes/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["games", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Nuevo Lanzamiento",
+      "short_name": "Lanzar",
+      "description": "Realizar un nuevo lanzamiento de moneda",
+      "url": "/moneda/",
+      "icons": [{ "src": "/imagenes/icon-96x96.png", "sizes": "96x96" }]
+    }
+  ]
+}

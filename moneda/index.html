@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Google Analiticas y Publicidad con consentimiento -->
+    <script src="../js/ads-analytics.js"></script>
+    <!-- End Google Analiticas y Publicidad con consentimiento -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <title>Lanzador de Moneda Virtual | Liga Escolar</title>
+    <meta name="description" content="Lanzador virtual de moneda al aire para cara o cruz. Perfecto para toma de decisiones, juegos y actividades escolares.">
+    <link rel="canonical" href="https://www.ligaescolar.es/moneda/">
+
+    <meta property="og:title" content="Lanzador de Moneda Virtual - Liga Escolar">
+    <meta property="og:description" content="Lanza una moneda al aire virtualmente. Cara o cruz con animaciones y estadísticas.">
+    <meta property="og:url" content="https://www.ligaescolar.es/moneda/">
+    <meta property="og:image" content="https://www.ligaescolar.es/imagenes/og-moneda.png">
+    <meta property="og:type" content="website">
+
+    <!-- PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Moneda LE">
+    <link rel="apple-touch-icon" href="/imagenes/apple-touch-icon-180x180.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#34495e">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ESTILOS BASE -->
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/themes.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <!-- HEADER CON IMAGEN DE FONDO -->
+    <link rel="stylesheet" href="../css/header-with-bg.css">
+    <!-- Estilos específicos del lanzador de moneda -->
+    <link rel="stylesheet" href="../css/sport-specific/moneda.css">
+
+    <!-- Favicon -->
+    <link rel="icon" href="/imagenes/favicon.ico" type="image/x-icon">
+
+    <!-- Favicons PNG -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/imagenes/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/imagenes/favicon-16x16.png">
+
+    <!-- iOS -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/imagenes/apple-touch-icon-180x180.png">
+</head>
+<body class="theme-moneda">
+    <!-- Botón flotante de inicio -->
+    <a href="/" class="floating-home-btn" title="Volver al inicio">
+        <i class="fas fa-home"></i>
+    </a>
+
+    <!-- Botón flotante de ayuda -->
+    <a href="#" class="floating-help-btn" title="Ayuda y reglas" onclick="showHelp()">
+        <i class="fas fa-question-circle"></i>
+    </a>
+
+    <!-- Botón flotante para actualizar PWA -->
+    <button id="pwa-update-btn" class="floating-pwa-btn" title="Actualizar aplicación">
+        <i class="fas fa-sync-alt"></i>
+    </button>
+
+    <div class="container">
+        <header class="app-header">
+            <!-- Imagen de fondo -->
+            <div class="header-bg">
+                <img src="/imagenes/pizarra.png" alt="Fondo pizarra deportiva" class="header-bg-image">
+            </div>
+
+            <!-- Contenido sobre la imagen -->
+            <div class="header-content">
+                <div class="header-left">
+                    <h1><i class="fas fa-coins"></i> Lanzador de Moneda</h1>
+                    <p class="subtitle">Cara o cruz virtual para toma de decisiones</p>
+                </div>
+                <div class="header-right">
+                    <div class="clock-container">
+                        <div id="clock">00:00:00</div>
+                        <div id="date">--/--/----</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="welcome-section">
+                <h2><i class="fas fa-magic"></i> Lanzador de Moneda Virtual</h2>
+                <p class="description">
+                    ¿Cara o cruz? Usa este lanzador virtual para tomar decisiones de forma divertida.
+                    Perfecto para juegos, actividades escolares y resolver debates.
+                </p>
+            </div>
+
+            <!-- Contenedor principal de la moneda -->
+            <div class="coin-container">
+                <div class="coin-display">
+                    <div class="coin show-heads">
+                        <div class="coin-face coin-heads">👑</div>
+                        <div class="coin-face coin-tails">💰</div>
+                    </div>
+                </div>
+
+                <!-- Resultado del lanzamiento -->
+                <div class="result-display">
+                    <div class="result-text"></div>
+                </div>
+
+                <!-- Controles de lanzamiento -->
+                <div class="flip-controls">
+                    <button class="flip-btn" id="flip-btn">
+                        <i class="fas fa-magic"></i> LANZAR MONEDA
+                    </button>
+                </div>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-flips">0</div>
+                    <div class="stat-label">Total Lanzamientos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="heads-count">0</div>
+                    <div class="stat-label">Caras <span id="heads-percent">0%</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="tails-count">0</div>
+                    <div class="stat-label">Cruces <span id="tails-percent">0%</span></div>
+                </div>
+            </div>
+
+            <!-- Historial de lanzamientos -->
+            <div class="history-container">
+                <h3 class="history-title"><i class="fas fa-history"></i> Últimos Lanzamientos</h3>
+                <div class="history-list">
+                    <!-- Los elementos del historial se generan dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Panel de configuración -->
+            <div class="settings-panel">
+                <h3 class="settings-title"><i class="fas fa-cog"></i> Configuración</h3>
+
+                <div class="setting-group">
+                    <span class="setting-label"><i class="fas fa-volume-up"></i> Sonido</span>
+                    <div class="toggle-switch active" data-setting="sound"></div>
+                </div>
+
+                <div class="setting-group">
+                    <span class="setting-label"><i class="fas fa-mobile-alt"></i> Vibración</span>
+                    <div class="toggle-switch active" data-setting="vibration"></div>
+                </div>
+
+                <div class="setting-group">
+                    <button class="btn btn-secondary" id="reset-btn">
+                        <i class="fas fa-trash"></i> Resetear Estadísticas
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/clock.js"></script>
+    <script src="../js/celebrate.js"></script>
+    <script src="../js/storage.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/modal-manager.js"></script>
+    <script src="../js/moneda.js"></script>
+
+    <!-- Registro del Service Worker para PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js')
+                    .then(function(registration) {
+                        console.log('Service Worker registrado con éxito:', registration);
+                    })
+                    .catch(function(error) {
+                        console.log('Error al registrar el Service Worker:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
