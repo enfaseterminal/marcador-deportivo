@@ -359,6 +359,43 @@ function initCommonEventListeners() {
     console.log('Common event listeners inicializados');
 }
 
+// Función para mostrar ayuda
+function showHelp() {
+    const helpModal = document.createElement('div');
+    helpModal.id = 'help-modal';
+    helpModal.className = 'modal';
+    helpModal.innerHTML = `
+        <div class="modal-content">
+            <h2><i class="fas fa-question-circle"></i> Ayuda y Reglas</h2>
+            <div style="text-align: left; line-height: 1.6;">
+                <p><strong>Instrucciones básicas:</strong></p>
+                <ul>
+                    <li>Haz clic en los nombres de los equipos para cambiarlos</li>
+                    <li>Usa los botones + y - para modificar las puntuaciones</li>
+                    <li>Los partidos se guardan automáticamente</li>
+                    <li>Revisa el historial para ver partidos anteriores</li>
+                </ul>
+                <p><strong>Reglas específicas del deporte:</strong></p>
+                <p>Consulta las reglas oficiales en la normativa correspondiente a tu deporte.</p>
+                <p><strong>Soporte:</strong> Para más ayuda, contacta con el administrador de la Liga Escolar.</p>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="closeHelpModal()">Cerrar</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(helpModal);
+    helpModal.style.display = 'flex';
+}
+
+// Función para cerrar el modal de ayuda
+function closeHelpModal() {
+    const helpModal = document.getElementById('help-modal');
+    if (helpModal) {
+        helpModal.remove();
+    }
+}
+
 // Exportar funciones
 window.common = {
     showNotification,
@@ -376,6 +413,8 @@ window.common = {
     openShareCurrentModal,
     openShareHistoryModal,
     toggleShareContent,
+    showHelp,
+    closeHelpModal,
     initCommonEventListeners,
     initialized: false // Bandera para evitar inicialización duplicada
 };
