@@ -1,6 +1,16 @@
 /* dados.css - VERSIÓN COMPLETA OPTIMIZADA PARA MÓVILES */
 /* Estilos específicos para el simulador de dados con configuración individual */
 
+/* Estilos base para consistencia con otras aplicaciones */
+body {
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
 /* Panel de configuración */
 .config-grid {
     display: grid;
@@ -888,6 +898,17 @@
     
     .btn:active {
         transform: scale(0.98);
+    }
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    body {
+        padding: 15px;
+    }
+    
+    .container {
+        margin: 0;
     }
 }
 
