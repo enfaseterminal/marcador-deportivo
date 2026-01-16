@@ -1,0 +1,32 @@
+{
+  "name": "Marcador de Baloncesto - Liga Escolar",
+  "short_name": "Baloncesto LE",
+  "description": "Marcador digital para partidos de baloncesto con control de cuartos, puntos, faltas y tiempos",
+  "start_url": "/baloncesto/",
+  "display": "standalone",
+  "background_color": "#2c3e50",
+  "theme_color": "#e74c3c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/imagenes/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/imagenes/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["sports", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Nuevo Partido",
+      "short_name": "Nuevo",
+      "description": "Comenzar un nuevo partido de baloncesto",
+      "url": "/baloncesto/",
+      "icons": [{ "src": "/imagenes/icon-96x96.png", "sizes": "96x96" }]
+    }
+  ]
+}

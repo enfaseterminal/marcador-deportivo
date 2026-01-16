@@ -339,6 +339,18 @@ function initCommonEventListeners() {
     if (closeShareBtn) closeShareBtn.addEventListener('click', closeShareModal);
     if (shareHistoryModalBtn) shareHistoryModalBtn.addEventListener('click', toggleShareContent);
     
+    // PWA
+    const pwaUpdateBtn = document.getElementById('pwa-update-btn');
+    if (pwaUpdateBtn) {
+        pwaUpdateBtn.addEventListener('click', updatePWA);
+    }
+    
+    // Inicializar PWA si no está ya inicializado
+    if (!window.pwaInitialized) {
+        initPWA();
+        window.pwaInitialized = true;
+    }
+    
     // Ubicación
     const saveLocationBtn = document.getElementById('save-location');
     const matchLocationInput = document.getElementById('match-location-input');
@@ -396,6 +408,54 @@ function closeHelpModal() {
     }
 }
 
+// Función para actualizar PWA
+function updatePWA() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+            registrations.forEach(reg => {
+                if (reg.waiting) {
+                    reg.waiting.postMessage('skipWaiting');
+                }
+            });
+        });
+        
+        // Recargar la página después de un breve delay
+        setTimeout(() => {
+            window.location.reload();
+        }, 100);
+    }
+}
+
+// Función para inicializar PWA
+function initPWA() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('../sw.js')
+            .then(reg => {
+                console.log('Service Worker registrado:', reg);
+                
+                // Verificar actualizaciones
+                reg.addEventListener('updatefound', () => {
+                    const newWorker = reg.installing;
+                    console.log('Nueva versión del Service Worker encontrada');
+                    
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            // Nueva versión disponible
+                            showNotification('¡Nueva versión disponible!', 'info');
+                            
+                            // Mostrar botón de actualización
+                            const updateBtn = document.getElementById('pwa-update-btn');
+                            if (updateBtn) {
+                                updateBtn.style.display = 'flex';
+                            }
+                        }
+                    });
+                });
+            })
+            .catch(err => console.log('Error SW:', err));
+    }
+}
+
 // Exportar funciones
 window.common = {
     showNotification,
@@ -415,6 +475,8 @@ window.common = {
     toggleShareContent,
     showHelp,
     closeHelpModal,
+    updatePWA,
+    initPWA,
     initCommonEventListeners,
     initialized: false // Bandera para evitar inicialización duplicada
 };

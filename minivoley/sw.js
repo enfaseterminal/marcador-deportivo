@@ -1,22 +1,25 @@
-const CACHE_NAME = 'impostor-v1';
+const CACHE_NAME = 'minivoley-v1';
 const ASSETS_TO_CACHE = [
-  '/impostor/',
-  '/impostor/index.html',
-  '/impostor/game.html',
+  '/minivoley/',
+  '/minivoley/index.html',
+  '/minivoley/manifest.json',
   // CSS
   '../css/base.css',
   '../css/themes.css',
   '../css/layout.css',
   '../css/components.css',
   '../css/header-with-bg.css',
-  '../css/sport-specific/impostor.css',
+  '../css/sport-specific/minivoley.css',
   // JS
   '../js/common.js',
+  '../js/match-core.js',
   '../js/storage.js',
-  '../js/impostor.js',
-  '../js/impostor-data.js',
-  '../js/impostor-storage.js',
+  '../js/minivoley.js',
   '../js/ads-analytics.js',
+  '../js/clock.js',
+  '../js/celebrate.js',
+  '../js/modal-manager.js',
+  '../js/score-manager.js',
   // Imágenes
   '../imagenes/pizarra.png',
   '../imagenes/favicon.ico',
@@ -26,11 +29,11 @@ const ASSETS_TO_CACHE = [
 
 // Instalación
 self.addEventListener('install', (event) => {
-  console.log('Service Worker Impostor: Instalando...');
+  console.log('Service Worker Minivoley: Instalando...');
 
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('Service Worker: Cacheando archivos de impostor');
+      console.log('Service Worker: Cacheando archivos de minivoley');
       return cache.addAll(ASSETS_TO_CACHE);
     }).then(() => {
       console.log('Service Worker: Instalación completada');
@@ -41,7 +44,7 @@ self.addEventListener('install', (event) => {
 
 // Activación
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker Impostor: Activando...');
+  console.log('Service Worker Minivoley: Activando...');
 
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -90,7 +93,7 @@ self.addEventListener('fetch', (event) => {
       .catch(() => {
         // Offline fallback
         if (event.request.destination === 'document') {
-          return caches.match('/impostor/index.html');
+          return caches.match('/minivoley/index.html');
         }
       })
   );

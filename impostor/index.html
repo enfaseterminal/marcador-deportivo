@@ -21,7 +21,15 @@
     
     <!-- Estilos específicos del impostor -->
     <link rel="stylesheet" href="../css/sport-specific/impostor.css">
-    
+
+    <!-- PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Impostor LE">
+    <link rel="apple-touch-icon" href="/imagenes/apple-touch-icon-180x180.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#e74c3c">
+
     <style>
         /* Tema impostor */
         :root {
@@ -394,6 +402,21 @@
                   '5. ¡Inicia la partida!\n\n' +
                   'Recuerda: Todos juegan, nadie conoce los roles de los demás.');
         });
+    </script>
+
+    <!-- Registro del Service Worker para PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js')
+                    .then(function(registration) {
+                        console.log('Service Worker registrado con éxito:', registration);
+                    })
+                    .catch(function(error) {
+                        console.log('Error al registrar el Service Worker:', error);
+                    });
+            });
+        }
     </script>
 </body>
 </html>
