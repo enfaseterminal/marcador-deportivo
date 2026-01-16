@@ -45,6 +45,45 @@
 
     <!-- iOS -->
     <link rel="apple-touch-icon" sizes="180x180" href="/imagenes/apple-touch-icon-180x180.png">
+
+    <style>
+        /* Estilos críticos para evitar FOUC */
+        body {
+            background: linear-gradient(135deg, #2c3e50, #34495e, #7f8c8d);
+            color: #ecf0f1;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+
+        /* Espaciado consistente con otras aplicaciones */
+        .welcome-section {
+            margin-bottom: 30px;
+        }
+        
+        /* Padding interno para el contenido */
+        .container > *:not(header) {
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .container {
+                padding: 0;
+            }
+        }
+    </style>
 </head>
 <body class="theme-moneda">
     <!-- Botón flotante de inicio -->

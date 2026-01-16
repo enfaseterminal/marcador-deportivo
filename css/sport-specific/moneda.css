@@ -1,16 +1,6 @@
 /* moneda.css - Estilos para el lanzador de moneda virtual */
 /* Versión completa optimizada para móviles */
 
-/* Estilos base para consistencia con otras aplicaciones */
-body {
-    padding: 20px;
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
 /* Contenedor principal de la moneda */
 .coin-container {
     display: flex;
@@ -322,10 +312,6 @@ body {
 
 /* Responsive general para móviles */
 @media (max-width: 768px) {
-    body {
-        padding: 15px;
-    }
-
     .container {
         margin: 0;
     }

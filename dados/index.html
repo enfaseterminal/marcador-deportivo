@@ -47,6 +47,43 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/imagenes/apple-touch-icon-180x180.png">
 
     <style>
+        /* Estilos críticos para evitar FOUC */
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #ecf0f1;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+
+        /* Espaciado consistente con otras aplicaciones */
+        .welcome-section {
+            margin-bottom: 30px;
+        }
+        
+        /* Padding interno para el contenido */
+        .container > *:not(header) {
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .container {
+                padding: 0;
+            }
+        }
+
         .dice-animation {
             animation: diceRoll 1s ease-out;
         }
@@ -106,8 +143,7 @@
             </div>
         </header>
 
-        <div class="main-content">
-            <div class="welcome-section">
+        <div class="welcome-section">
                 <h2><i class="fas fa-gamepad"></i> Simulador de Dados Virtual</h2>
                 <p class="description">
                     ¿No tienes dados físicos? ¡No hay problema! Usa este simulador para lanzar dados virtuales.
